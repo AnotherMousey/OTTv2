@@ -40,11 +40,19 @@ function isNeighbor(fromSquare, toSquare) {
 }
 
 function resolveBattle(attackerType, defenderType) {
+  // Same type cannot capture each other.
   if (attackerType === defenderType) {
-    return 'both';
+    return 'blocked';
   }
 
-  return PIECE_BEATS[attackerType] === defenderType ? 'attacker' : 'defender';
+  // Rock > Scissors
+  // Scissors > Paper
+  // Paper > Rock
+  if (PIECE_BEATS[attackerType] === defenderType) {
+    return 'attacker';
+  }
+
+  return 'defender';
 }
 
 function rotateBoard180(board) {
