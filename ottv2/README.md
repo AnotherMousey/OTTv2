@@ -19,9 +19,13 @@ npm.cmd run dev
 ```
 
 Open the Vite URL shown in the terminal, normally `http://localhost:5173`.
-Use `?color=black` to view the board from Black's rotated perspective; without it,
-the frontend opens as White. The Vite proxy forwards `/api` and `/health` to
-`http://localhost:3000`.
+On the lobby screen, click **Create room** to receive a room code. Share that code
+with the second player, who enters it into **Join room**. The creator is assigned
+White and the joining player is assigned Black automatically.
+
+The frontend also supports direct URLs such as
+`http://localhost:5173/?room=OTT-ABCDE&color=black`. The Vite proxy forwards `/api`
+and `/health` to `http://localhost:3000`.
 
 ## Original Vite notes
 

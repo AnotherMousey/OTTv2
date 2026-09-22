@@ -26,7 +26,49 @@ function parseJsonBody(req) {
   });
 }
 
-const game = new GameEngine();
+const rooms = new Map();
+
+function normalizeRoomId(value) {
+  return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20);
+}
+
+function createRoomId() {
+  let roomId;
+  do {
+    roomId = `OTT-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+  } while (rooms.has(roomId));
+  return roomId;
+}
+
+function createRoom() {
+  const roomId = createRoomId();
+  const room = {
+    id: roomId,
+    game: new GameEngine(),
+    players: { white: true, black: false },
+  };
+  rooms.set(roomId, room);
+  return room;
+}
+
+function getRoom(roomId) {
+  const normalized = normalizeRoomId(roomId);
+  if (!normalized) {
+    throw new Error('Room code is required.');
+  }
+
+  const room = rooms.get(normalized);
+  if (!room) {
+    throw new Error('Room not found. Check the room code.');
+  }
+  return room;
+}
+
+function getState(room, color = 'white') {
+  return room.game.getPublicState(color);
+}
+
+const demoRoom = createRoom();
 
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
@@ -37,18 +79,49 @@ const server = http.createServer(async (req, res) => {
   };
 
   try {
+    if (req.method === 'POST' && url.pathname === '/api/rooms/create') {
+      const room = createRoom();
+      sendJson(201, {
+        message: 'Room created.',
+        roomId: room.id,
+        color: 'white',
+        state: getState(room, 'white'),
+      });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/rooms/join') {
+      const body = await parseJsonBody(req);
+      const room = getRoom(body.roomId);
+
+      if (room.players.black) {
+        throw new Error('This room already has two players.');
+      }
+
+      room.players.black = true;
+      sendJson(200, {
+        message: 'Room joined.',
+        roomId: room.id,
+        color: 'black',
+        state: getState(room, 'black'),
+      });
+      return;
+    }
+
     if (req.method === 'GET' && url.pathname === '/api/game/state') {
       const perspective = (url.searchParams.get('view') || 'white').toLowerCase();
       if (!['white', 'black'].includes(perspective)) {
         throw new Error('view must be white or black.');
       }
-      sendJson(200, game.getPublicState(perspective));
+      const room = url.searchParams.get('room') ? getRoom(url.searchParams.get('room')) : demoRoom;
+      sendJson(200, getState(room, perspective));
       return;
     }
 
     if (req.method === 'POST' && url.pathname === '/api/game/new') {
-      game.reset();
-      sendJson(200, { message: 'New game started.', state: game.getPublicState() });
+      const room = url.searchParams.get('room') ? getRoom(url.searchParams.get('room')) : demoRoom;
+      room.game.reset();
+      sendJson(200, { message: 'New game started.', state: getState(room) });
       return;
     }
 
@@ -60,22 +133,24 @@ const server = http.createServer(async (req, res) => {
         throw new Error('Both from and to coordinates are required.');
       }
 
-      const updatedState = game.movePiece(from, to);
+      const room = body.roomId ? getRoom(body.roomId) : demoRoom;
+      const updatedState = room.game.movePiece(from, to);
       sendJson(200, { message: 'Move accepted.', state: updatedState });
       return;
     }
 
     if (req.method === 'POST' && url.pathname === '/api/game/forfeit') {
       const body = await parseJsonBody(req);
-      const color = (body.color || game.currentTurn || 'white').toLowerCase();
+      const room = body.roomId ? getRoom(body.roomId) : demoRoom;
+      const color = (body.color || room.game.currentTurn || 'white').toLowerCase();
 
       if (!['white', 'black'].includes(color)) {
         throw new Error('Color must be white or black.');
       }
 
-      game.status = 'finished';
-      game.winner = color === 'white' ? 'black' : 'white';
-      sendJson(200, { message: `${color} forfeited.`, state: game.getPublicState(color) });
+      room.game.status = 'finished';
+      room.game.winner = color === 'white' ? 'black' : 'white';
+      sendJson(200, { message: `${color} forfeited.`, state: getState(room, color) });
       return;
     }
 
@@ -90,4 +165,4 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-module.exports = { server, game };
+module.exports = { server, rooms };

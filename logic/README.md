@@ -24,14 +24,17 @@ This folder contains the backend logic for a 2-player Rock/Paper/Scissors-style 
   - `black` wins by reaching square `a1`.
   - `white` wins by reaching square `i9`.
   - A player loses if they have zero pieces remaining.
-  - Timers: each player has a 5-minute clock; if a player's clock reaches zero they lose.
+  - Timers: each player has a 5-minute clock. Both clocks stay at 5:00 before White's first move; after White moves, the clock for the side to move starts. If a player's clock reaches zero they lose.
 
 **API Endpoints**
 
+- `POST /api/rooms/create` — creates a unique room code and assigns the creator `white`.
+- `POST /api/rooms/join` — body `{ "roomId": "OTT-ABCDE" }`; joins an existing room as `black`.
 - `GET /api/game/state?view=white|black` — returns public state from requested perspective (defaults to `white`).
+- Add `room=ROOM_CODE` to state requests to read a specific room.
 - `POST /api/game/new` — resets and starts a new game. Returns the initial state.
-- `POST /api/game/move` — body `{ "from": "a9", "to": "b8" }`. Applies a move and returns updated state or an error.
-- `POST /api/game/forfeit` — body `{ "color": "white" }`. Ends the game and awards win to the opponent.
+- `POST /api/game/move` — body `{ "roomId": "OTT-ABCDE", "from": "a9", "to": "b8" }`.
+- `POST /api/game/forfeit` — body `{ "roomId": "OTT-ABCDE", "color": "white" }`.
 - `GET /health` — simple health check.
 
 **State Shape (important fields)**

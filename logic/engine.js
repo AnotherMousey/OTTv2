@@ -12,6 +12,7 @@ class GameEngine {
     this.whiteTimeMs = STARTING_TIME_MS;
     this.blackTimeMs = STARTING_TIME_MS;
     this.turnStartedAt = Date.now();
+    this.clockStarted = false;
     this.status = 'active';
     this.winner = null;
     this.history = [];
@@ -205,12 +206,13 @@ class GameEngine {
       return;
     }
 
+    this.clockStarted = true;
     this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
     this.turnStartedAt = Date.now();
   }
 
   syncTimers() {
-    if (this.status !== 'active') {
+    if (this.status !== 'active' || !this.clockStarted) {
       return;
     }
 

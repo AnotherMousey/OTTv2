@@ -11,11 +11,15 @@ function getPerspective() {
     : PLAYERS.ONE;
 }
 
+function getRoomId() {
+  return new URLSearchParams(window.location.search).get("room")?.toUpperCase() || "";
+}
+
 function coordinateToPosition(square) {
   return { row: Number(square.slice(1)), col: FILES.indexOf(square[0]) };
 }
 
-function toGameData(state) {
+function toGameData(state, roomId) {
   const pieces = {};
   state.board.flat().forEach((piece) => {
     if (!piece) return;
@@ -29,7 +33,7 @@ function toGameData(state) {
 
   const lastMove = state.history.at(-1);
   return {
-    roomId: "OTT-BACKEND",
+    roomId,
     status: state.status === "active" ? "playing" : "finished",
     players: { player1: { name: "White" }, player2: { name: "Black" } },
     turn: state.currentTurn,
@@ -58,8 +62,8 @@ function formatHistoryEntry(move, index) {
   return `${index + 1}. ${move.player} ${move.piece}: ${move.from} → ${move.to} (${result})`;
 }
 
-async function requestState(perspective) {
-  const response = await fetch(`/api/game/state?view=${perspective}`);
+async function requestState(roomId, perspective) {
+  const response = await fetch(`/api/game/state?room=${encodeURIComponent(roomId)}&view=${perspective}`);
   const payload = await response.json();
   if (!response.ok) throw new Error(payload.error || "Could not load game state.");
   return payload;
@@ -67,6 +71,7 @@ async function requestState(perspective) {
 
 export default function SharedGame() {
   const role = getPerspective();
+  const roomId = getRoomId();
   const [game, setGame] = useState(null);
   const [error, setError] = useState("");
 
@@ -75,9 +80,9 @@ export default function SharedGame() {
 
     async function loadState() {
       try {
-        const state = await requestState(role);
+        const state = await requestState(roomId, role);
         if (cancelled) return;
-        setGame(toGameData(state));
+        setGame(toGameData(state, roomId));
         setError("");
       } catch (requestError) {
         if (!cancelled) setError(requestError.message);
@@ -90,7 +95,7 @@ export default function SharedGame() {
       cancelled = true;
       window.clearInterval(timer);
     };
-  }, [role]);
+  }, [role, roomId]);
 
   const online = useMemo(() => ({ white: true, black: true }), []);
 
@@ -100,31 +105,31 @@ export default function SharedGame() {
     const response = await fetch("/api/game/move", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ from: piece.square, to }),
+      body: JSON.stringify({ roomId, from: piece.square, to }),
     });
     const payload = await response.json();
     if (!response.ok) {
       setError(payload.error || "Move rejected.");
       return;
     }
-    setGame(toGameData(payload.state));
+    setGame(toGameData(payload.state, roomId));
     setError("");
   }
 
   async function resetGame() {
-    const response = await fetch("/api/game/new", { method: "POST" });
+    const response = await fetch(`/api/game/new?room=${encodeURIComponent(roomId)}`, { method: "POST" });
     const payload = await response.json();
-    setGame(toGameData(payload.state));
+    setGame(toGameData(payload.state, roomId));
   }
 
   async function resign() {
     const response = await fetch("/api/game/forfeit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ color: role }),
+      body: JSON.stringify({ roomId, color: role }),
     });
     const payload = await response.json();
-    setGame(toGameData(payload.state));
+    setGame(toGameData(payload.state, roomId));
   }
 
   if (!game) return <div className="loading-screen">{error || "Connecting to OTT backend…"}</div>;
@@ -133,7 +138,7 @@ export default function SharedGame() {
     <main id="ottv2-game-shell" className="game-page">
       <header className="game-header">
         <div><div className="brand-mark brand-mark--small">OTT<span>V2</span></div><p>Backend-connected strategy match</p></div>
-        <div className="header-room">Play as <strong>{role}</strong> · Room <strong>{game.roomId}</strong></div>
+        <div className="header-room">Play as <strong>{role}</strong> · Room <strong>{roomId}</strong></div>
       </header>
       {error && <p className="error-banner">{error}</p>}
       <div className="game-layout">
