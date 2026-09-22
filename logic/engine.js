@@ -20,20 +20,41 @@ class GameEngine {
   }
 
   initializeBoard() {
-    const whiteSetup = [
-      { square: 'a9', type: 'paper' },
-      { square: 'b8', type: 'rock' },
-      { square: 'c7', type: 'scissors' },
-    ];
-    const blackSetup = [
-      { square: 'i1', type: 'paper' },
-      { square: 'h2', type: 'rock' },
-      { square: 'g3', type: 'scissors' },
-    ];
+  // White starts near the bottom-left.
+  // White's target is i9.
+  const whiteSetup = [
+    { square: 'b1', type: 'rock' },
+    { square: 'c1', type: 'paper' },
+    { square: 'd1', type: 'scissors' },
 
-    this.placePieces('white', whiteSetup);
-    this.placePieces('black', blackSetup);
-  }
+    { square: 'b2', type: 'paper' },
+    { square: 'c2', type: 'scissors' },
+    { square: 'd2', type: 'rock' },
+
+    { square: 'b3', type: 'scissors' },
+    { square: 'c3', type: 'rock' },
+    { square: 'd3', type: 'paper' },
+  ];
+
+  // Black setup is mirrored on the opposite side.
+  // Black's target is a1.
+  const blackSetup = [
+    { square: 'f7', type: 'paper' },
+    { square: 'g7', type: 'rock' },
+    { square: 'h7', type: 'scissors' },
+
+    { square: 'f8', type: 'rock' },
+    { square: 'g8', type: 'scissors' },
+    { square: 'h8', type: 'paper' },
+
+    { square: 'f9', type: 'scissors' },
+    { square: 'g9', type: 'paper' },
+    { square: 'h9', type: 'rock' },
+  ];
+
+  this.placePieces('white', whiteSetup);
+  this.placePieces('black', blackSetup);
+}
 
   placePieces(color, entries) {
     entries.forEach(({ square, type }, index) => {
