@@ -10,6 +10,8 @@ Trò chơi gồm 2 người chơi trên bàn cờ 9x9. Mỗi quân cờ được
 
 Project được thực hiện cho bài tập môn học.
 
+Đường dẫn đến trang web: https://ottv2.onrender.com/
+
 ---
 
 ## 2. Luật chơi
