@@ -1,295 +1,52 @@
-const { BOARD_SIZE, STARTING_TIME_MS } = require('./constants');
-const { squareToIndex, rotateBoard180, isNeighbor, resolveBattle } = require('./utils');
+const outcome = resolveBattle(piece.type, target.type);
 
-class GameEngine {
-  constructor() {
-    this.reset();
-  }
-
-  reset() {
-    this.board = Array.from({ length: BOARD_SIZE }, () => Array(BOARD_SIZE).fill(null));
-    this.currentTurn = 'white';
-    this.whiteTimeMs = STARTING_TIME_MS;
-    this.blackTimeMs = STARTING_TIME_MS;
-    this.turnStartedAt = Date.now();
-    this.clockStarted = false;
-    this.status = 'active';
-    this.winner = null;
-    this.history = [];
-    this.initializeBoard();
-  }
-
-  initializeBoard() {
-  // White starts near the bottom-left.
-  // White's target is i9.
-  const whiteSetup = [
-    { square: 'b1', type: 'rock' },
-    { square: 'c1', type: 'paper' },
-    { square: 'd1', type: 'scissors' },
-
-    { square: 'b2', type: 'paper' },
-    { square: 'c2', type: 'scissors' },
-    { square: 'd2', type: 'rock' },
-
-    { square: 'b3', type: 'scissors' },
-    { square: 'c3', type: 'rock' },
-    { square: 'd3', type: 'paper' },
-  ];
-
-  // Black setup is mirrored on the opposite side.
-  // Black's target is a1.
-  const blackSetup = [
-    { square: 'f7', type: 'paper' },
-    { square: 'g7', type: 'rock' },
-    { square: 'h7', type: 'scissors' },
-
-    { square: 'f8', type: 'rock' },
-    { square: 'g8', type: 'scissors' },
-    { square: 'h8', type: 'paper' },
-
-    { square: 'f9', type: 'scissors' },
-    { square: 'g9', type: 'paper' },
-    { square: 'h9', type: 'rock' },
-  ];
-
-  this.placePieces('white', whiteSetup);
-  this.placePieces('black', blackSetup);
+// Same type cannot capture each other.
+// Nothing changes and the turn stays the same.
+if (outcome === 'blocked') {
+  throw new Error(
+    `${piece.type} cannot capture another ${target.type}.`
+  );
 }
 
-  placePieces(color, entries) {
-    entries.forEach(({ square, type }, index) => {
-      const pos = squareToIndex(square);
+const winnerPiece =
+  outcome === 'attacker'
+    ? piece
+    : target;
 
-      if (!pos) {
-        throw new Error(`Invalid deployment square: ${square}`);
-      }
+// Attacker leaves its original square.
+this.board[fromPos.row][fromPos.col] = null;
 
-      this.board[pos.row][pos.col] = {
-        id: `${color}-${type}-${index}`,
-        color,
-        type,
-        square,
-      };
-    });
-  }
+// If attacker wins, attacker occupies the destination.
+// If defender wins, defender remains on the destination.
+this.board[toPos.row][toPos.col] = {
+  ...winnerPiece,
+  square: toSquare,
+};
 
-  snapshotBoard() {
-    return this.board.map((row) => row.map((cell) => (cell ? { ...cell } : null)));
-  }
+moveRecord.result = outcome;
+this.history.push(moveRecord);
 
-  countPieces(color) {
-    let count = 0;
-    for (const row of this.board) {
-      for (const cell of row) {
-        if (cell && cell.color === color) {
-          count += 1;
-        }
-      }
-    }
-    return count;
-  }
+this.checkWinAfterMove(
+  toSquare,
+  winnerPiece.color,
+  moveRecord
+);
 
-  getPiece(square) {
-    const pos = squareToIndex(square);
-    if (!pos) {
-      return null;
-    }
+const whiteLeft = this.countPieces('white');
+const blackLeft = this.countPieces('black');
 
-    return this.board[pos.row][pos.col];
-  }
-
-  movePiece(fromSquare, toSquare) {
-    this.syncTimers();
-
-    if (this.status !== 'active') {
-      throw new Error('The game is already finished.');
-    }
-
-    const fromPos = squareToIndex(fromSquare);
-    const toPos = squareToIndex(toSquare);
-
-    if (!fromPos || !toPos) {
-      throw new Error('Square is outside the board.');
-    }
-
-    const piece = this.board[fromPos.row][fromPos.col];
-    if (!piece) {
-      throw new Error(`No piece at ${fromSquare}.`);
-    }
-
-    if (piece.color !== this.currentTurn) {
-      throw new Error(`It is ${this.currentTurn}'s turn.`);
-    }
-
-    if (!isNeighbor(fromSquare, toSquare)) {
-      throw new Error('Pieces move exactly one step in any direction.');
-    }
-
-    const target = this.board[toPos.row][toPos.col];
-    if (target && target.color === piece.color) {
-      throw new Error('You cannot move onto your own piece.');
-    }
-
-    const moveRecord = {
-      from: fromSquare,
-      to: toSquare,
-      player: piece.color,
-      piece: piece.type,
-      target: target ? target.type : null,
-      timestamp: new Date().toISOString(),
-    };
-
-    if (!target) {
-      this.board[fromPos.row][fromPos.col] = null;
-      this.board[toPos.row][toPos.col] = { ...piece, square: toSquare };
-      this.history.push(moveRecord);
-      this.checkWinAfterMove(toSquare, piece.color, moveRecord);
-      this.afterTurn();
-      return this.getPublicState();
-    }
-
-    const outcome = resolveBattle(piece.type, target.type);
-
-    if (outcome === 'both') {
-      // both pieces of same type are removed from board
-      this.board[fromPos.row][fromPos.col] = null;
-      this.board[toPos.row][toPos.col] = null;
-
-      moveRecord.result = 'both';
-      this.history.push(moveRecord);
-
-      const whiteLeftBoth = this.countPieces('white');
-      const blackLeftBoth = this.countPieces('black');
-
-      if (whiteLeftBoth === 0) {
-        this.status = 'finished';
-        this.winner = 'black';
-        return this.getPublicState();
-      }
-
-      if (blackLeftBoth === 0) {
-        this.status = 'finished';
-        this.winner = 'white';
-        return this.getPublicState();
-      }
-
-      this.afterTurn();
-      return this.getPublicState();
-    }
-
-    const winnerPiece = outcome === 'attacker' ? piece : target;
-
-    // remove the origin piece
-    this.board[fromPos.row][fromPos.col] = null;
-
-    // place the winner on the destination
-    this.board[toPos.row][toPos.col] = { ...winnerPiece, square: toSquare };
-
-    moveRecord.result = outcome;
-    this.history.push(moveRecord);
-
-    this.checkWinAfterMove(toSquare, winnerPiece.color, moveRecord);
-
-    const whiteLeft = this.countPieces('white');
-    const blackLeft = this.countPieces('black');
-
-    if (whiteLeft === 0) {
-      this.status = 'finished';
-      this.winner = 'black';
-      return this.getPublicState();
-    }
-
-    if (blackLeft === 0) {
-      this.status = 'finished';
-      this.winner = 'white';
-      return this.getPublicState();
-    }
-
-    this.afterTurn();
-    return this.getPublicState();
-  }
-
-  checkWinAfterMove(square, color, moveRecord) {
-    if (this.status !== 'active') {
-      return;
-    }
-
-    if ((color === 'black' && square === 'a1') || (color === 'white' && square === 'i9')) {
-      this.status = 'finished';
-      this.winner = color;
-      moveRecord.result = moveRecord.result || 'goal';
-      return;
-    }
-  }
-
-  afterTurn() {
-    if (this.status !== 'active') {
-      return;
-    }
-
-    this.clockStarted = true;
-    this.currentTurn = this.currentTurn === 'white' ? 'black' : 'white';
-    this.turnStartedAt = Date.now();
-  }
-
-  syncTimers() {
-    if (this.status !== 'active' || !this.clockStarted) {
-      return;
-    }
-
-    const now = Date.now();
-    const elapsed = now - this.turnStartedAt;
-
-    if (this.currentTurn === 'white') {
-      this.whiteTimeMs = Math.max(0, this.whiteTimeMs - elapsed);
-    } else {
-      this.blackTimeMs = Math.max(0, this.blackTimeMs - elapsed);
-    }
-
-    this.turnStartedAt = now;
-
-    if (this.whiteTimeMs <= 0) {
-      this.status = 'finished';
-      this.winner = 'black';
-      return;
-    }
-
-    if (this.blackTimeMs <= 0) {
-      this.status = 'finished';
-      this.winner = 'white';
-      return;
-    }
-  }
-
-  getBoardForPlayer(color) {
-    if (!color || color === 'white') {
-      return this.snapshotBoard();
-    }
-
-    return rotateBoard180(this.snapshotBoard());
-  }
-
-  getPublicState(playerColor = null) {
-    this.syncTimers();
-
-    return {
-      status: this.status,
-      winner: this.winner,
-      currentTurn: this.currentTurn,
-      sideToMove: this.currentTurn,
-      playerPerspective: playerColor || 'white',
-      whiteTimeMs: this.whiteTimeMs,
-      blackTimeMs: this.blackTimeMs,
-      board: this.getBoardForPlayer(playerColor),
-      history: this.history,
-      ruleSet: {
-        boardSize: BOARD_SIZE,
-        startingClockMs: STARTING_TIME_MS,
-        pieces: ['rock', 'paper', 'scissors'],
-        orientation: playerColor === 'black' ? 'rotated-180' : 'normal',
-      },
-    };
-  }
+if (whiteLeft === 0) {
+  this.status = 'finished';
+  this.winner = 'black';
+  return this.getPublicState();
 }
 
-module.exports = GameEngine;
+if (blackLeft === 0) {
+  this.status = 'finished';
+  this.winner = 'white';
+  return this.getPublicState();
+}
+
+this.afterTurn();
+
+return this.getPublicState();
