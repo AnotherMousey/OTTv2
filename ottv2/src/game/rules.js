@@ -42,14 +42,12 @@ export function getValidMoves(pieces, pieceId) {
       }
 
       if (occupant.player === piece.player) continue;
-      if (occupant.type === piece.type) continue;
-
       moves.push({
         row,
         col,
         kind: "attack",
         defenderId: occupant.id,
-        outcome: resolveBattle(piece, occupant),
+        outcome: piece.type === occupant.type ? "both" : resolveBattle(piece, occupant),
       });
     }
   }

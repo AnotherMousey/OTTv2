@@ -2,7 +2,7 @@ import { PLAYERS } from "../game/constants.js";
 
 export default function GameOverModal({ winner, reason, onPlayAgain, onBackToLobby }) {
   if (!winner) return null;
-  const winnerLabel = winner === PLAYERS.ONE ? "PLAYER 1" : "PLAYER 2";
+  const winnerLabel = winner === PLAYERS.ONE ? "WHITE" : "BLACK";
 
   return (
     <div className="modal-backdrop" role="presentation">

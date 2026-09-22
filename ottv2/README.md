@@ -1,4 +1,29 @@
-# React + Vite
+# OTTv2 frontend
+
+This React/Vite app is connected to the Node backend in `../logic`. It uses the
+backend REST endpoints for board state, movement, captures, turns, clocks, reset,
+and resign actions.
+
+## Launch
+
+Open two terminals from the project root:
+
+```powershell
+node logic/main.js
+```
+
+```powershell
+Set-Location ottv2
+npm.cmd install
+npm.cmd run dev
+```
+
+Open the Vite URL shown in the terminal, normally `http://localhost:5173`.
+Use `?color=black` to view the board from Black's rotated perspective; without it,
+the frontend opens as White. The Vite proxy forwards `/api` and `/health` to
+`http://localhost:3000`.
+
+## Original Vite notes
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

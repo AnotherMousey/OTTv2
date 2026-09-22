@@ -11,8 +11,8 @@ export default function GameSidebar({
   onReset,
   onLeave,
 }) {
-  const turnLabel = game.turn === PLAYERS.ONE ? "Player 1" : "Player 2";
-  const roleLabel = role === "spectator" ? "Spectator" : role === PLAYERS.ONE ? "Player 1" : "Player 2";
+  const turnLabel = game.turn === PLAYERS.ONE ? "White" : "Black";
+  const roleLabel = role === "spectator" ? "Spectator" : role === PLAYERS.ONE ? "White" : "Black";
 
   async function copyRoom() {
     await navigator.clipboard?.writeText(game.roomId);

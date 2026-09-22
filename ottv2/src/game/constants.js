@@ -2,8 +2,8 @@ export const BOARD_SIZE = 9;
 export const FILES = ["a", "b", "c", "d", "e", "f", "g", "h", "i"];
 
 export const PLAYERS = {
-  ONE: "player1",
-  TWO: "player2",
+  ONE: "white",
+  TWO: "black",
 };
 
 export const PIECE_TYPES = {
@@ -39,25 +39,13 @@ export const MAX_HISTORY = 100;
 
 export const INITIAL_LAYOUT = {
   [PLAYERS.ONE]: [
-    [PIECE_TYPES.ROCK, "b1"],
-    [PIECE_TYPES.PAPER, "c1"],
-    [PIECE_TYPES.SCISSORS, "d1"],
-    [PIECE_TYPES.ROCK, "f1"],
-    [PIECE_TYPES.PAPER, "g1"],
-    [PIECE_TYPES.SCISSORS, "h1"],
-    [PIECE_TYPES.ROCK, "c2"],
-    [PIECE_TYPES.PAPER, "e2"],
-    [PIECE_TYPES.SCISSORS, "g2"],
+    [PIECE_TYPES.PAPER, "a9"],
+    [PIECE_TYPES.ROCK, "b8"],
+    [PIECE_TYPES.SCISSORS, "c7"],
   ],
   [PLAYERS.TWO]: [
-    [PIECE_TYPES.ROCK, "h9"],
-    [PIECE_TYPES.PAPER, "g9"],
-    [PIECE_TYPES.SCISSORS, "f9"],
-    [PIECE_TYPES.ROCK, "d9"],
-    [PIECE_TYPES.PAPER, "c9"],
-    [PIECE_TYPES.SCISSORS, "b9"],
-    [PIECE_TYPES.ROCK, "g8"],
-    [PIECE_TYPES.PAPER, "e8"],
-    [PIECE_TYPES.SCISSORS, "c8"],
+    [PIECE_TYPES.PAPER, "i1"],
+    [PIECE_TYPES.ROCK, "h2"],
+    [PIECE_TYPES.SCISSORS, "g3"],
   ],
 };

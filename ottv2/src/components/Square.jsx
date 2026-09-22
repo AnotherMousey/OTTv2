@@ -13,7 +13,7 @@ export default function Square({
 }) {
   const coordinate = positionToCoordinate(row, col);
   const isLight = (row + col) % 2 === 0;
-  const isTarget = coordinate === TARGETS.player1.coordinate || coordinate === TARGETS.player2.coordinate;
+  const isTarget = coordinate === TARGETS.white.coordinate || coordinate === TARGETS.black.coordinate;
   const isLastMove = lastMove && (
     (lastMove.from.row === row && lastMove.from.col === col) ||
     (lastMove.to.row === row && lastMove.to.col === col)

@@ -1,9 +1,9 @@
 import { PIECE_ICONS, PIECE_LABELS, PIECE_TYPES, PLAYERS } from "../game/constants.js";
 import { getRemainingPieces } from "../game/rules.js";
 
-export default function PlayerPanel({ player, seat, pieces, online, activeTurn, role }) {
+export default function PlayerPanel({ player, seat, pieces, online, activeTurn, role, clock }) {
   const counts = getRemainingPieces(pieces, player);
-  const label = player === PLAYERS.ONE ? "Player 1" : "Player 2";
+  const label = player === PLAYERS.ONE ? "White" : "Black";
   const isYou = role === player;
 
   return (
@@ -18,6 +18,7 @@ export default function PlayerPanel({ player, seat, pieces, online, activeTurn, 
           {seat?.name || (seat ? "Anonymous player" : "Empty seat")}
         </p>
       </div>
+      {clock !== undefined && <div className="player-clock">{formatClock(clock)}</div>}
       <div className="piece-counts">
         {Object.values(PIECE_TYPES).map((type) => (
           <span key={type} title={PIECE_LABELS[type]}>
@@ -27,4 +28,9 @@ export default function PlayerPanel({ player, seat, pieces, online, activeTurn, 
       </div>
     </section>
   );
+}
+
+function formatClock(milliseconds) {
+  const seconds = Math.max(0, Math.ceil(milliseconds / 1000));
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
 }

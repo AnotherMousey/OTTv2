@@ -3,7 +3,7 @@ import Square from "./Square.jsx";
 import { BOARD_SIZE } from "../game/constants.js";
 import { getPieceAt, getValidMoves } from "../game/rules.js";
 
-export default function Board({ game, role, onMove }) {
+export default function Board({ game, role, onMove, orientation = "white" }) {
   const [selectedPieceId, setSelectedPieceId] = useState(null);
 
   const selectedPiece = selectedPieceId ? game.pieces[selectedPieceId] : null;
@@ -37,8 +37,12 @@ export default function Board({ game, role, onMove }) {
     setSelectedPieceId(null);
   }
 
-  const rows = Array.from({ length: BOARD_SIZE }, (_, index) => BOARD_SIZE - index);
-  const cols = Array.from({ length: BOARD_SIZE }, (_, index) => index);
+  const rows = orientation === "black"
+    ? Array.from({ length: BOARD_SIZE }, (_, index) => index + 1)
+    : Array.from({ length: BOARD_SIZE }, (_, index) => BOARD_SIZE - index);
+  const cols = orientation === "black"
+    ? Array.from({ length: BOARD_SIZE }, (_, index) => BOARD_SIZE - 1 - index)
+    : Array.from({ length: BOARD_SIZE }, (_, index) => index);
 
   return (
     <div className="board-shell">
