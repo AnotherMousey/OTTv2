@@ -144,3 +144,6 @@ button { color: inherit; }
   .rules-preview { grid-template-columns: 1fr 1fr; }
   .modal-actions { grid-template-columns: 1fr; }
 }
+
+.lobby-error { margin-top: 1.25rem; }
+.header-copy { margin-left: .5rem; color: white; }

@@ -1,52 +1,44 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { createRoom, getClientId, joinRoom } from '../api/gameApi.js';
 
 function normalizeRoomId(value) {
-  return value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, "").slice(0, 20);
+  return value.trim().toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20);
 }
 
-function enterRoom(roomId, color) {
+function enterRoom(roomId) {
   const url = new URL(window.location.href);
-  url.searchParams.set("room", roomId);
-  url.searchParams.set("color", color);
+  url.searchParams.set('room', roomId);
   window.location.assign(url.toString());
 }
 
 export default function Lobby() {
-  const [roomInput, setRoomInput] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [roomInput, setRoomInput] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
   const normalized = normalizeRoomId(roomInput);
 
-  async function createRoom() {
-    setLoading(true);
-    setError("");
+  async function handleCreate() {
     try {
-      const response = await fetch("/api/rooms/create", { method: "POST" });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Could not create room.");
-      enterRoom(payload.roomId, payload.color);
-    } catch (requestError) {
-      setError(requestError.message);
-      setLoading(false);
+      setBusy(true);
+      setError('');
+      const payload = await createRoom(getClientId());
+      enterRoom(payload.roomId);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
     }
   }
 
-  async function joinRoom() {
+  async function handleJoin() {
     if (!normalized) return;
-    setLoading(true);
-    setError("");
     try {
-      const response = await fetch("/api/rooms/join", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ roomId: normalized }),
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Could not join room.");
-      enterRoom(payload.roomId, payload.color);
-    } catch (requestError) {
-      setError(requestError.message);
-      setLoading(false);
+      setBusy(true);
+      setError('');
+      const payload = await joinRoom(normalized, getClientId());
+      enterRoom(payload.roomId);
+    } catch (err) {
+      setError(err.message);
+      setBusy(false);
     }
   }
 
@@ -54,15 +46,17 @@ export default function Lobby() {
     <main className="lobby-page">
       <section className="lobby-card">
         <div className="brand-mark">OTT<span>V2</span></div>
-        <p className="eyebrow">Realtime strategy board</p>
-        <h1>Rock. Paper. Scissors.<br />Now with territory.</h1>
+        <p className="eyebrow">Online multiplayer strategy board</p>
+        <h1>Rock. Paper. Scissors.<br />Play online.</h1>
         <p className="lobby-copy">
-          Two players. Three pieces each. One square per turn. Capture enemy pieces or reach the opposite target to win.
+          Create a room, send the room code or URL to a friend, and play from different devices. Extra visitors can watch as spectators.
         </p>
 
+        {error && <p className="error-banner lobby-error">{error}</p>}
+
         <div className="lobby-actions">
-          <button type="button" className="button button--primary button--large" onClick={createRoom} disabled={loading}>
-            {loading ? "Connecting..." : "Create room"}
+          <button type="button" className="button button--primary button--large" disabled={busy} onClick={handleCreate}>
+            {busy ? 'Connecting…' : 'Create online room'}
           </button>
 
           <div className="join-row">
@@ -70,23 +64,22 @@ export default function Lobby() {
               value={roomInput}
               onChange={(event) => setRoomInput(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter" && normalized) joinRoom();
+                if (event.key === 'Enter' && normalized && !busy) handleJoin();
               }}
-              placeholder="Enter Room ID"
+              placeholder="OTT-ABC123"
               aria-label="Room ID"
             />
-            <button type="button" className="button button--secondary" disabled={!normalized || loading} onClick={joinRoom}>
+            <button type="button" className="button button--secondary" disabled={!normalized || busy} onClick={handleJoin}>
               Join room
             </button>
           </div>
-          {error && <p className="error-banner">{error}</p>}
         </div>
 
         <div className="rules-preview">
           <div><strong>9×9</strong><span>board</span></div>
-          <div><strong>8</strong><span>directions</span></div>
           <div><strong>2</strong><span>players</span></div>
-          <div><strong>3</strong><span>piece types</span></div>
+          <div><strong>∞</strong><span>rooms</span></div>
+          <div><strong>Live</strong><span>online play</span></div>
         </div>
       </section>
     </main>
