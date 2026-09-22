@@ -1,0 +1,12 @@
+{
+  "name": "ottv2-fullstack",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd ottv2 && npm install && npm run build",
+    "start": "node logic/main.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
