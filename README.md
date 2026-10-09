@@ -1,372 +1,86 @@
-# OTTv2
-BT lập trình web 01
-# Oẳn Tù Tì v2 (OTTv2)
+# OTTv2 — Pixel frontend + existing room backend
 
-## 1. Giới thiệu
+The attached pixel frontend is the visual baseline. Its CSS, sprites, board renderer, shared UI, theme logic, replay fixture/parser, fonts, and default demo screens are preserved. No old match/lobby frontend has been imported.
 
-OTTv2 là trò chơi Oẳn Tù Tì được xây dựng dưới dạng website.
+## Run
 
-Trò chơi gồm 2 người chơi trên bàn cờ 9x9. Mỗi quân cờ được di chuyển tối đa 1 ô theo 8 hướng giống quân Vua trong cờ vua.
+Requires Node.js 22.12+ (or 24+) and npm. Extract the ZIP, open a terminal in `OTTv2` (the folder with the root `package.json`), then:
 
-Project được thực hiện cho bài tập môn học.
+```bash
+npm run build
+npm start
+```
 
-Đường dẫn đến trang web: https://ottv2.onrender.com/
+Open http://localhost:3000 . The root build installs frontend dependencies, builds the connected application, and regenerates the offline preview.
 
----
+For development, stop the production server first, then run:
 
-## 2. Luật chơi
+```bash
+npm run dev
+```
 
-### Bàn cờ
+This starts the room backend on port 3000 and Vite on its printed local URL, normally http://127.0.0.1:5173 . `/api` and `/health` are proxied to the backend. Both processes stop when the launcher is interrupted. A custom `PORT` is supported for production; development proxying assumes port 3000.
 
-* Bàn cờ có kích thước 9x9.
-* Mỗi quân cờ chỉ được di chuyển tối đa 1 ô.
-* Quân cờ có thể di chuyển theo 8 hướng:
+Tests:
 
-  * Lên
-  * Xuống
-  * Trái
-  * Phải
-  * Chéo trên trái
-  * Chéo trên phải
-  * Chéo dưới trái
-  * Chéo dưới phải
+```bash
+npm test
+```
 
-### Các loại quân
+## Try a backend-connected recording
 
-Trò chơi có 3 loại quân:
+Keep `npm start` running. In a second terminal in the same root folder:
 
-* Đấm
-* Lá
-* Kéo
+```bash
+npm run demo:room
+```
 
-Quy tắc ăn quân:
+This creates two client IDs, creates/joins a room, sends two scripted legal moves, and forfeits the black seat. It prints a link such as:
 
-* Đấm thắng Kéo
-* Kéo thắng Lá
-* Lá thắng Đấm
-* Hai quân cùng loại không thể ăn nhau và sẽ chặn đường nhau.
+```text
+http://localhost:3000/?room=OTT-ABCDEF#match
+```
 
-### Điều kiện thắng
+Open the printed link. The pixel match viewer loads genuine recorded snapshots from that room, supports playback, seek, flip, inspection, import, and export, and polls for new events. Its terminal event reports the winner. This fixture drives the existing human-room API; it does not execute autonomous bots.
 
-Người chơi thắng khi:
+Any existing room can be viewed through `/?room=ROOM_CODE#match`. During development, use the same query/hash on the Vite URL. Viewing does not join a seat. Importing a JSON replay stops room polling for that viewer session; reload its room URL to reconnect. Missing rooms and network errors appear in the existing error area and retry automatically. Recorded frames remain available after temporary connection errors.
 
-* Ăn hết hoàn toàn một loại quân của đối phương.
+With no `room` query parameter the six original demo screens remain unchanged. There are no new visible lobby controls, manual move controls, clocks, or redesigned screens. Connected-room metadata uses the existing text slots to identify the original timed human match accurately.
 
-hoặc
+## Offline preview
 
-* Đưa được quân vào ô a1 hoặc i9.
+Open `frontend/preview.html` after extraction. It bundles JS, CSS, and all three Pixeloid fonts; no installation or internet is needed for its normal demo mode. It does not launch the server. Room links require the running connected application. The original malformed-font issue is avoided by resolving fonts relative to the compiled CSS and embedding valid data URLs. `npm run build` regenerates this file; editing source alone does not update it.
 
----
+## Connected versus demo-only
 
-## 3. Các Use Case chính
+| Feature | Status |
+|---|---|
+| Server-managed room states, captures, turns, winner, reset, forfeit, clocks | Existing backend retained; API available |
+| Recording initial boards, accepted moves, timeout/forfeit terminal states | Added server recording |
+| Pixel viewer loading/polling room recordings | Connected through adapter/hook |
+| Replay seek, playback speed, board flip, inspection, import/export | Existing frontend retained, usable with connected recordings |
+| Room create/join/move/reset/forfeit controls in the web portal | Not added; use API clients or the sample CLI |
+| Bot source selection and metadata | Local frontend preview only; no compilation/upload service |
+| Rankings, Elo values, tournament rounds, dashboard statistics | Original demo data |
+| Authentication, bot execution, tournament scheduling, Elo calculation | Not implemented |
 
-| STT  | Use Case                 | Mô tả                                                                 |
-| ---- | ------------------------ | --------------------------------------------------------------------- |
-| UC01 | Bắt đầu trò chơi         | Người chơi mở website và bắt đầu ván chơi                             |
-| UC02 | Chọn quân cờ             | Người chơi chọn một quân cờ của mình                                  |
-| UC03 | Di chuyển quân cờ        | Người chơi di chuyển quân tối đa 1 ô theo 8 hướng                     |
-| UC04 | Ăn quân đối phương       | Hệ thống xử lý việc ăn quân theo luật Đấm - Lá - Kéo                  |
-| UC05 | Kiểm tra điều kiện thắng | Hệ thống kiểm tra người chơi đã ăn hết một loại quân hoặc vào ô a1/i9 |
-| UC06 | Kết thúc trò chơi        | Hệ thống thông báo người chiến thắng và kết thúc ván                  |
-| UC07 | Chơi lại                 | Người chơi nhấn nút chơi lại để bắt đầu ván mới                       |
+## Contracts and rules
 
-### Luồng chơi chính
+See `logic/README.md` for the actual API. Room state can be rotated for Black; adapter positions come from each piece's canonical `square`, so a board is never rotated twice.
 
-1. Người chơi mở trò chơi.
-2. Hệ thống tạo bàn cờ 9x9.
-3. Người chơi 1 chọn quân cờ.
-4. Người chơi chọn ô muốn di chuyển.
-5. Hệ thống kiểm tra nước đi.
-6. Nếu có quân đối phương, hệ thống xử lý luật ăn quân.
-7. Kiểm tra điều kiện thắng.
-8. Nếu chưa có người thắng, chuyển lượt cho người chơi 2.
-9. Hai người chơi tiếp tục cho đến khi có người thắng.
-10. Người chơi có thể chọn Chơi lại để bắt đầu ván mới.
+The existing engine is unchanged: white moves first, 9×9 board, one-square eight-direction moves, rock/paper/scissors captures, equal-type blocking, own-piece blocking, white target i9, black target a1, loss of all pieces of a type, and five-minute player clocks after the first move. There is no added move limit. The bot-demo's move-limit/no-time-limit rules remain a separate preview model. Connected viewer labels identify the timed room; no silent rule migration was performed.
 
----
+Snapshots are captured when events occur, not fabricated by rewinding the latest state. Reset begins a new recording ID and discards the room's previous recording; export before resetting to retain it. Current rooms/recordings are in process memory, are removed by the existing six-hour room cleanup, and do not survive server restarts. Existing client-ID authorization is preserved; this is not an authenticated tournament platform.
 
-## 4. Công nghệ sử dụng
+The frontend parser supports at most 10,001 snapshots. That is a replay-import limit, not a newly enforced engine move limit. Over-limit recordings show a validation error rather than silently truncating history.
 
-* HTML
-* CSS
-* JavaScript
-* Git
-* GitHub
+## Verification
 
----
+- Production build, root startup, health endpoint, static fonts, and sample room API flow passed.
+- Four original replay/theme tests and three integration/visual-contract tests passed.
+- Integration checks cover all board coordinates, both array orientations, attacker/defender captures, equal-type blocking, spectator/turn rejection, recording immutability, resets, forfeit, timeout, missing room errors, and replay JSON round-tripping.
+- Original and integrated static HTML was identical on all six default demo pages with the same fixture data. Evidence is in `VISUAL_COMPARISON.json`.
+- Protected files/fonts are byte-identical; expected hashes and a repeatable test are included.
+- Browser access to http://localhost:3000 failed with `ERR_CONNECTION_REFUSED` from the separate cloud-browser environment. Desktop/mobile screenshots, theme screenshots, font rendering in-browser, and click-through interaction checks could not be performed. HTML/hash comparisons are not substitutes for those browser checks.
 
-## 5. Cấu trúc project
-
-text
-OTTv2/
-│
-├── index.html
-├── style.css
-├── game.js
-└── README.md
-
-### index.html
-
-Xây dựng cấu trúc và giao diện chính của trò chơi.
-
-### style.css
-
-Thiết kế giao diện bàn cờ, quân cờ và các thành phần trên trang.
-
-### game.js
-
-Xử lý logic của trò chơi:
-
-* Tạo bàn cờ 9x9.
-* Quản lý quân cờ.
-* Chọn quân.
-* Di chuyển quân.
-* Kiểm tra nước đi.
-* Quản lý lượt chơi.
-* Xử lý luật ăn quân.
-* Kiểm tra điều kiện thắng.
-
----
-
-## 6. Cách chạy chương trình
-
-### Cách 1: Mở trực tiếp
-
-Mở file index.html bằng trình duyệt.
-
-### Cách 2: Sử dụng Live Server
-
-Mở project bằng Visual Studio Code.
-
-Cài extension Live Server.
-
-Sau đó:
-
-Chuột phải vào index.html → Open with Live Server
-
----
-
-## 7. Cách chơi
-
-1. Người chơi 1 bắt đầu.
-2. Click vào quân cờ của mình.
-3. Click vào ô muốn di chuyển.
-4. Quân chỉ được đi tối đa 1 ô theo 8 hướng.
-5. Hệ thống xử lý việc ăn quân theo luật Đấm - Lá - Kéo.
-6. Sau mỗi lượt, quyền chơi chuyển sang người chơi còn lại.
-7. Khi một người thỏa điều kiện thắng, trò chơi kết thúc.
-8. Nhấn Chơi lại để bắt đầu ván mới.
-
----
-
-## 8. Thành viên nhóm
-
-| STT | Họ và tên | MSSV |
-| --- | --------- | ---- |
-| 1   | ...       | ...  |
-| 2   | ...       | ...  |
-| 3   | ...       | ...  |
-| 4   | ...       | ...  |
-
----
-
-## 9. Phiên bản
-
-### Version 1.0
-
-* Xây dựng giao diện bàn cờ 9x9.
-* Hiển thị quân cờ.
-* Chọn và di chuyển quân.
-* Quản lý lượt chơi.
-* Xử lý luật chơi OTTv2.
-
-### Version 2.0
-
-* Xây dựng server.
-* Hỗ trợ nhiều người chơi cùng lúc.
-* Đồng bộ trạng thái trò chơi giữa các người chơi.
-# OTTv2
-BT lập trình web 01
-# Oẳn Tù Tì v2 (OTTv2)
-
-## 1. Giới thiệu
-
-OTTv2 là trò chơi Oẳn Tù Tì được xây dựng dưới dạng website.
-
-Trò chơi gồm 2 người chơi trên bàn cờ 9x9. Mỗi quân cờ được di chuyển tối đa 1 ô theo 8 hướng giống quân Vua trong cờ vua.
-
-Project được thực hiện cho bài tập môn học.
-
----
-
-## 2. Luật chơi
-
-### Bàn cờ
-
-* Bàn cờ có kích thước 9x9.
-* Mỗi quân cờ chỉ được di chuyển tối đa 1 ô.
-* Quân cờ có thể di chuyển theo 8 hướng:
-
-  * Lên
-  * Xuống
-  * Trái
-  * Phải
-  * Chéo trên trái
-  * Chéo trên phải
-  * Chéo dưới trái
-  * Chéo dưới phải
-
-### Các loại quân
-
-Trò chơi có 3 loại quân:
-
-* Đấm
-* Lá
-* Kéo
-
-Quy tắc ăn quân:
-
-* Đấm thắng Kéo
-* Kéo thắng Lá
-* Lá thắng Đấm
-* Hai quân cùng loại không thể ăn nhau và sẽ chặn đường nhau.
-
-### Điều kiện thắng
-
-Người chơi thắng khi:
-
-* Ăn hết hoàn toàn một loại quân của đối phương.
-
-hoặc
-
-* Đưa được quân vào ô a1 hoặc i9.
-
----
-
-## 3. Các Use Case chính
-
-| STT  | Use Case                 | Mô tả                                                                 |
-| ---- | ------------------------ | --------------------------------------------------------------------- |
-| UC01 | Bắt đầu trò chơi         | Người chơi mở website và bắt đầu ván chơi                             |
-| UC02 | Chọn quân cờ             | Người chơi chọn một quân cờ của mình                                  |
-| UC03 | Di chuyển quân cờ        | Người chơi di chuyển quân tối đa 1 ô theo 8 hướng                     |
-| UC04 | Ăn quân đối phương       | Hệ thống xử lý việc ăn quân theo luật Đấm - Lá - Kéo                  |
-| UC05 | Kiểm tra điều kiện thắng | Hệ thống kiểm tra người chơi đã ăn hết một loại quân hoặc vào ô a1/i9 |
-| UC06 | Kết thúc trò chơi        | Hệ thống thông báo người chiến thắng và kết thúc ván                  |
-| UC07 | Chơi lại                 | Người chơi nhấn nút chơi lại để bắt đầu ván mới                       |
-
-### Luồng chơi chính
-
-1. Người chơi mở trò chơi.
-2. Hệ thống tạo bàn cờ 9x9.
-3. Người chơi 1 chọn quân cờ.
-4. Người chơi chọn ô muốn di chuyển.
-5. Hệ thống kiểm tra nước đi.
-6. Nếu có quân đối phương, hệ thống xử lý luật ăn quân.
-7. Kiểm tra điều kiện thắng.
-8. Nếu chưa có người thắng, chuyển lượt cho người chơi 2.
-9. Hai người chơi tiếp tục cho đến khi có người thắng.
-10. Người chơi có thể chọn Chơi lại để bắt đầu ván mới.
-
----
-
-## 4. Công nghệ sử dụng
-
-* HTML
-* CSS
-* JavaScript
-* Git
-* GitHub
-
----
-
-## 5. Cấu trúc project
-
-text
-OTTv2/
-│
-├── index.html
-├── style.css
-├── game.js
-└── README.md
-
-### index.html
-
-Xây dựng cấu trúc và giao diện chính của trò chơi.
-
-### style.css
-
-Thiết kế giao diện bàn cờ, quân cờ và các thành phần trên trang.
-
-### game.js
-
-Xử lý logic của trò chơi:
-
-* Tạo bàn cờ 9x9.
-* Quản lý quân cờ.
-* Chọn quân.
-* Di chuyển quân.
-* Kiểm tra nước đi.
-* Quản lý lượt chơi.
-* Xử lý luật ăn quân.
-* Kiểm tra điều kiện thắng.
-
----
-
-## 6. Cách chạy chương trình
-
-### Cách 1: Mở trực tiếp
-
-Mở file index.html bằng trình duyệt.
-
-### Cách 2: Sử dụng Live Server
-
-Mở project bằng Visual Studio Code.
-
-Cài extension Live Server.
-
-Sau đó:
-
-Chuột phải vào index.html → Open with Live Server
-
----
-
-## 7. Cách chơi
-
-1. Người chơi 1 bắt đầu.
-2. Click vào quân cờ của mình.
-3. Click vào ô muốn di chuyển.
-4. Quân chỉ được đi tối đa 1 ô theo 8 hướng.
-5. Hệ thống xử lý việc ăn quân theo luật Đấm - Lá - Kéo.
-6. Sau mỗi lượt, quyền chơi chuyển sang người chơi còn lại.
-7. Khi một người thỏa điều kiện thắng, trò chơi kết thúc.
-8. Nhấn Chơi lại để bắt đầu ván mới.
-
----
-
-## 8. Thành viên nhóm
-
-| STT | Họ và tên | MSSV |
-| --- | --------- | ---- |
-| 1   | ...       | ...  |
-| 2   | ...       | ...  |
-| 3   | ...       | ...  |
-| 4   | ...       | ...  |
-
----
-
-## 9. Phiên bản
-
-### Version 1.0
-
-* Xây dựng giao diện bàn cờ 9x9.
-* Hiển thị quân cờ.
-* Chọn và di chuyển quân.
-* Quản lý lượt chơi.
-* Xử lý luật chơi OTTv2.
-
-### Version 2.0
-
-* Xây dựng server.
-* Hỗ trợ nhiều người chơi cùng lúc.
-* Đồng bộ trạng thái trò chơi giữa các người chơi.
+See `CHANGES.md` for the complete change table and `VISUAL_BASELINE.json` for protected-file hashes.

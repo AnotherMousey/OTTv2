@@ -3,9 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const GameEngine = require('./engine');
+const { resetRecording, recordMove, recordTerminal } = require('./recording');
 
 const rooms = new Map();
-const FRONTEND_DIST = path.resolve(__dirname, '../ottv2/dist');
+const FRONTEND_DIST = path.resolve(__dirname, '../frontend/dist');
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 
 function parseJsonBody(req) {
@@ -65,6 +66,7 @@ function createRoom(ownerClientId) {
     createdAt: Date.now(),
     lastActivityAt: Date.now(),
   };
+  resetRecording(room);
   rooms.set(id, room);
   return room;
 }
@@ -148,6 +150,7 @@ function contentType(filePath) {
     '.jpeg': 'image/jpeg',
     '.ico': 'image/x-icon',
     '.woff2': 'font/woff2',
+    '.ttf': 'font/ttf',
   }[ext] || 'application/octet-stream';
 }
 
@@ -203,12 +206,18 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
-    const roomMatch = /^\/api\/rooms\/([A-Z0-9-]+)(?:\/(join|state|move|new|forfeit))?$/i.exec(url.pathname);
+    const roomMatch = /^\/api\/rooms\/([A-Z0-9-]+)(?:\/(join|state|move|new|forfeit|replay))?$/i.exec(url.pathname);
 
     if (roomMatch) {
       const roomId = normalizeRoomId(roomMatch[1]);
       const action = roomMatch[2] || 'state';
       const room = getRoom(roomId);
+
+      if (req.method === 'GET' && action === 'replay') {
+        recordTerminal(room);
+        sendJson(res, 200, room.recording);
+        return;
+      }
 
       if (req.method === 'POST' && action === 'join') {
         const body = await parseJsonBody(req);
@@ -219,7 +228,9 @@ const server = http.createServer(async (req, res) => {
 
       if (req.method === 'GET' && action === 'state') {
         const clientId = url.searchParams.get('clientId') || '';
-        sendJson(res, 200, roomPayload(room, clientId));
+        const payload = roomPayload(room, clientId);
+        recordTerminal(room);
+        sendJson(res, 200, payload);
         return;
       }
 
@@ -240,6 +251,7 @@ const server = http.createServer(async (req, res) => {
         }
 
         room.game.movePiece(body.from, body.to);
+        recordMove(room);
         sendJson(res, 200, roomPayload(room, body.clientId));
         return;
       }
@@ -251,6 +263,7 @@ const server = http.createServer(async (req, res) => {
           throw new Error('Only players can reset a match.');
         }
         room.game.reset();
+        resetRecording(room);
         sendJson(res, 200, roomPayload(room, body.clientId));
         return;
       }
@@ -263,6 +276,7 @@ const server = http.createServer(async (req, res) => {
         }
         room.game.status = 'finished';
         room.game.winner = role === 'white' ? 'black' : 'white';
+        recordTerminal(room, `${role} forfeited. Winner: ${room.game.winner}.`);
         sendJson(res, 200, roomPayload(room, body.clientId));
         return;
       }

@@ -1,61 +1,23 @@
-**Overview**
+# Existing room backend with event recording
 
-This folder contains the backend logic for a 2-player Rock/Paper/Scissors-style board game. The browser interface is in the sibling `ottv2` folder.
+Run from the project root with `npm start`. `main.js` starts the existing HTTP server on port 3000 (`PORT` overrides it). The server serves `../frontend/dist`.
 
-**Files & Responsibilities**
+| Method | Endpoint | Request / result |
+|---|---|---|
+| POST | `/api/rooms` | JSON `{clientId}`; creates room with caller as white |
+| POST | `/api/rooms/:id/join` | JSON `{clientId}`; existing role or available seat; otherwise spectator |
+| GET | `/api/rooms/:id/state?clientId=ID` | `{roomId,role,seats,state}`; client ID optional for spectator |
+| GET | `/api/rooms/:id` | Alias for state |
+| POST | `/api/rooms/:id/move` | JSON `{clientId,from,to}`; authoritative validation and state result |
+| POST | `/api/rooms/:id/new` | JSON `{clientId}`; player-only reset and new recording ID |
+| POST | `/api/rooms/:id/forfeit` | JSON `{clientId}`; player-only forfeit |
+| GET | `/api/rooms/:id/replay` | Added: `{roomId,matchId,frames}` with canonical snapshots |
+| GET | `/health` | Existing health/room-count endpoint |
 
-- `main.js`: Minimal entry that loads the HTTP server. Run `node OTT_logic/main.js` to start.
-- `server.js`: Implements the HTTP API and JSON request parsing. Exposes endpoints to get state, start a new game, make moves, forfeit, and a `/health` check.
-- `engine.js`: `GameEngine` class with full game state, move application, battle resolution, timers, win/draw handling, and history logging.
-- `utils.js`: Helper functions (square <-> index conversion, neighbor checks, battle resolution, rotate board for player perspective).
-- `constants.js`: Shared constants like board size, file/rank labels, starting clock, and the `PIECE_BEATS` rule mapping.
-- `../ottv2/src/`: React/Vite match screen with board, player cards, clocks, controls, and move history.
+Original success/error response methods and statuses are retained. Errors are JSON `{error}`. Client IDs are identifiers, not real login credentials.
 
-**Game Rules (summary)**
+`recording.js` stores snapshots of canonical board state and clocks at initialization, accepted moves, and terminal events. Each frame has `{state,event,move,moveNumber}`. States omit repeated full move-history arrays to avoid quadratic recording size; each event carries its own move. Reads synchronize the existing engine timer and record timeout once. Recordings use white/canonical orientation; frontend adapters can also consume rotated states using piece.square.
 
-- Board: 9x9 with files `a`..`i` and ranks `1`..`9`.
-- Players: `white` and `black`. Black's board is presented rotated 180° for their perspective.
-- Pieces: Each player has 3 pieces — `rock`, `paper`, `scissors` — placed along the main diagonal halves at start.
-- Movement: A piece moves exactly 1 square in any direction (8 neighbors allowed).
-- Battles: `rock` beats `scissors`, `scissors` beats `paper`, `paper` beats `rock`.
-  - If attacker and defender are same type, both are removed (`both` outcome).
-  - Otherwise the winner occupies the destination square.
-- Win conditions:
-  - `black` wins by reaching square `a1`.
-  - `white` wins by reaching square `i9`.
-  - A player loses if they have zero pieces remaining.
-  - Timers: each player has a 5-minute clock. Both clocks stay at 5:00 before White's first move; after White moves, the clock for the side to move starts. If a player's clock reaches zero they lose.
+The engine, constants, utils and server entry point are unchanged. Same-type pieces block (they are not removed). Losing all pieces of one type loses the match. Targets: white i9, black a1. Five-minute player clocks begin after White's first move. No new game move limit was introduced.
 
-**API Endpoints**
-
-- `POST /api/rooms/create` — creates a unique room code and assigns the creator `white`.
-- `POST /api/rooms/join` — body `{ "roomId": "OTT-ABCDE" }`; joins an existing room as `black`.
-- `GET /api/game/state?view=white|black` — returns public state from requested perspective (defaults to `white`).
-- Add `room=ROOM_CODE` to state requests to read a specific room.
-- `POST /api/game/new` — resets and starts a new game. Returns the initial state.
-- `POST /api/game/move` — body `{ "roomId": "OTT-ABCDE", "from": "a9", "to": "b8" }`.
-- `POST /api/game/forfeit` — body `{ "roomId": "OTT-ABCDE", "color": "white" }`.
-- `GET /health` — simple health check.
-
-**State Shape (important fields)**
-
-- `status`: `active` or `finished`.
-- `winner`: `null` or `white`/`black` when finished.
-- `currentTurn`: which side must move now.
-- `whiteTimeMs` / `blackTimeMs`: remaining milliseconds on each clock.
-- `board`: 2D array (9x9) of either `null` or piece objects `{ id, color, type, square }` presented from the requested `view`.
-- `history`: array of past moves with results.
-
-**How to run (quick)**
-
-1. From project root run:
-
-```bash
-node OTT_logic/main.js
-```
-
-2. Open `http://localhost:3000` in a browser. The Node server serves the frontend and API from the same origin.
-
-3. Use the board to select a piece and then a neighboring square. The backend validates the move and returns the updated state.
-
-If you want, I can add a small test script to exercise moves and demonstrate captures and timer expiration.
+Room cleanup and in-memory lifecycle are unchanged. Reset starts a fresh recording; restart loses rooms. This backend does not run Java/Python/C bots or implement scheduling, Elo, authentication or tournament persistence.

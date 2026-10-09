@@ -1,0 +1,35 @@
+{
+  "method": "React static rendering, matching demo props; not browser screenshots",
+  "pages": [
+    {
+      "page": "Home",
+      "identical": true,
+      "sha256": "420d2001205152a920a2534044bf089ad4e5788c91a6fd4486dfb22f5680ea73"
+    },
+    {
+      "page": "Match",
+      "identical": true,
+      "sha256": "34d2eed7e1af09b130711e45729aa90eb628af813863641d1437325f99f7ff80"
+    },
+    {
+      "page": "Rankings",
+      "identical": true,
+      "sha256": "1058949502227ff603c25a0ec67e4c46b16a80d2654483b1844e4982de759b1b"
+    },
+    {
+      "page": "Submission",
+      "identical": true,
+      "sha256": "ddf3d490c2eeecbb416341d5c1a96193bc7765e3fc95f5406e2fbaa40e4d5307"
+    },
+    {
+      "page": "Tournament",
+      "identical": true,
+      "sha256": "18ddfd16c9a05ccc3a7961cea4c3f1142b6cab4023eb0f2a9dfe20ec0d24a5d0"
+    },
+    {
+      "page": "Rules",
+      "identical": true,
+      "sha256": "de1c0440fcb3a2afbba9dbeeb1011f782005d68059e909ce59e3a3bdfcf191c4"
+    }
+  ]
+}
