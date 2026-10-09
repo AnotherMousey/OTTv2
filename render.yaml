@@ -3,9 +3,16 @@ services:
     name: ottv2
     runtime: node
     plan: free
-    buildCommand: npm run build
+    autoDeployTrigger: commit
+    buildCommand: npm ci --omit=dev
     startCommand: npm start
     healthCheckPath: /health
     envVars:
       - key: NODE_VERSION
-        value: 22.16.0
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: SERVE_FRONTEND
+        value: "false"
+      - key: ALLOWED_ORIGINS
+        sync: false

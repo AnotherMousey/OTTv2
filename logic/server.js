@@ -7,6 +7,9 @@ const { resetRecording, recordMove, recordTerminal } = require('./recording');
 
 const rooms = new Map();
 const FRONTEND_DIST = path.resolve(__dirname, '../frontend/dist');
+const SERVE_FRONTEND = process.env.SERVE_FRONTEND !== 'false';
+const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+  .split(',').map(value => value.trim()).filter(Boolean));
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 
 function parseJsonBody(req) {
@@ -188,7 +191,30 @@ function serveFrontend(req, res, url) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
 
+  // Only explicit frontend origins receive permission for cross-origin API calls.
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Vary', 'Origin');
+    if (!ALLOWED_ORIGINS.has(origin)) {
+      sendJson(res, 403, { error: 'Origin is not allowed. Configure ALLOWED_ORIGINS on the backend.' });
+      return;
+    }
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Max-Age', '600');
+  }
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    res.end();
+    return;
+  }
+
   try {
+    if (!SERVE_FRONTEND && (req.method === 'GET' || req.method === 'HEAD') && url.pathname === '/') {
+      sendJson(res, 200, { ok: true, service: 'ottv2-api', health: '/health' });
+      return;
+    }
     if (req.method === 'GET' && url.pathname === '/health') {
       sendJson(res, 200, {
         ok: true,
@@ -291,7 +317,8 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' || req.method === 'HEAD') {
-      serveFrontend(req, res, url);
+      if (SERVE_FRONTEND) serveFrontend(req, res, url);
+      else sendJson(res, 404, { error: 'Not found. This service hosts the API; open the Vercel frontend.' });
       return;
     }
 

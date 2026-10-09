@@ -2,9 +2,13 @@
 
 The attached pixel frontend is the visual baseline. Its CSS, sprites, board renderer, shared UI, theme logic, replay fixture/parser, fonts, and default demo screens are preserved. No old match/lobby frontend has been imported.
 
+## Deploy
+
+For Vercel frontend + Render backend, follow [DEPLOY_VERCEL_RENDER.md](DEPLOY_VERCEL_RENDER.md). All deployment changes are listed in [CHANGES_DEPLOYMENT.md](CHANGES_DEPLOYMENT.md). Requires Node 24.x.
+
 ## Run
 
-Requires Node.js 22.12+ (or 24+) and npm. Extract the ZIP, open a terminal in `OTTv2` (the folder with the root `package.json`), then:
+Requires Node.js 24.x and npm. Extract the ZIP, open a terminal in `OTTv2` (the folder with the root `package.json`), then:
 
 ```bash
 npm run build
