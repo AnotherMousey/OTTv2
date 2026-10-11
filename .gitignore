@@ -1,6 +1,29 @@
 node_modules/
 **/dist/
+coverage/
+.nyc_output/
+.cache/
+.tmp/
+tmp/
+temp/
+*.log
 .env
 .env.*
 !.env.example
 .vercel/
+
+# Editor and operating-system files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+
+# Java, C++, and Python build artifacts
+*.class
+*.o
+*.obj
+*.exe
+__pycache__/
+*.py[cod]
