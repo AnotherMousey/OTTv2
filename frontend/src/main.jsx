@@ -89,7 +89,7 @@ function App() {
             ["home", "Overview"],
             ["tournament", "Tournament"],
             ["rankings", "Rankings"],
-            ["match", "Match viewer"],
+            ["match", "Replay"],
             ["rules", "Rules & SDK"],
           ].map(([id, label]) => (
             <a
@@ -122,9 +122,9 @@ function App() {
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        FRONTEND PREVIEW{" "}
+        BOT MATCH PLATFORM{" "}
         <span>
-          {page === "match" && new URLSearchParams(window.location.search).has("room") ? "Sample tournament · local submissions · server room recording" : "Sample tournament · local submissions · recorded demo replay"}
+          {page === "match" && new URLSearchParams(window.location.search).has("match") ? "Java submissions · server grader · live replay log" : "Java bot submissions · recorded demo replay"}
         </span>
       </div>
       <main className="page" key={page}>

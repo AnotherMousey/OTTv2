@@ -4,11 +4,13 @@ const path = require('path');
 const crypto = require('crypto');
 const GameEngine = require('./engine');
 const { resetRecording, recordMove, recordTerminal } = require('./recording');
+const { createSubmission } = require('./submissions');
+const { createMatch, getMatch, publicMatch } = require('./match');
 
 const rooms = new Map();
 const FRONTEND_DIST = path.resolve(__dirname, '../frontend/dist');
 const SERVE_FRONTEND = process.env.SERVE_FRONTEND !== 'false';
-const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://127.0.0.1:5173')
+const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173')
   .split(',').map(value => value.trim()).filter(Boolean));
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 
@@ -18,7 +20,7 @@ function parseJsonBody(req) {
 
     req.on('data', (chunk) => {
       raw += chunk;
-      if (raw.length > 64 * 1024) {
+      if (raw.length > 512 * 1024) {
         reject(new Error('Request body is too large.'));
         req.destroy();
       }
@@ -193,7 +195,8 @@ const server = http.createServer(async (req, res) => {
 
   // Only explicit frontend origins receive permission for cross-origin API calls.
   const origin = req.headers.origin;
-  if (origin) {
+  const isApiRequest = url.pathname === '/health' || url.pathname.startsWith('/api/');
+  if (origin && isApiRequest) {
     res.setHeader('Vary', 'Origin');
     if (!ALLOWED_ORIGINS.has(origin)) {
       sendJson(res, 403, { error: 'Origin is not allowed. Configure ALLOWED_ORIGINS on the backend.' });
@@ -221,6 +224,42 @@ const server = http.createServer(async (req, res) => {
         service: 'ottv2',
         rooms: rooms.size,
       });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/submissions') {
+      const body = await parseJsonBody(req);
+      const submission = createSubmission(body);
+      sendJson(res, 201, submission);
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/matches') {
+      const body = await parseJsonBody(req);
+      const match = createMatch({
+        whiteSubmissionId: body.whiteSubmissionId,
+        blackSubmissionId: body.blackSubmissionId,
+      });
+      sendJson(res, 202, match);
+      return;
+    }
+
+    const matchReplay = /^\/api\/matches\/([A-Z0-9-]+)\/replay$/i.exec(url.pathname);
+    if (req.method === 'GET' && matchReplay) {
+      const match = getMatch(matchReplay[1]);
+      if (match.status === 'failed') {
+        sendJson(res, 409, { error: match.error, match: publicMatch(match) });
+      } else if (!match.replay) {
+        sendJson(res, 202, publicMatch(match));
+      } else {
+        sendJson(res, 200, match.replay);
+      }
+      return;
+    }
+
+    const matchState = /^\/api\/matches\/([A-Z0-9-]+)$/i.exec(url.pathname);
+    if (req.method === 'GET' && matchState) {
+      sendJson(res, 200, publicMatch(getMatch(matchState[1])));
       return;
     }
 

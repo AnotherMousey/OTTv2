@@ -45,7 +45,7 @@ This creates two client IDs, creates/joins a room, sends two scripted legal move
 http://localhost:3000/?room=OTT-ABCDEF#match
 ```
 
-Open the printed link. The pixel match viewer loads genuine recorded snapshots from that room, supports playback, seek, flip, inspection, import, and export, and polls for new events. Its terminal event reports the winner. This fixture drives the existing human-room API; it does not execute autonomous bots.
+Open the printed link. The pixel replay screen loads genuine recorded snapshots from that room, supports playback, seek, flip, inspection, import, and export, and polls for new events. Its terminal event reports the winner. This fixture drives the existing human-room API; it does not execute autonomous bots.
 
 Any existing room can be viewed through `/?room=ROOM_CODE#match`. During development, use the same query/hash on the Vite URL. Viewing does not join a seat. Importing a JSON replay stops room polling for that viewer session; reload its room URL to reconnect. Missing rooms and network errors appear in the existing error area and retry automatically. Recorded frames remain available after temporary connection errors.
 

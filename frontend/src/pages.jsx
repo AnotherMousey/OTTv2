@@ -3,6 +3,8 @@ import { demoReplay, parseReplay, TYPES } from "./replay";
 import { Pixel } from "./Pixel";
 import { Board } from "./Board";
 import { useRoomReplay } from "./hooks/useRoomReplay.js";
+import { useBotMatch } from "./hooks/useBotMatch.js";
+import { createBotMatch, submitBot } from "./api/matchApi.js";
 import { Button, Landscape, ranks } from "./ui";
 export function Home({ go, bot }) {
   return (
@@ -118,22 +120,14 @@ export function Home({ go, bot }) {
         </article>
         <article className="card match-card">
           <div className="card-title">
-            <h3>LATEST MATCH</h3>
+            <h3>LATEST REPLAY</h3>
             <span>03</span>
           </div>
-          <div className="match-preview">
-            <Board
-              frame={demoReplay.frames[8] || demoReplay.frames[0]}
-              compact
-            />
-          </div>
           <div className="preview-caption">
-            <span>
-              Atlas <b>vs</b> Byte Knights
-            </span>
-            <small>DEMO REPLAY</small>
+            <span>No bot matches yet.</span>
+            <small>LIVE SUBMISSIONS ONLY</small>
           </div>
-          <Button onClick={() => go("match")}>Watch replay ▷</Button>
+          <Button onClick={() => go("submit")}>Submit bots ▷</Button>
         </article>
       </section>
       <section className="how-section">
@@ -162,14 +156,22 @@ export function Home({ go, bot }) {
 }
 export function Match({ notify }) {
   const roomId = new URLSearchParams(window.location.search).get("room");
+  const botMatchId = new URLSearchParams(window.location.search).get("match");
   const [remoteEnabled, setRemoteEnabled] = useState(Boolean(roomId));
   const remote = useRoomReplay(roomId, remoteEnabled);
+  const botRemote = useBotMatch(botMatchId);
   const lastMatch = useRef(null);
+  const emptyReplay = {
+    schemaVersion: 1, gameId: "ottv2", rulesVersion: "live",
+    boardSize: 9, mapName: "No replay selected", maxMoves: 1,
+    firstSide: "white", teams: { white: "White", black: "Black" },
+    frames: [{ pieces: [], event: "Submit two bots to create a replay.", side: "white" }],
+  };
   const [replay, setReplay] = useState(() => roomId ? {
     ...demoReplay, mode: "room-recording", rulesVersion: "legacy-timed",
     mapName: `Room ${roomId}`, teams: { white: "White player", black: "Black player" }, bots: undefined,
     frames: [{ pieces: [], event: "Loading recorded room snapshots…", side: "white" }],
-  } : demoReplay),
+  } : emptyReplay),
     [index, setIndex] = useState(0),
     [playing, setPlaying] = useState(false),
     [speed, setSpeed] = useState(1),
@@ -190,6 +192,13 @@ export function Match({ notify }) {
     } else setIndex(i => Math.min(i, next.frames.length - 1));
   }, [remote.replay, remoteEnabled]);
   const roomRecording = replay.mode === "room-recording";
+  useEffect(() => {
+    if (!botRemote.replay) return;
+    setReplay(botRemote.replay);
+    setSelected(null);
+    setIndex(0);
+    setPlaying(false);
+  }, [botRemote.replay]);
   const frame = replay.frames[Math.min(index, replay.frames.length - 1)];
   const end = replay.frames.length - 1;
   useEffect(() => {
@@ -247,7 +256,7 @@ export function Match({ notify }) {
         <div>
           <span className="eyebrow">{roomRecording ? "RECORDED ROOM / HUMAN MATCH" : "RECORDED MATCH / ROUND OF 16"}</span>
           <h1>
-            MATCH VIEWER<span className="yellow-dot">.</span>
+            REPLAY<span className="yellow-dot">.</span>
           </h1>
         </div>
         <div className="heading-actions">
@@ -266,9 +275,15 @@ export function Match({ notify }) {
           />
         </div>
       </div>
-      {(error || (remoteEnabled && remote.error)) && (
+      {(error || (remoteEnabled && remote.error) || botRemote.error || botRemote.status?.error) && (
         <p className="error" role="alert">
-          {error || remote.error}
+          {error || remote.error || botRemote.error || botRemote.status?.error}
+        </p>
+      )}
+      {botMatchId && !botRemote.replay && (
+        <p className="muted">
+          Bot match: {botRemote.status?.status || "connecting"}.
+      The grader is running both submissions on the server.
         </p>
       )}
       <div className="viewer">
@@ -331,6 +346,8 @@ export function Match({ notify }) {
                   ? "LOADING ROOM"
                   : remoteEnabled && remote.error
                     ? "CONNECTION ERROR"
+                    : frame.status === "finished" && frame.winner
+                      ? <span className="replay-result">{frame.winner.toUpperCase()} WINS</span>
                     : index === end
                   ? "REPLAY COMPLETE"
                   : playing
@@ -439,7 +456,9 @@ export function Match({ notify }) {
             {tab === "events" ? (
               replay.frames
                 .slice(0, index + 1)
-                .map((f, i) => (
+                .map((f, i) => ({ frame: f, index: i }))
+                .filter(({ frame: f }) => f.event !== "match-end")
+                .map(({ frame: f, index: i }) => (
                   <button
                     key={i}
                     className={`log-entry ${i === index ? "current" : ""}`}
@@ -449,7 +468,12 @@ export function Match({ notify }) {
                       {String(i).padStart(3, "0")} /{" "}
                       {f.side?.toUpperCase() || "JUDGE"}
                     </small>
-                    <span>{f.event}</span>
+                    <span>
+                      {f.event}
+                      {f.event === "match-end" && f.winner && (
+                        <strong className="log-result">{f.winner} wins</strong>
+                      )}
+                    </span>
                   </button>
                 ))
                 .reverse()
@@ -466,7 +490,11 @@ export function Match({ notify }) {
           <div className="log-footer">
             Log-driven simulation
             <br />
-            {roomRecording ? `Timed human match · ${frame.status === "finished" ? `Winner: ${frame.winner || "draw"}` : "in progress"}` : "No execution time limit"}
+            {frame.status === "finished"
+              ? `${frame.winner ? `${frame.winner} wins` : "Draw"} · match complete`
+              : roomRecording
+                ? "Timed human match · in progress"
+                : "Match in progress"}
           </div>
         </aside>
       </div>
@@ -565,38 +593,39 @@ export function Rankings() {
   );
 }
 export function Submission({ bot, save }) {
-  const [name, setName] = useState(bot.name),
-    [language, setLanguage] = useState(bot.language),
-    [file, setFile] = useState(null),
+  const [white, setWhite] = useState(""),
+    [black, setBlack] = useState(""),
+    [whiteLanguage, setWhiteLanguage] = useState("java"),
+    [blackLanguage, setBlackLanguage] = useState("java"),
     [error, setError] = useState(""),
+    [matchId, setMatchId] = useState(""),
     [busy, setBusy] = useState(false);
-  const submit = (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (!file) {
-      setError("Choose a bot source file first.");
-      return;
-    }
-    const ext = { Java: ".java", Python: ".py", C: ".c" }[language];
-    if (!file.name.endsWith(ext)) {
-      setError(`Choose a ${ext} source file for ${language}.`);
-      return;
-    }
-    if (file.size > 2e6) {
-      setError("Please choose a source file under 2 MB.");
+    if (!white.trim() || !black.trim()) {
+      setError("Paste source code for both players.");
       return;
     }
     setError("");
     setBusy(true);
-    setTimeout(() => {
+    try {
+      const [whiteSubmission, blackSubmission] = await Promise.all([
+        submitBot("web-white", whiteLanguage, white),
+        submitBot("web-black", blackLanguage, black),
+      ]);
+      const match = await createBotMatch(whiteSubmission.id, blackSubmission.id);
+      setMatchId(match.id);
       save({
-        name: name.trim(),
-        language,
-        version: bot.version + 1,
-        file: file.name,
+        ...bot,
+        language: `${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,
+        file: `${match.id} submissions`,
       });
+      window.location.href = `?match=${encodeURIComponent(match.id)}#match`;
+    } catch (submitError) {
+      setError(submitError.message);
+    } finally {
       setBusy(false);
-      setFile(null);
-    }, 450);
+    }
   };
   return (
     <>
@@ -610,53 +639,41 @@ export function Submission({ bot, save }) {
       <div className="submission-layout">
         <form className="card submission-form" onSubmit={submit}>
           <h2>SUBMIT A BOT</h2>
-          <p>Save a source-file selection to this browser for preview.</p>
+          <p>Choose a language independently for each player. The backend compiles and runs both programs on the server.</p>
           <label>
-            Bot name
-            <input
-              value={name}
-              required
-              maxLength={30}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </label>
-          <label>
-            Language
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-            >
-              {["Java", "Python", "C"].map((l) => (
-                <option key={l}>{l}</option>
-              ))}
+            White language
+            <select value={whiteLanguage} onChange={(e) => setWhiteLanguage(e.target.value)}>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="python">Python</option>
             </select>
           </label>
-          <label className="file-drop">
-            <Pixel kind="paper" />
-            <strong>{file ? file.name : "CHOOSE SOURCE FILE"}</strong>
-            <small>.java / .py / .c · max 2 MB</small>
-            <input
-              aria-label="Bot source file"
-              type="file"
-              accept=".java,.py,.c"
-              onChange={(e) => {
-                setFile(e.target.files[0]);
-                setError("");
-              }}
-            />
+          <label>
+            White player
+            <textarea value={white} required rows="10" onChange={(e) => setWhite(e.target.value)} placeholder={'Java: RobotPlayer.run(...)\nC++/Python: choose_move(state)'} />
+          </label>
+          <label>
+            Black language
+            <select value={blackLanguage} onChange={(e) => setBlackLanguage(e.target.value)}>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="python">Python</option>
+            </select>
+          </label>
+          <label>
+            Black player
+            <textarea value={black} required rows="10" onChange={(e) => setBlack(e.target.value)} placeholder={'Java: RobotPlayer.run(...)\nC++/Python: choose_move(state)'} />
           </label>
           {error && (
             <p className="error" role="alert">
               {error}
             </p>
           )}
-          <Button disabled={busy || !name.trim()} type="submit">
-            {busy ? "Saving…" : "Save demo submission ↗"}
+          <Button disabled={busy || !white.trim() || !black.trim()} type="submit">
+            {busy ? "Starting grader…" : "Submit and run match ↗"}
           </Button>
-          <small>
-            Source stays on your device. This preview stores metadata only;
-            compilation and judging require your backend.
-          </small>
+          {matchId && <p className="status">Match created: {matchId}</p>}
+          <small>Each program is compiled and run as a temporary server process. Use this only on a trusted development server.</small>
         </form>
         <aside>
           <article className="card">
@@ -886,7 +903,7 @@ export function Rules() {
               )}
             </pre>
             <a href="#match" className="text-link">
-              Try the replay viewer ↗
+              Open replay ↗
             </a>
           </>
         )}

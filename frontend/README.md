@@ -1,6 +1,12 @@
 # OTTv2 — Pixel Bot Arena
 
-Frontend-only React/Vite prototype for evaluating the design. No backend is required.
+React/Vite frontend for submitting two Java bots to the server-graded backend.
+The original offline demo screens and replay viewer remain available.
+
+The **Submit bot** page accepts White and Black Java source, submits both
+programs, starts a locally compiled match, and opens the Replay screen while the
+grader runs. The backend server must have `g++` available; see
+`../logic/README.md`.
 
 ## Quickest preview
 
@@ -15,7 +21,7 @@ npm ci
 npm run dev
 ```
 
-Open the local URL shown by Vite. Navigate to **Match viewer** for the simulation screen.
+Open the local URL shown by Vite. Navigate to **Replay** for the simulation screen.
 
 ```bash
 npm run build
@@ -43,9 +49,9 @@ The Battlecode reference informs board emphasis, team statistics, and playback c
 
 ## Integration boundaries
 
-Everything marked preview/demo is sample data. No authentication, bot compiler, bot execution, judge, distributed room host, pairing service, or Elo calculation is implemented. Weekly cutoff has no assumed weekday. The frontend targets a 4,000-student tournament but does not demonstrate server scalability.
+Everything marked preview/demo is sample data. Authentication, distributed room hosting, pairing, Elo calculation, and durable tournament persistence are not implemented. Java bot compilation and execution are provided by the backend match API. Weekly cutoff has no assumed weekday. The frontend targets a 4,000-student tournament but does not demonstrate server scalability.
 
-Suggested boundaries are documented in Rules & SDK. Replace sample standings and brackets with your API responses; replace local submission metadata with your upload API; fetch judge replay snapshots for Match viewer. The replay schema here is a proposed frontend adapter, not an existing backend contract.
+Suggested boundaries are documented in Rules & SDK. Replace sample standings and brackets with your API responses; replace local submission metadata with your upload API; fetch judge replay snapshots for Replay. The replay schema here is a proposed frontend adapter, not an existing backend contract.
 
 - `src/main.jsx`: portal shell, navigation, local state.
 - `src/pages.jsx`: overview, submissions, standings, bracket, rules, and viewer.

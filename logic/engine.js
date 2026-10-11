@@ -237,7 +237,7 @@ class GameEngine {
       );
 
       if (this.status === 'active') {
-        this.checkEliminationWin();
+        this.checkAllPiecesWin();
       }
 
       if (this.status === 'active') {
@@ -256,7 +256,7 @@ class GameEngine {
       moveRecord.result = 'defender';
       this.history.push(moveRecord);
 
-      this.checkEliminationWin();
+      this.checkAllPiecesWin();
 
       if (this.status === 'active') {
         this.afterTurn();
@@ -268,39 +268,21 @@ class GameEngine {
     throw new Error('Invalid battle result.');
   }
 
-  checkEliminationWin() {
+  checkAllPiecesWin() {
     if (this.status !== 'active') {
       return false;
     }
 
-    const types = [
-      'rock',
-      'paper',
-      'scissors',
-    ];
-
-    // If White loses all pieces of one type,
-    // Black wins.
-    for (const type of types) {
-      if (
-        this.countPiecesByType('white', type) === 0
-      ) {
-        this.status = 'finished';
-        this.winner = 'black';
-        return true;
-      }
+    if (this.countPieces('white') === 0) {
+      this.status = 'finished';
+      this.winner = 'black';
+      return true;
     }
 
-    // If Black loses all pieces of one type,
-    // White wins.
-    for (const type of types) {
-      if (
-        this.countPiecesByType('black', type) === 0
-      ) {
-        this.status = 'finished';
-        this.winner = 'white';
-        return true;
-      }
+    if (this.countPieces('black') === 0) {
+      this.status = 'finished';
+      this.winner = 'white';
+      return true;
     }
 
     return false;

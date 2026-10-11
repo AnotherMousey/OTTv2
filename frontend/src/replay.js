@@ -61,7 +61,7 @@ export function createDemoReplay() {
       q.side === "white" ? q.x === 8 && q.y === 0 : q.x === 0 && q.y === 8,
     );
     const eliminated = ["white", "black"].some((s) =>
-      TYPES.some((t) => !pieces.some((q) => q.side === s && q.type === t)),
+      !pieces.some((q) => q.side === s),
     );
     frames.push({ pieces: structuredClone(pieces), event, side, from, to });
     if (goal || eliminated) {

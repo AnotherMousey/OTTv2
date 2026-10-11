@@ -32,3 +32,39 @@ export function recordingToReplay(recording) {
     mode: 'room-recording', timeLimitMs: 300000, frames,
   }));
 }
+
+export function matchLogToReplay(log) {
+  if (!log?.matchId || !Array.isArray(log.frames) || !log.frames.length) {
+    throw new Error('Bot match log is incomplete.');
+  }
+  const frames = log.frames.map((frame) => {
+    if (Array.isArray(frame.pieces)) return frame;
+    const { state, event, move, moveNumber } = frame;
+    if (!state) throw new Error('Bot match frame has no state or pieces.');
+    return {
+      pieces: stateToPieces(state),
+      event,
+      side: move?.player || state.currentTurn,
+      ...(move ? { from: move.from, to: move.to } : {}),
+      moveNumber,
+      status: state.status,
+      winner: state.winner,
+      currentTurn: state.currentTurn,
+      clocks: { white: state.whiteTimeMs, black: state.blackTimeMs },
+    };
+  });
+  return parseReplay(JSON.stringify({
+    schemaVersion: 1,
+    gameId: 'ottv2',
+    rulesVersion: 'java-battlecode-style-v1',
+    boardSize: 9,
+    mapName: `Bot match ${log.matchId}`,
+    maxMoves: Math.max(1, frames.length - 1),
+    firstSide: 'white',
+    teams: { white: 'White submission', black: 'Black submission' },
+    matchId: log.matchId,
+    mode: 'bot-match',
+    timeLimitMs: 2000,
+    frames,
+  }));
+}

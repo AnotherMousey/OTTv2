@@ -787,6 +787,12 @@ small {
 .arena-toolbar > div > span:last-child {
   color: var(--muted);
 }
+.replay-result {
+  color: #9c5b00;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
 .board-stage {
   padding: 30px 35px 35px;
   display: grid;
@@ -837,11 +843,12 @@ small {
 }
 .tile.goal {
   background: #eed48a;
+  display: grid;
+  place-items: center;
 }
 .tile.goal .pixel {
-  width: 65%;
-  height: 65%;
-  margin: auto;
+  width: 58%;
+  height: 58%;
   opacity: 0.42;
 }
 .piece-layer {
@@ -1013,6 +1020,10 @@ input[type="range"] {
 .log-entry span {
   font-size: 10px;
   line-height: 1.8;
+}
+.log-result {
+  display: block;
+  font-weight: 700;
 }
 .log-entry.current {
   background: var(--highlight);
