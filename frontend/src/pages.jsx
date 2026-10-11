@@ -140,7 +140,7 @@ export function Home({ go, bot }) {
           </h2>
         </div>
         {[
-          ["01", "BUILD", "Use the game SDK in Java, Python, or C."],
+          ["01", "BUILD", "Use the game SDK in Python or C++."],
           ["02", "SUBMIT", "Choose the bot version you want to compete with."],
           ["03", "WATCH", "Follow every move, inspect logs, learn, repeat."],
         ].map(([n, t, d]) => (
@@ -593,10 +593,42 @@ export function Rankings() {
   );
 }
 export function Submission({ bot, save }) {
-  const [white, setWhite] = useState(""),
-    [black, setBlack] = useState(""),
-    [whiteLanguage, setWhiteLanguage] = useState("java"),
-    [blackLanguage, setBlackLanguage] = useState("java"),
+  const pythonExample = `def beats(attacker, defender):
+    return (
+        (attacker == "rock" and defender == "scissors")
+        or (attacker == "scissors" and defender == "paper")
+        or (attacker == "paper" and defender == "rock")
+    )
+
+def choose_move(state):
+    occupied = {piece.square: piece for piece in state.pieces}
+    choices = []
+    for piece in state.pieces:
+        if piece.color != state.color:
+            continue
+        file_index = ord(piece.square[0]) - ord("a")
+        rank = int(piece.square[1])
+        for file_step in (-1, 0, 1):
+            for rank_step in (-1, 0, 1):
+                if file_step == 0 and rank_step == 0:
+                    continue
+                destination_file = file_index + file_step
+                destination_rank = rank + rank_step
+                if not (0 <= destination_file < 9 and 1 <= destination_rank <= 9):
+                    continue
+                destination = chr(ord("a") + destination_file) + str(destination_rank)
+                target = occupied.get(destination)
+                if target is not None and target.color == state.color:
+                    continue
+                if target is not None and not beats(piece.type, target.type):
+                    continue
+                choices.append((piece.square, destination))
+
+    return choices[0] if choices else ("a1", "a1")`;
+  const [white, setWhite] = useState(pythonExample),
+    [black, setBlack] = useState(pythonExample),
+    [whiteLanguage, setWhiteLanguage] = useState("python"),
+    [blackLanguage, setBlackLanguage] = useState("python"),
     [error, setError] = useState(""),
     [matchId, setMatchId] = useState(""),
     [busy, setBusy] = useState(false);
@@ -639,30 +671,28 @@ export function Submission({ bot, save }) {
       <div className="submission-layout">
         <form className="card submission-form" onSubmit={submit}>
           <h2>SUBMIT A BOT</h2>
-          <p>Choose a language independently for each player. The backend compiles and runs both programs on the server.</p>
+          <p>Choose C++ or Python independently for each player. The backend runs both programs on the server.</p>
           <label>
             White language
             <select value={whiteLanguage} onChange={(e) => setWhiteLanguage(e.target.value)}>
-              <option value="java">Java</option>
               <option value="cpp">C++</option>
               <option value="python">Python</option>
             </select>
           </label>
           <label>
             White player
-            <textarea value={white} required rows="10" onChange={(e) => setWhite(e.target.value)} placeholder={'Java: RobotPlayer.run(...)\nC++/Python: choose_move(state)'} />
+            <textarea value={white} required rows="10" onChange={(e) => setWhite(e.target.value)} placeholder={'C++: choose_move(state)\nPython: read_state() / yield_turn(...)'} />
           </label>
           <label>
             Black language
             <select value={blackLanguage} onChange={(e) => setBlackLanguage(e.target.value)}>
-              <option value="java">Java</option>
               <option value="cpp">C++</option>
               <option value="python">Python</option>
             </select>
           </label>
           <label>
             Black player
-            <textarea value={black} required rows="10" onChange={(e) => setBlack(e.target.value)} placeholder={'Java: RobotPlayer.run(...)\nC++/Python: choose_move(state)'} />
+            <textarea value={black} required rows="10" onChange={(e) => setBlack(e.target.value)} placeholder={'C++: choose_move(state)\nPython: read_state() / yield_turn(...)'} />
           </label>
           {error && (
             <p className="error" role="alert">
@@ -837,7 +867,7 @@ export function Rules() {
                 [
                   "06",
                   "BOT COMPETITION",
-                  "Players submit bots in Java, Python, or C. The judge runs matches and confirms results; the web renders the logs.",
+                  "Players submit bots in Python or C++. The judge runs matches and confirms results; the web renders the logs.",
                 ],
               ].map(([n, t, d]) => (
                 <article key={n}>
@@ -860,7 +890,7 @@ export function Rules() {
               Your official SDK and repository URLs are not configured in this
               prototype. Add them when connecting the backend.
             </div>
-            <pre>{`// Integration points\nGET /api/games/current\nGET /api/tournaments/:id\nGET /api/rankings\nPOST /api/submissions\nGET /api/matches/:id/replay\n\nSupported bot languages: Java, Python, C`}</pre>
+            <pre>{`// Integration points\nGET /api/games/current\nGET /api/tournaments/:id\nGET /api/rankings\nPOST /api/submissions\nGET /api/matches/:id/replay\n\nSupported bot languages: Python, C++`}</pre>
           </>
         ) : (
           <>

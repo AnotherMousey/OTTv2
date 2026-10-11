@@ -3,7 +3,7 @@
 React/Vite frontend for submitting two Java bots to the server-graded backend.
 The original offline demo screens and replay viewer remain available.
 
-The **Submit bot** page accepts White and Black Java source, submits both
+The **Submit bot** page accepts White and Black Python or C++ source, submits both
 programs, starts a locally compiled match, and opens the Replay screen while the
 grader runs. The backend server must have `g++` available; see
 `../logic/README.md`.

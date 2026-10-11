@@ -124,7 +124,7 @@ function App() {
         <span className="status-dot" />
         BOT MATCH PLATFORM{" "}
         <span>
-          {page === "match" && new URLSearchParams(window.location.search).has("match") ? "Java submissions · server grader · live replay log" : "Java bot submissions · recorded demo replay"}
+          {page === "match" && new URLSearchParams(window.location.search).has("match") ? "C++ / Python submissions · server grader · live replay log" : "C++ / Python bot submissions · recorded demo replay"}
         </span>
       </div>
       <main className="page" key={page}>
