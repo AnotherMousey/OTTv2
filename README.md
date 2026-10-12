@@ -1,90 +1,71 @@
-# OTTv2 — Pixel frontend + existing room backend
+# OTTv2 — Approved frontend v5 integrated with the backend
 
-The attached pixel frontend is the visual baseline. Its CSS, sprites, board renderer, shared UI, theme logic, replay fixture/parser, fonts, and default demo screens are preserved. No old match/lobby frontend has been imported.
+This project integrates the approved pixel frontend with the existing room server and Java/C++/Python graders. Game rendering is selected through a frontend game registry; OTTv2 engine, rules, coordinate utilities and configuration live under `logic/games/ottv2`. Compatibility imports at `logic/engine.js`, `utils.js` and `constants.js` remain available.
 
-## Deploy
+## Preview without installation
 
-For Vercel frontend + Render backend, follow [DEPLOY_VERCEL_RENDER.md](DEPLOY_VERCEL_RENDER.md). All deployment changes are listed in [CHANGES_DEPLOYMENT.md](CHANGES_DEPLOYMENT.md). Requires Node 24.x.
+Open `frontend/preview.html`, navigate to Replay, and choose **Finished sample matches…**. All nine samples end through the authoritative engine. The same samples are JSON files under `samples/matches` for Import replay. Offline submission displays a message requiring the backend; it does not fabricate bot results.
 
-## Run
+## Run the integrated application
 
-Requires Node.js 24.x and npm. Extract the ZIP, open a terminal in `OTTv2` (the folder with the root `package.json`), then:
+Requires Node 24.x. Bot matches additionally require Python 3, g++ with C++20 support, and Java JDK 17+ (including `javac`).
 
 ```bash
+npm ci
 npm run build
 npm start
 ```
 
-Open http://localhost:3000 . The root build installs frontend dependencies, builds the connected application, and regenerates the offline preview.
-
-For development, stop the production server first, then run:
+Open http://localhost:3000/#submit . Select a map, turn limit, first side and the language for each player; run the included bot examples. Language changes replace untouched example code with the matching language example; edited source is retained.
 
 ```bash
 npm run dev
 ```
 
-This starts the room backend on port 3000 and Vite on its printed local URL, normally http://127.0.0.1:5173 . `/api` and `/health` are proxied to the backend. Both processes stop when the launcher is interrupted. A custom `PORT` is supported for production; development proxying assumes port 3000.
+Development starts the backend on 3000 and Vite on its printed URL. Root build also regenerates embedded samples and the offline preview. Frontend code remains independent of server code at build time; Vercel uses the committed generated sample JSON.
 
-Tests:
+## Game configuration
+
+- Default legacy room: 9×9, original 9 pieces per side, White first, 5-minute clocks, no turn limit, all-piece elimination.
+- Bot default: same engine setup, 31-turn limit; more remaining pieces wins, equal counts draw.
+- Custom maps: 5–26 rows/columns, explicit initial pieces, targets, first side, clock budget, elimination mode and turn limit.
+- `elimination: "one-type"` enables loss after one piece type is completely eliminated; `"all-pieces"` retains actual engine behavior in the attached repository.
+- Same-type captures remain blocked. Bot invalid actions consume a turn, as in the existing grader; invalid human-room moves are rejected without consuming a turn.
+- Goal/elimination takes precedence when achieved on the final permitted turn. `limitPolicy: "draw"` restores the old grader's unconditional draw at the limit if required.
+
+## Samples and tests
+
+See `samples/README.md` for map sizes, terminal match results and reproduction instructions.
 
 ```bash
+npm run samples
 npm test
 ```
 
-## Try a backend-connected recording
+Tests cover runtime preflight, server-history ownership association, complete replay persistence across process restarts, existing rooms, captures, blocking, authorization, reset, clocks/forfeit, CORS, metadata, cursor replay, all sample transitions, configurable boards and real bot runner execution. Language tests explicitly skip when the required compiler/runtime is unavailable; check the reported skip count.
 
-Keep `npm start` running. In a second terminal in the same root folder:
+## API and protocol
 
-```bash
-npm run demo:room
-```
+Existing endpoints and input fields are retained. Room and bot creation accept optional `gameId`, `mapId` and `config`. New `/api/games/current` and `/api/games/ottv2/spec` endpoints expose capabilities and maps. Logs now carry protocol version 2 metadata, renderer version, exact judge configuration and terminal result. Old replay imports and old non-cursor API consumers remain supported.
 
-This creates two client IDs, creates/joins a room, sends two scripted legal moves, and forfeits the black seat. It prints a link such as:
+See `docs/PROTOCOL.md`, `docs/INTEGRATION_CHANGES.md` and `logic/README.md`.
 
-```text
-http://localhost:3000/?room=OTT-ABCDEF#match
-```
+## Deploy
 
-Open the printed link. The pixel replay screen loads genuine recorded snapshots from that room, supports playback, seek, flip, inspection, import, and export, and polls for new events. Its terminal event reports the winner. This fixture drives the existing human-room API; it does not execute autonomous bots.
+Frontend: Vercel, Root Directory `frontend`, Vite, `npm ci`, `npm run build`, output `dist`, Node 24.x, `VITE_API_BASE_URL` set to the actual backend origin.
 
-Any existing room can be viewed through `/?room=ROOM_CODE#match`. During development, use the same query/hash on the Vite URL. Viewing does not join a seat. Importing a JSON replay stops room polling for that viewer session; reload its room URL to reconnect. Missing rooms and network errors appear in the existing error area and retry automatically. Recorded frames remain available after temporary connection errors.
+Backend: Render Docker service using the included `Dockerfile` and `render.yaml`, with `ALLOWED_ORIGINS` set to the exact frontend origin. Docker includes Java/Python/C++ toolchains. Full steps: `DEPLOY_VERCEL_RENDER.md`.
 
-With no `room` query parameter the six original demo screens remain unchanged. There are no new visible lobby controls, manual move controls, clocks, or redesigned screens. Connected-room metadata uses the existing text slots to identify the original timed human match accurately.
+## Preserved scope and limits
 
-## Offline preview
+Navigation, theme, pixel assets, replay controls, import/export and the room/bot workflows remain. Rankings and tournaments retain the existing demo content; this integration does not claim to implement Elo, pairing, login or scheduling.
 
-Open `frontend/preview.html` after extraction. It bundles JS, CSS, and all three Pixeloid fonts; no installation or internet is needed for its normal demo mode. It does not launch the server. Room links require the running connected application. The original malformed-font issue is avoided by resolving fonts relative to the compiled CSS and embedding valid data URLs. `npm run build` regenerates this file; editing source alone does not update it.
+Rooms, submissions, queue and recordings are still in process memory and are lost on restart. The worker bound limits concurrent graders; it is not a distributed queue or a 4,000-user load-test result. Bot source still executes directly in server processes, as in the original project: use trusted submissions until isolated workers are implemented. Docker supplies dependencies; it does not provide per-bot isolation.
 
-## Connected versus demo-only
+## Latest frontend integration
 
-| Feature | Status |
-|---|---|
-| Server-managed room states, captures, turns, winner, reset, forfeit, clocks | Existing backend retained; API available |
-| Recording initial boards, accepted moves, timeout/forfeit terminal states | Added server recording |
-| Pixel viewer loading/polling room recordings | Connected through adapter/hook |
-| Replay seek, playback speed, board flip, inspection, import/export | Existing frontend retained, usable with connected recordings |
-| Room create/join/move/reset/forfeit controls in the web portal | Not added; use API clients or the sample CLI |
-| Bot source selection and metadata | Local frontend preview only; no compilation/upload service |
-| Rankings, Elo values, tournament rounds, dashboard statistics | Original demo data |
-| Authentication, bot execution, tournament scheduling, Elo calculation | Not implemented |
+The accepted v5 frontend is now the live application in `frontend/`. It retains the original rectangular gold flag, subdued dark-mode pole and YOU badge, and smooth 720 ms piece movement at 1× with capture fading. Submission-linked replays hide the sample selector and import control. My Submissions loads real server history, polls status, and opens the corresponding real replay. The offline `frontend/preview.html` remains a demonstration only.
 
-## Contracts and rules
+Server source, match metadata and terminal replays are atomically stored under `DATA_DIR` (default `./data`). Keep that directory private and outside source control. A stable browser client ID associates history with the browser; clearing site data loses that association. This is not an account/login system. Live rooms remain in memory. Run one backend process with this file adapter; use a database adapter before horizontal scaling.
 
-See `logic/README.md` for the actual API. Room state can be rotated for Black; adapter positions come from each piece's canonical `square`, so a board is never rotated twice.
-
-The existing engine is unchanged: white moves first, 9×9 board, one-square eight-direction moves, rock/paper/scissors captures, equal-type blocking, own-piece blocking, white target i9, black target a1, loss of all pieces of a type, and five-minute player clocks after the first move. There is no added move limit. The bot-demo's move-limit/no-time-limit rules remain a separate preview model. Connected viewer labels identify the timed room; no silent rule migration was performed.
-
-Snapshots are captured when events occur, not fabricated by rewinding the latest state. Reset begins a new recording ID and discards the room's previous recording; export before resetting to retain it. Current rooms/recordings are in process memory, are removed by the existing six-hour room cleanup, and do not survive server restarts. Existing client-ID authorization is preserved; this is not an authenticated tournament platform.
-
-The frontend parser supports at most 10,001 snapshots. That is a replay-import limit, not a newly enforced engine move limit. Over-limit recordings show a validation error rather than silently truncating history.
-
-## Verification
-
-- Production build, root startup, health endpoint, static fonts, and sample room API flow passed.
-- Four original replay/theme tests and three integration/visual-contract tests passed.
-- Integration checks cover all board coordinates, both array orientations, attacker/defender captures, equal-type blocking, spectator/turn rejection, recording immutability, resets, forfeit, timeout, missing room errors, and replay JSON round-tripping.
-- Original and integrated static HTML was identical on all six default demo pages with the same fixture data. Evidence is in `VISUAL_COMPARISON.json`.
-- Protected files/fonts are byte-identical; expected hashes and a repeatable test are included.
-- Browser access to http://localhost:3000 failed with `ERR_CONNECTION_REFUSED` from the separate cloud-browser environment. Desktop/mobile screenshots, theme screenshots, font rendering in-browser, and click-through interaction checks could not be performed. HTML/hash comparisons are not substitutes for those browser checks.
-
-See `CHANGES.md` for the complete change table and `VISUAL_BASELINE.json` for protected-file hashes.
+See [DEPLOY_VERCEL_RENDER.md](DEPLOY_VERCEL_RENDER.md) for exact deployment settings, persistence requirements and CLI deployment when a teammate owns the repository. `frontend/` replaces the old `/ottv2` build folder; do not keep using the old Render frontend build command. With `SERVE_FRONTEND=false`, Render serves the API without requiring a frontend build.

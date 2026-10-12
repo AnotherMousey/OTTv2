@@ -1,0 +1,516 @@
+{
+  "protocolVersion": 2,
+  "gameId": "ottv2",
+  "rendererVersion": "1",
+  "rulesVersion": "ottv2-configurable-v2",
+  "mode": "sample-match",
+  "matchId": "01-white-enemy-source",
+  "mapName": "White reaches Black source i9",
+  "boardSize": 9,
+  "board": {
+    "kind": "grid",
+    "width": 9,
+    "height": 9,
+    "goals": [
+      {
+        "x": 8,
+        "y": 0
+      },
+      {
+        "x": 0,
+        "y": 8
+      }
+    ],
+    "sources": {
+      "white": {
+        "x": 0,
+        "y": 8
+      },
+      "black": {
+        "x": 8,
+        "y": 0
+      }
+    }
+  },
+  "config": {
+    "boardSize": 9,
+    "firstSide": "white",
+    "maxTurns": 20,
+    "startingClockMs": 300000,
+    "elimination": "all-pieces",
+    "limitPolicy": "more-pieces",
+    "targets": {
+      "white": "i9",
+      "black": "a1"
+    },
+    "initialPieces": [
+      {
+        "id": "white-rock-0",
+        "color": "white",
+        "type": "rock",
+        "square": "f6"
+      },
+      {
+        "id": "white-paper-1",
+        "color": "white",
+        "type": "paper",
+        "square": "b1"
+      },
+      {
+        "id": "white-scissors-2",
+        "color": "white",
+        "type": "scissors",
+        "square": "c1"
+      },
+      {
+        "id": "black-rock-0",
+        "color": "black",
+        "type": "rock",
+        "square": "a5"
+      },
+      {
+        "id": "black-paper-1",
+        "color": "black",
+        "type": "paper",
+        "square": "b5"
+      },
+      {
+        "id": "black-scissors-2",
+        "color": "black",
+        "type": "scissors",
+        "square": "c5"
+      }
+    ],
+    "mapName": "White reaches Black source i9"
+  },
+  "firstSide": "white",
+  "maxMoves": 20,
+  "timeLimitMs": 300000,
+  "teams": {
+    "white": "White player",
+    "black": "Black player"
+  },
+  "format": "ottv2-log-v1",
+  "frames": [
+    {
+      "event": "Judge initialized map",
+      "moveNumber": 0,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "white",
+      "status": "active",
+      "winner": null,
+      "endReason": null,
+      "currentTurn": "white",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    },
+    {
+      "event": "white: f6 → g7",
+      "moveNumber": 1,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "white",
+      "from": "f6",
+      "to": "g7",
+      "status": "active",
+      "winner": null,
+      "endReason": null,
+      "currentTurn": "black",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    },
+    {
+      "event": "black: a5 → a6",
+      "moveNumber": 2,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 3
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "black",
+      "from": "a5",
+      "to": "a6",
+      "status": "active",
+      "winner": null,
+      "endReason": null,
+      "currentTurn": "white",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    },
+    {
+      "event": "white: g7 → h8",
+      "moveNumber": 3,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 3
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "white",
+      "from": "g7",
+      "to": "h8",
+      "status": "active",
+      "winner": null,
+      "endReason": null,
+      "currentTurn": "black",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    },
+    {
+      "event": "black: a6 → a5",
+      "moveNumber": 4,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "black",
+      "from": "a6",
+      "to": "a5",
+      "status": "active",
+      "winner": null,
+      "endReason": null,
+      "currentTurn": "white",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    },
+    {
+      "event": "white: h8 → i9",
+      "moveNumber": 5,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "white",
+      "from": "h8",
+      "to": "i9",
+      "status": "finished",
+      "winner": "white",
+      "endReason": "enemy-source-reached",
+      "currentTurn": "white",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    },
+    {
+      "event": "Match finished: enemy-source-reached. Winner: white.",
+      "moveNumber": 5,
+      "pieces": [
+        {
+          "id": "white-rock-0",
+          "side": "white",
+          "type": "rock",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-rock-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 4
+        },
+        {
+          "id": "black-paper-1",
+          "side": "black",
+          "type": "paper",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-scissors-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-paper-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-scissors-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        }
+      ],
+      "side": "white",
+      "status": "finished",
+      "winner": "white",
+      "endReason": "enemy-source-reached",
+      "currentTurn": "white",
+      "clocks": {
+        "white": 300000,
+        "black": 300000
+      }
+    }
+  ],
+  "result": {
+    "status": "finished",
+    "winner": "white",
+    "reason": "enemy-source-reached",
+    "turns": 5,
+    "remaining": {
+      "white": 3,
+      "black": 3
+    }
+  },
+  "schemaVersion": 1
+}

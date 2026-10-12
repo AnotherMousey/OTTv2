@@ -1,3 +1,4 @@
+import {submissionClientId} from '../submissionHistory.js';
 const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
 
 async function request(path, options = {}) {
@@ -20,14 +21,14 @@ async function request(path, options = {}) {
 export function submitBot(playerId, language, source) {
   return request('/api/submissions', {
     method: 'POST',
-    body: JSON.stringify({ playerId, language, source }),
+    body: JSON.stringify({ playerId, language, source, clientId:submissionClientId() }),
   });
 }
 
-export function createBotMatch(whiteSubmissionId, blackSubmissionId) {
+export function createBotMatch(whiteSubmissionId, blackSubmissionId, options = {}) {
   return request('/api/matches', {
     method: 'POST',
-    body: JSON.stringify({ whiteSubmissionId, blackSubmissionId }),
+    body: JSON.stringify({ whiteSubmissionId, blackSubmissionId, ...options, clientId:submissionClientId() }),
   });
 }
 
@@ -49,3 +50,7 @@ export async function getBotReplay(matchId, signal) {
   if (!response.ok) throw new Error(data.error || `Replay request failed (${response.status}).`);
   return data;
 }
+
+export function getGameSpecification(signal) { return request("/api/games/current", {signal}); }
+
+export function getSubmissionHistory(signal){return request(`/api/submission-history?clientId=${encodeURIComponent(submissionClientId())}`,{signal});}

@@ -1,7 +1,8 @@
 const crypto = require('crypto');
 
 const MAX_SOURCE_BYTES = 256 * 1024;
-const submissions = new Map();
+const storage=require('./storage');
+const submissions = new Map(storage.load('submissions').map(s=>[s.id,s]));
 const LANGUAGES = new Set(['java', 'cpp', 'python']);
 
 function normalizeSource(source) {
@@ -15,7 +16,7 @@ function normalizeSource(source) {
   return source;
 }
 
-function createSubmission({ playerId, source, language = 'java' }) {
+function createSubmission({ playerId, source, language = 'java', clientId = '' }) {
   if (typeof playerId !== 'string' || !playerId.trim()) {
     throw new Error('playerId is required.');
   }
@@ -25,9 +26,11 @@ function createSubmission({ playerId, source, language = 'java' }) {
     id: `SUB-${crypto.randomBytes(6).toString('hex').toUpperCase()}`,
     playerId: playerId.trim().slice(0, 100),
     language,
+    clientId: typeof clientId==='string'?clientId.slice(0,128):'',
     source: normalizeSource(source),
     createdAt: new Date().toISOString(),
   };
+  storage.save('submissions',submission);
   submissions.set(submission.id, submission);
   return publicSubmission(submission);
 }

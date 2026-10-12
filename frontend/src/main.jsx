@@ -1,3 +1,4 @@
+import {SubmissionHistory} from "./SubmissionHistory.jsx";
 import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import "./style.css";
@@ -47,6 +48,10 @@ function App() {
       }
     });
   const go = (p) => {
+    if (p === 'match') {
+      const url = new URL(location.href); url.searchParams.delete('match');url.searchParams.delete('room');url.hash='match';
+      location.href=url.href;setMenu(false);return;
+    }
     location.hash = p;
     setMenu(false);
   };
@@ -66,8 +71,8 @@ function App() {
   }, [toast]);
   const saveBot = (b) => {
     setBot(b);
-    localStorage.setItem("ott-bot", JSON.stringify(b));
-    setToast("Saved locally. Ready for your backend integration.");
+    try {localStorage.setItem("ott-bot", JSON.stringify(b));setToast("Submission saved in this browser.");}
+    catch {setToast("Submission created; local saving is unavailable.");}
   };
   return (
     <>
@@ -90,11 +95,13 @@ function App() {
             ["tournament", "Tournament"],
             ["rankings", "Rankings"],
             ["match", "Replay"],
+            ["submissions", "My Submission"],
             ["rules", "Rules & SDK"],
           ].map(([id, label]) => (
             <a
               key={id}
               href={`#${id}`}
+              onClick={id === "match" ? e=>{e.preventDefault();go(id);} : undefined}
               aria-current={page === id ? "page" : undefined}
             >
               {label}
@@ -124,7 +131,7 @@ function App() {
         <span className="status-dot" />
         BOT MATCH PLATFORM{" "}
         <span>
-          {page === "match" && new URLSearchParams(window.location.search).has("match") ? "C++ / Python submissions · server grader · live replay log" : "C++ / Python bot submissions · recorded demo replay"}
+          {page === "match" && new URLSearchParams(window.location.search).has("match") ? "Java / C++ / Python submissions · server grader · live replay log" : "Java / C++ / Python bot submissions · recorded demo replay"}
         </span>
       </div>
       <main className="page" key={page}>
@@ -134,6 +141,8 @@ function App() {
           <Match notify={setToast} />
         ) : page === "rankings" ? (
           <Rankings />
+        ) : page === "submissions" ? (
+          <SubmissionHistory go={go} />
         ) : page === "submit" ? (
           <Submission bot={bot} save={saveBot} />
         ) : page === "tournament" ? (
@@ -150,7 +159,7 @@ function App() {
           OTTv2
         </a>
         <span>CODE. COMPETE. REPEAT.</span>
-        <a href="#rules">Rules v2.1 & SDK ↗</a>
+        <a href="#rules">Rules & SDK ↗</a>
       </footer>
       {toast && (
         <div className="toast" role="status">

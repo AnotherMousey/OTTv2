@@ -1,0 +1,63 @@
+{
+  "id": "06-small-5-finished",
+  "title": "Smaller map: 5×5, 6 initial pieces, terminal draw",
+  "config": {
+    "mapName": "Small 5×5 — 3 pieces per side",
+    "boardSize": 5,
+    "initialPieces": [
+      {
+        "color": "white",
+        "type": "rock",
+        "square": "b1"
+      },
+      {
+        "color": "white",
+        "type": "paper",
+        "square": "c1"
+      },
+      {
+        "color": "white",
+        "type": "scissors",
+        "square": "d1"
+      },
+      {
+        "color": "black",
+        "type": "rock",
+        "square": "b5"
+      },
+      {
+        "color": "black",
+        "type": "paper",
+        "square": "c5"
+      },
+      {
+        "color": "black",
+        "type": "scissors",
+        "square": "d5"
+      }
+    ],
+    "maxTurns": 4
+  },
+  "moves": [
+    [
+      "b1",
+      "a2"
+    ],
+    [
+      "b5",
+      "a4"
+    ],
+    [
+      "a2",
+      "b1"
+    ],
+    [
+      "a4",
+      "b5"
+    ]
+  ],
+  "expected": {
+    "winner": null,
+    "reason": "move-limit-draw"
+  }
+}

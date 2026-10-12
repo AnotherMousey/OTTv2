@@ -27,3 +27,6 @@ Thumbs.db
 *.exe
 __pycache__/
 *.py[cod]
+
+# Server submissions, source and match logs
+data/

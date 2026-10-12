@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ottv2:protocol:2",
+  "title": "Canonical judge log envelope v2",
+  "type": "object",
+  "required": ["protocolVersion", "gameId", "rulesVersion", "rendererVersion", "matchId", "config", "board", "frames"],
+  "properties": {
+    "protocolVersion": {"const": 2},
+    "gameId": {"type": "string", "minLength": 1},
+    "rulesVersion": {"type": "string"},
+    "rendererVersion": {"type": "string"},
+    "matchId": {"type": "string"},
+    "config": {"type": "object"},
+    "board": {"type": "object", "required": ["kind", "width", "height"], "properties": {"kind": {"const": "grid"}, "width": {"type": "integer", "minimum": 1}, "height": {"type": "integer", "minimum": 1}}},
+    "frames": {"type": "array", "items": {"type": "object", "required": ["state", "event", "moveNumber"], "properties": {"state": {"type": "object"}, "event": {"type": "string"}, "moveNumber": {"type": "integer", "minimum": 0}}}},
+    "result": {"type": ["object", "null"], "properties": {"status": {"enum": ["active", "finished"]}, "winner": {"type": ["string", "null"]}, "reason": {"type": ["string", "null"]}, "turns": {"type": "integer", "minimum": 0}, "remaining": {"type": "object"}}}
+  }
+}

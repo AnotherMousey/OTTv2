@@ -1,0 +1,51 @@
+{
+  "id": "08-one-type-eliminated",
+  "title": "Optional one-type elimination rule",
+  "config": {
+    "boardSize": 9,
+    "maxTurns": 20,
+    "elimination": "one-type",
+    "initialPieces": [
+      {
+        "color": "white",
+        "type": "rock",
+        "square": "d4"
+      },
+      {
+        "color": "white",
+        "type": "paper",
+        "square": "b1"
+      },
+      {
+        "color": "white",
+        "type": "scissors",
+        "square": "c1"
+      },
+      {
+        "color": "black",
+        "type": "scissors",
+        "square": "e5"
+      },
+      {
+        "color": "black",
+        "type": "rock",
+        "square": "g9"
+      },
+      {
+        "color": "black",
+        "type": "paper",
+        "square": "h9"
+      }
+    ]
+  },
+  "moves": [
+    [
+      "d4",
+      "e5"
+    ]
+  ],
+  "expected": {
+    "winner": "white",
+    "reason": "type-eliminated"
+  }
+}

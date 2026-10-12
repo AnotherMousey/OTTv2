@@ -4,7 +4,7 @@ function capture(game, event, move = null) {
     state: structuredClone(state),
     event,
     move: move ? structuredClone(move) : null,
-    moveNumber: history.length,
+    moveNumber: game.turnsPlayed,
   };
 }
 

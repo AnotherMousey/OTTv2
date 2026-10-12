@@ -1,0 +1,155 @@
+[
+  {
+    "id": "01-white-enemy-source",
+    "title": "White reaches Black source i9",
+    "file": "matches/01-white-enemy-source.json",
+    "boardSize": 9,
+    "pieces": 6,
+    "result": {
+      "status": "finished",
+      "winner": "white",
+      "reason": "enemy-source-reached",
+      "turns": 5,
+      "remaining": {
+        "white": 3,
+        "black": 3
+      }
+    }
+  },
+  {
+    "id": "02-black-enemy-source",
+    "title": "Black reaches White source a1",
+    "file": "matches/02-black-enemy-source.json",
+    "boardSize": 9,
+    "pieces": 6,
+    "result": {
+      "status": "finished",
+      "winner": "black",
+      "reason": "enemy-source-reached",
+      "turns": 5,
+      "remaining": {
+        "white": 3,
+        "black": 3
+      }
+    }
+  },
+  {
+    "id": "03-limit-white-more-pieces",
+    "title": "Limit reached after a capture: White 4, Black 3",
+    "file": "matches/03-limit-white-more-pieces.json",
+    "boardSize": 9,
+    "pieces": 8,
+    "result": {
+      "status": "finished",
+      "winner": "white",
+      "reason": "move-limit-more-pieces",
+      "turns": 4,
+      "remaining": {
+        "white": 4,
+        "black": 3
+      }
+    }
+  },
+  {
+    "id": "04-limit-black-more-pieces",
+    "title": "Limit reached after a capture: Black 4, White 3",
+    "file": "matches/04-limit-black-more-pieces.json",
+    "boardSize": 9,
+    "pieces": 8,
+    "result": {
+      "status": "finished",
+      "winner": "black",
+      "reason": "move-limit-more-pieces",
+      "turns": 4,
+      "remaining": {
+        "white": 3,
+        "black": 4
+      }
+    }
+  },
+  {
+    "id": "05-limit-equal-draw",
+    "title": "Equal piece counts at limit: draw",
+    "file": "matches/05-limit-equal-draw.json",
+    "boardSize": 9,
+    "pieces": 18,
+    "result": {
+      "status": "finished",
+      "winner": null,
+      "reason": "move-limit-draw",
+      "turns": 4,
+      "remaining": {
+        "white": 9,
+        "black": 9
+      }
+    }
+  },
+  {
+    "id": "06-small-5-finished",
+    "title": "Smaller map: 5×5, 6 initial pieces, terminal draw",
+    "file": "matches/06-small-5-finished.json",
+    "boardSize": 5,
+    "pieces": 6,
+    "result": {
+      "status": "finished",
+      "winner": null,
+      "reason": "move-limit-draw",
+      "turns": 4,
+      "remaining": {
+        "white": 3,
+        "black": 3
+      }
+    }
+  },
+  {
+    "id": "07-large-13-finished",
+    "title": "Larger map: 13×13, 36 initial pieces, terminal draw",
+    "file": "matches/07-large-13-finished.json",
+    "boardSize": 13,
+    "pieces": 36,
+    "result": {
+      "status": "finished",
+      "winner": null,
+      "reason": "move-limit-draw",
+      "turns": 4,
+      "remaining": {
+        "white": 18,
+        "black": 18
+      }
+    }
+  },
+  {
+    "id": "08-one-type-eliminated",
+    "title": "Optional one-type elimination rule",
+    "file": "matches/08-one-type-eliminated.json",
+    "boardSize": 9,
+    "pieces": 6,
+    "result": {
+      "status": "finished",
+      "winner": "white",
+      "reason": "type-eliminated",
+      "turns": 1,
+      "remaining": {
+        "white": 3,
+        "black": 2
+      }
+    }
+  },
+  {
+    "id": "09-all-pieces-eliminated",
+    "title": "Legacy all-piece elimination",
+    "file": "matches/09-all-pieces-eliminated.json",
+    "boardSize": 9,
+    "pieces": 4,
+    "result": {
+      "status": "finished",
+      "winner": "white",
+      "reason": "all-pieces-eliminated",
+      "turns": 1,
+      "remaining": {
+        "white": 3,
+        "black": 0
+      }
+    }
+  }
+]

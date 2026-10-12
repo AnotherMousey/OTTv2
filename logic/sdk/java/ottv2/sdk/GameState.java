@@ -9,10 +9,14 @@ public final class GameState {
   private final Board board;
 
   public GameState(String color, String currentTurn, int turnNumber, List<Piece> pieces) {
+    this(color,currentTurn,turnNumber,pieces,Board.SIZE);
+  }
+
+  public GameState(String color, String currentTurn, int turnNumber, List<Piece> pieces, int size) {
     this.color = color;
     this.currentTurn = currentTurn;
     this.turnNumber = turnNumber;
-    this.board = new Board(pieces);
+    this.board = new Board(pieces,size);
   }
 
   public String color() { return color; }

@@ -14,6 +14,7 @@ class State:
     current_turn: str
     turn_number: int
     pieces: tuple[Piece, ...]
+    board_size: int = 9
 
     @property
     def has_moves(self):
@@ -25,7 +26,8 @@ def read_state():
         return None
     fields = line.rstrip("\n").split("|")
     pieces = tuple(Piece(*item.split(",")) for item in fields[3:] if len(item.split(",")) == 4)
-    return State(fields[0], fields[1], int(fields[2]), pieces)
+    size = next((int(field.split("=",1)[1]) for field in fields[3:] if field.startswith("@boardSize=")), 9)
+    return State(fields[0], fields[1], int(fields[2]), pieces, size)
 
 def move(from_square, to_square):
     return (from_square, to_square)

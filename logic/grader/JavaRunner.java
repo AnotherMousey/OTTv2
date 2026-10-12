@@ -21,11 +21,13 @@ public final class JavaRunner {
     private void update(String line) {
       String[] fields = line.split("\\|", -1);
       ArrayList<Piece> next = new ArrayList<>();
+      int size = 9;
       for (int i = 3; i < fields.length; i++) {
+        if (fields[i].startsWith("@boardSize=")) { size=Integer.parseInt(fields[i].substring(11)); continue; }
         String[] piece = fields[i].split(",", -1);
         if (piece.length == 4) next.add(new Piece(piece[0], piece[1], piece[2], piece[3]));
       }
-      state = new GameState(fields[0], fields[1], Integer.parseInt(fields[2]), next);
+      state = new GameState(fields[0], fields[1], Integer.parseInt(fields[2]), next, size);
     }
 
     @Override public String getColor() { return state.color(); }

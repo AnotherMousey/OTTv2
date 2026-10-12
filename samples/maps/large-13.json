@@ -1,0 +1,186 @@
+{
+  "mapName": "Large 13×13 — 18 pieces per side",
+  "boardSize": 13,
+  "initialPieces": [
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "b1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "c1"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "d1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "b2"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "c2"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "d2"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "b3"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "c3"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "d3"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "b4"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "c4"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "d4"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "b5"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "c5"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "d5"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "b6"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "c6"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "d6"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "j13"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "k13"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "l13"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "j12"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "k12"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "l12"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "j11"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "k11"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "l11"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "j10"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "k10"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "l10"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "j9"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "k9"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "l9"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "j8"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "k8"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "l8"
+    }
+  ]
+}

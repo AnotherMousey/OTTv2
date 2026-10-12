@@ -10,6 +10,7 @@ struct Piece { std::string id, color, type, square; };
 struct State {
   std::string color, current_turn;
   int turn_number{};
+  int board_size{9};
   std::vector<Piece> pieces;
   bool has_moves() const { return color == current_turn; }
 };
@@ -27,6 +28,7 @@ inline State read_state(std::istream& input) {
   state.color = values[0]; state.current_turn = values[1];
   state.turn_number = std::stoi(values[2]);
   for (size_t i = 3; i < values.size(); ++i) {
+    if (values[i].rfind("@boardSize=",0)==0) {state.board_size=std::stoi(values[i].substr(11));continue;}
     std::stringstream piece(values[i]);
     std::vector<std::string> parts;
     while (std::getline(piece, field, ',')) parts.push_back(field);

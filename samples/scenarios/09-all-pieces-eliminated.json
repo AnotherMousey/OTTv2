@@ -1,0 +1,40 @@
+{
+  "id": "09-all-pieces-eliminated",
+  "title": "Legacy all-piece elimination",
+  "config": {
+    "boardSize": 9,
+    "maxTurns": 20,
+    "initialPieces": [
+      {
+        "color": "white",
+        "type": "rock",
+        "square": "d4"
+      },
+      {
+        "color": "white",
+        "type": "paper",
+        "square": "b1"
+      },
+      {
+        "color": "white",
+        "type": "scissors",
+        "square": "c1"
+      },
+      {
+        "color": "black",
+        "type": "scissors",
+        "square": "e5"
+      }
+    ]
+  },
+  "moves": [
+    [
+      "d4",
+      "e5"
+    ]
+  ],
+  "expected": {
+    "winner": "white",
+    "reason": "all-pieces-eliminated"
+  }
+}

@@ -5,13 +5,28 @@ export function useRoomReplay(roomId, enabled = true) {
   const [result, setResult] = useState({ replay: null, error: '', loading: Boolean(roomId) });
   useEffect(() => {
     if (!roomId || !enabled) return;
-    let cancelled = false, timer, controller, revision;
+    let cancelled = false, timer, controller, revision, accumulated=null, cursor=-1, recordingId="";
     setResult({ replay: null, error: '', loading: true });
     async function poll() {
       controller = new AbortController();
       const deadline = setTimeout(() => controller.abort(), 10000);
       try {
-        const recording = await getRoomRecording(roomId, controller.signal);
+        const page = await getRoomRecording(roomId, controller.signal, {afterSeq:cursor,limit:200,recordingId});
+        if (page.protocolVersion === 2 && accumulated && page.matchId === recordingId && !page.reset && page.frames.length === 0) {
+          if (!cancelled) setResult(current => current.error ? {...current,error:'',loading:false} : current);
+          return; // No new frames: avoid decoding the entire accumulated replay again.
+        }
+        let recording;
+        if (page.protocolVersion === 2 && Number.isInteger(page.nextSeq)) {
+          if (!accumulated || page.reset || page.matchId !== recordingId) { accumulated={...page,frames:[]};cursor=-1; }
+          const frames=accumulated.frames;
+          for(const frame of page.frames) {
+            if(frame.seq !== frames.length) throw Error('Replay frame sequence is incomplete.');
+            frames.push(frame);
+          }
+          accumulated={...page,frames};cursor=page.nextSeq;recordingId=page.matchId;
+          recording=accumulated;
+        } else recording=page; // Old servers retain full-recording compatibility.
         const replay = recordingToReplay(recording);
         const nextRevision = `${replay.matchId}:${replay.frames.length}`;
         if (!cancelled) {

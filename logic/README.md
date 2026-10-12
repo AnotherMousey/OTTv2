@@ -1,70 +1,32 @@
 # OTTv2 backend
 
-The backend supports two execution models:
+Start via `npm start` from the root. `logic/main.js` binds `0.0.0.0` on Render's `PORT` or 3000. `SERVE_FRONTEND=false` serves JSON API only; otherwise it serves `frontend/dist` for a combined local app.
 
-* The original human room API remains available under `/api/rooms`.
-* Autonomous Java matches use `/api/submissions` and `/api/matches`. A match
-  compiles one local JVM process per player, alternates turns, validates every
-  move with the authoritative JavaScript engine, and exposes the immutable
-  event log through `/api/matches/:id/replay`.
-  `display.js` is the display adapter: it turns that log into validated canonical
-  snapshots for the web replay view; it never executes player code.
+## Retained APIs
 
-## Java player contract
+- `POST /api/rooms {clientId}` — create White seat.
+- `POST /api/rooms/:id/join {clientId}` — fill Black seat or return existing role/spectator.
+- `GET /api/rooms/:id/state?clientId=...` — perspective state.
+- `GET /api/rooms/:id/replay` — canonical full recording.
+- `POST /api/rooms/:id/move {clientId,from,to}` — validate ownership/turn/movement/capture.
+- `POST /api/rooms/:id/new {clientId}` — reset same game configuration and recording ID.
+- `POST /api/rooms/:id/forfeit {clientId}` — forfeit active game.
+- `POST /api/submissions {playerId,source,language}` — Java/C++/Python source.
+- `POST /api/matches {whiteSubmissionId,blackSubmissionId}` — enqueue real bot match.
+- `GET /api/matches/:id` — status/config/result.
+- `GET /api/matches/:id/replay` — 202 until recorded log is available; 409 on job failure.
+- `GET /health` — process health and room count.
 
-The web submission is a single `RobotPlayer.java` source file defining the
-Battlecode-style entry point:
+Room/match creation also accepts `gameId`, `mapId` and `config`. `GET /api/games/current` and `/api/games/ottv2/spec` expose capabilities and the three configured sample maps. Optional replay pagination is documented in `docs/PROTOCOL.md`.
 
-```java
-import ottv2.sdk.RobotController;
+## Game library
 
-public final class RobotPlayer {
-  public static void run(RobotController rc) throws Exception {
-    while (true) {
-      // sense, call rc.move(from, to), then end the turn
-      rc.yieldTurn();
-    }
-  }
-}
-```
+`games/ottv2/` contains engine, config, coordinate helpers and constants. Existing root `engine.js`, `utils.js`, `constants.js` exports remain compatible. The judge records authoritative snapshots, not client-produced results.
 
-The SDK provides an object-oriented `RobotController`, `GameState`, `Board`,
-`Piece`, and `Move` in
-`logic/sdk/java/ottv2/sdk`. The controller exposes sensing, `hasMoves`,
-`canMove`, `move`, and `yieldTurn`, following Battlecode's per-turn player
-loop. `GameState` owns an immutable `Board`, and `Board` owns the immutable
-piece collection. The grader remains authoritative; an illegal move forfeits
-that turn.
+Default rooms preserve the attached engine's original setup and all-piece elimination. Bot limits now decide by remaining piece count as requested; `limitPolicy:"draw"` opts into the old draw behavior. Optional one-type elimination, dynamic board sizes and target squares are explicit judge configuration.
 
-The temporary runner requires a JDK (`java` and `javac`), `g++`, and Python 3
-on the server. It has a per-turn timeout
-and a maximum turn count, but it is **not a security sandbox**: submitted Java
-can access the server's files and resources. Use only on a trusted local
-development server until process isolation is added. Matches are currently
-held in memory and are lost on restart.
+## Runners
 
-An illegal move is recorded in the log and forfeits that player's turn; the
-opponent moves next. Compilation failures, process crashes, malformed output,
-and response timeouts still end the match with the other player as winner.
+Java SDK under `sdk/java/ottv2/sdk`, C++ under `sdk/cpp`, Python under `sdk/python`. Standard commands are javac/java, g++, and python; override with OTTV2_JAVAC, OTTV2_JAVA, OTTV2_CXX, OTTV2_PYTHON. Docker sets Python to python3. MAX response deadline remains 2 seconds and compilation deadline 15 seconds.
 
-Run from the project root with `npm start`. `main.js` starts the existing HTTP server on port 3000 (`PORT` overrides it). The server serves `../frontend/dist`.
-
-| Method | Endpoint | Request / result |
-|---|---|---|
-| POST | `/api/rooms` | JSON `{clientId}`; creates room with caller as white |
-| POST | `/api/rooms/:id/join` | JSON `{clientId}`; existing role or available seat; otherwise spectator |
-| GET | `/api/rooms/:id/state?clientId=ID` | `{roomId,role,seats,state}`; client ID optional for spectator |
-| GET | `/api/rooms/:id` | Alias for state |
-| POST | `/api/rooms/:id/move` | JSON `{clientId,from,to}`; authoritative validation and state result |
-| POST | `/api/rooms/:id/new` | JSON `{clientId}`; player-only reset and new recording ID |
-| POST | `/api/rooms/:id/forfeit` | JSON `{clientId}`; player-only forfeit |
-| GET | `/api/rooms/:id/replay` | Added: `{roomId,matchId,frames}` with canonical snapshots |
-| GET | `/health` | Existing health/room-count endpoint |
-
-Original success/error response methods and statuses are retained. Errors are JSON `{error}`. Client IDs are identifiers, not real login credentials.
-
-`recording.js` stores snapshots of canonical board state and clocks at initialization, accepted moves, and terminal events. Each frame has `{state,event,move,moveNumber}`. States omit repeated full move-history arrays to avoid quadratic recording size; each event carries its own move. Reads synchronize the existing engine timer and record timeout once. Recordings use white/canonical orientation; frontend adapters can also consume rotated states using piece.square.
-
-The engine, constants, utils and server entry point are unchanged. Same-type pieces block (they are not removed). Losing all pieces of one type loses the match. Targets: white i9, black a1. Five-minute player clocks begin after White's first move. No new game move limit was introduced.
-
-Room cleanup and in-memory lifecycle are unchanged. Reset starts a fresh recording; restart loses rooms. This backend does not implement scheduling, Elo, authentication or tournament persistence.
+SDK states include board size while keeping the old packed line format. Grader concurrency is bounded by MATCH_WORKERS (default 2; Docker/Render 1). This is an in-memory queue, and all rooms/submissions/recordings are lost on restart. Bot execution retains the original trusted-server scope; Docker is not per-bot isolation.

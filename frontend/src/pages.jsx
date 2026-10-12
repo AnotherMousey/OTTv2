@@ -1,10 +1,18 @@
+import {motionTiming} from "./motion.js";
+import {getPreviewRecord,previewReplay} from "./SubmissionHistory.jsx";
+import {historyStorage,readHistory,writeHistory,updateHistoryMatch,matchFailure} from "./submissionHistory.js";
+import {examples as botExamples} from "./games/ottv2/botExamples.js";
+import samples from "./games/samples.json" with {type:"json"};
+import bundledMaps from "./games/maps.json" with {type:"json"};
+import { pythonExample } from "./games/ottv2/botExample.js";
+import { resolveGame } from "./games/registry.js";
 import React, { useEffect, useRef, useState } from "react";
 import { demoReplay, parseReplay, TYPES } from "./replay";
 import { Pixel } from "./Pixel";
 import { Board } from "./Board";
 import { useRoomReplay } from "./hooks/useRoomReplay.js";
 import { useBotMatch } from "./hooks/useBotMatch.js";
-import { createBotMatch, submitBot } from "./api/matchApi.js";
+import { createBotMatch, submitBot, getGameSpecification } from "./api/matchApi.js";
 import { Button, Landscape, ranks } from "./ui";
 export function Home({ go, bot }) {
   return (
@@ -54,7 +62,7 @@ export function Home({ go, bot }) {
           <div className="chips">
             <span>JAVA</span>
             <span>PYTHON</span>
-            <span>C</span>
+            <span>C++</span>
           </div>
           <div className="hero-actions">
             <Button onClick={() => go("submit")}>Submit your bot ↗</Button>
@@ -70,8 +78,6 @@ export function Home({ go, bot }) {
           SEASON 2026
         </b>
         <span>Weekly submission · 21:00</span>
-        <span>4,000-student target</span>
-        <span>Elo rankings</span>
       </section>
       <div className="section-heading">
         <h2>YOUR COMPETITION</h2>
@@ -97,8 +103,8 @@ export function Home({ go, bot }) {
             </div>
           </div>
           <div className="card-bottom">
-            <small>Atlas Team · Sample Elo 1789</small>
-            <Button onClick={() => go("submit")}>Manage submission ↗</Button>
+            <small>Your saved bot version</small>
+            <Button onClick={() => go("submissions")}>My Submission ↗</Button>
           </div>
         </article>
         <article className="card">
@@ -140,7 +146,7 @@ export function Home({ go, bot }) {
           </h2>
         </div>
         {[
-          ["01", "BUILD", "Use the game SDK in Python or C++."],
+          ["01", "BUILD", "Use the game SDK in Java, Python or C++."],
           ["02", "SUBMIT", "Choose the bot version you want to compete with."],
           ["03", "WATCH", "Follow every move, inspect logs, learn, repeat."],
         ].map(([n, t, d]) => (
@@ -157,9 +163,12 @@ export function Home({ go, bot }) {
 export function Match({ notify }) {
   const roomId = new URLSearchParams(window.location.search).get("room");
   const botMatchId = new URLSearchParams(window.location.search).get("match");
+  const previewRecord = window.__OFFLINE_PREVIEW__ ? getPreviewRecord(botMatchId) : null;
+  const submissionContext = Boolean(botMatchId);
   const [remoteEnabled, setRemoteEnabled] = useState(Boolean(roomId));
   const remote = useRoomReplay(roomId, remoteEnabled);
-  const botRemote = useBotMatch(botMatchId);
+  const [botRemoteEnabled, setBotRemoteEnabled] = useState(Boolean(botMatchId) && !window.__OFFLINE_PREVIEW__);
+  const botRemote = useBotMatch(botRemoteEnabled ? botMatchId : null);
   const lastMatch = useRef(null);
   const emptyReplay = {
     schemaVersion: 1, gameId: "ottv2", rulesVersion: "live",
@@ -167,13 +176,14 @@ export function Match({ notify }) {
     firstSide: "white", teams: { white: "White", black: "Black" },
     frames: [{ pieces: [], event: "Submit two bots to create a replay.", side: "white" }],
   };
-  const [replay, setReplay] = useState(() => roomId ? {
+  const [replay, setReplay] = useState(() => previewRecord ? previewReplay(previewRecord) : roomId ? {
     ...demoReplay, mode: "room-recording", rulesVersion: "legacy-timed",
     mapName: `Room ${roomId}`, teams: { white: "White player", black: "Black player" }, bots: undefined,
     frames: [{ pieces: [], event: "Loading recorded room snapshots…", side: "white" }],
-  } : emptyReplay),
+  } : (window.__OFFLINE_PREVIEW__ && !botMatchId ? samples[0].replay : emptyReplay)),
     [index, setIndex] = useState(0),
     [playing, setPlaying] = useState(false),
+    [animateStep, setAnimateStep] = useState(true),
     [speed, setSpeed] = useState(1),
     [flipped, setFlipped] = useState(false),
     [selected, setSelected] = useState(null),
@@ -195,10 +205,16 @@ export function Match({ notify }) {
   useEffect(() => {
     if (!botRemote.replay) return;
     setReplay(botRemote.replay);
+    updateHistoryMatch(botMatchId,botRemote.status || {status:"finished",result:botRemote.replay.result},historyStorage());
     setSelected(null);
     setIndex(0);
     setPlaying(false);
   }, [botRemote.replay]);
+  const failure = matchFailure(replay);
+  const game = resolveGame(replay);
+  const GamePiece = game.Piece;
+  const boardWidth = replay.board?.width ?? replay.boardSize;
+  const boardHeight = replay.board?.height ?? replay.boardSize;
   const frame = replay.frames[Math.min(index, replay.frames.length - 1)];
   const end = replay.frames.length - 1;
   useEffect(() => {
@@ -210,15 +226,18 @@ export function Match({ notify }) {
             setPlaying(false);
             return i;
           }
+          setAnimateStep(true);
           return i + 1;
         }),
-      900 / speed,
+      motionTiming(speed).intervalMs,
     );
     return () => clearInterval(t);
   }, [playing, speed, end]);
   const seek = (i) => {
     setPlaying(false);
-    setIndex(Math.max(0, Math.min(end, i)));
+    const next = Math.max(0, Math.min(end, i));
+    setAnimateStep(Math.abs(next-index)===1);
+    setIndex(next);
   };
   const download = () => {
     const url = URL.createObjectURL(
@@ -231,6 +250,13 @@ export function Match({ notify }) {
     URL.revokeObjectURL(url);
     notify("Replay exported. You can import it again.");
   };
+  const loadSample = (id) => {
+    const sample=samples.find(item=>item.id===id);
+    if (!sample) return;
+    setRemoteEnabled(false); setBotRemoteEnabled(false);
+    setReplay(parseReplay(JSON.stringify(sample.replay))); setIndex(0); setPlaying(false); setSelected(null); setError('');
+    notify('Engine-verified sample loaded.');
+  };
   const upload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -238,6 +264,7 @@ export function Match({ notify }) {
       if (file.size > 5e6) throw Error("Replay must be under 5 MB.");
       const data = parseReplay(await file.text());
       setRemoteEnabled(false);
+      setBotRemoteEnabled(false);
       setPlaying(false);
       setReplay(data);
       setIndex(0);
@@ -254,15 +281,19 @@ export function Match({ notify }) {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">{roomRecording ? "RECORDED ROOM / HUMAN MATCH" : "RECORDED MATCH / ROUND OF 16"}</span>
+          <span className="eyebrow">{submissionContext ? "SUBMISSION MATCH / REPLAY" : roomRecording ? "RECORDED ROOM / HUMAN MATCH" : "RECORDED MATCH / ROUND OF 16"}</span>
           <h1>
             REPLAY<span className="yellow-dot">.</span>
           </h1>
         </div>
         <div className="heading-actions">
-          <Button secondary onClick={() => input.current.click()}>
+          {!submissionContext && !roomId && <select aria-label="Load finished sample match" defaultValue="" onChange={e=>{loadSample(e.target.value);e.target.value='';}}>
+            <option value="">Finished sample matches…</option>
+            {samples.map(sample=><option key={sample.id} value={sample.id}>{sample.title}</option>)}
+          </select>}
+          {!submissionContext && <Button secondary onClick={() => input.current.click()}>
             Import replay
-          </Button>
+          </Button>}
           <Button secondary onClick={download}>
             Export log ↗
           </Button>
@@ -275,24 +306,27 @@ export function Match({ notify }) {
           />
         </div>
       </div>
-      {(error || (remoteEnabled && remote.error) || botRemote.error || botRemote.status?.error) && (
+      {(error || (remoteEnabled && remote.error) || (botRemoteEnabled && (botRemote.error || botRemote.status?.error))) && (
         <p className="error" role="alert">
           {error || remote.error || botRemote.error || botRemote.status?.error}
         </p>
       )}
-      {botMatchId && !botRemote.replay && (
+      {botRemoteEnabled && botMatchId && !botRemote.replay && (
         <p className="muted">
           Bot match: {botRemote.status?.status || "connecting"}.
       The grader is running both submissions on the server.
         </p>
       )}
+      {previewRecord && <p className="muted">Preview submission replay · recorded fixture; source code was not executed.</p>}
+      {submissionContext && window.__OFFLINE_PREVIEW__ && !previewRecord && <p className="muted">This submitted match requires the backend. Offline preview cannot load its recording.</p>}
+      {failure && <div className="runtime-notice" role="status"><strong>{failure.title}</strong><p>{failure.detail}</p><p>The recorded outcome is {replay.result?.winner || 'unknown'} by forfeit. This is separate from a win achieved through game moves.</p></div>}
       <div className="viewer">
         <aside className="team-sidebar">
           <div className="match-meta">
-            <span className="eyebrow">OTTv2 / RULES {replay.rulesVersion}</span>
+            <span className="eyebrow">{game.title} / RULES {replay.rulesVersion}</span>
             <h3>{replay.mapName}</h3>
-            <p>9 × 9 board · {roomRecording ? "5-minute player clocks" : `${replay.maxMoves} move limit`}</p>
-            <small>First side: {replay.firstSide} · {roomRecording ? "server room" : "judge draw"}</small>
+            <p>{boardWidth} × {boardHeight} board · {replay.maxMoves == null ? (replay.timeLimitMs == null ? "limit metadata unavailable" : `${replay.timeLimitMs / 60000}-minute player clocks`) : `${replay.maxMoves} turn limit`}</p>
+            <small>First side: {replay.firstSide} · {roomRecording ? "server room" : "judge configuration"}</small>
           </div>
           {["white", "black"].map((s, i) => (
             <section className={`team-panel ${s}`} key={s}>
@@ -306,16 +340,16 @@ export function Match({ notify }) {
                 </div>
               </div>
               <div className="piece-counts">
-                {TYPES.map((t) => (
+                {game.types.map((t) => (
                   <div key={t}>
-                    <Pixel kind={t} side={s} />
+                    <GamePiece kind={t} side={s} />
                     <strong>
                       {
                         frame.pieces.filter((p) => p.side === s && p.type === t)
                           .length
                       }
                     </strong>
-                    <small>{t === "rock" ? "Hammer" : t}</small>
+                    <small>{game.label(t)}</small>
                   </div>
                 ))}
               </div>
@@ -325,10 +359,10 @@ export function Match({ notify }) {
             <span className="eyebrow">PIECE INSPECTOR</span>
             {piece ? (
               <>
-                <h3>{piece.type === "rock" ? "Hammer" : piece.type}</h3>
+                <h3>{game.label(piece.type)}</h3>
                 <p>
-                  {piece.side} · {"abcdefghi"[piece.x]}
-                  {9 - piece.y}
+                  {piece.side} · {String.fromCharCode(97 + piece.x)}
+                  {boardHeight - piece.y}
                 </p>
                 <small>ID: {piece.id}</small>
               </>
@@ -338,6 +372,7 @@ export function Match({ notify }) {
           </div>
         </aside>
         <section className="arena">
+          {frame.status === 'finished' && <p className="status" role="status">{failure ? 'Match stopped' : frame.winner ? `${replay.teams[frame.winner]} wins` : 'Draw'} · {game.reasonLabel?.(frame.endReason || replay.result?.reason) || 'Match finished'}{replay.result?.remaining ? ` · ${replay.result.remaining.white}–${replay.result.remaining.black} pieces` : ''}</p>}
           <div className="arena-toolbar">
             <div>
               <span className="status-dot" />
@@ -346,6 +381,7 @@ export function Match({ notify }) {
                   ? "LOADING ROOM"
                   : remoteEnabled && remote.error
                     ? "CONNECTION ERROR"
+                    : failure ? "MATCH STOPPED"
                     : frame.status === "finished" && frame.winner
                       ? <span className="replay-result">{frame.winner.toUpperCase()} WINS</span>
                     : index === end
@@ -355,7 +391,7 @@ export function Match({ notify }) {
                     : "PAUSED"}
               </b>
               <span>
-                {roomRecording ? `Event ${index} / ${end}` : `Move ${index} / ${replay.maxMoves}`}
+                {roomRecording ? `Event ${index} / ${end}` : `Event ${index} / ${end}`}
               </span>
             </div>
             <button className="text-link" onClick={() => setFlipped(!flipped)}>
@@ -364,6 +400,8 @@ export function Match({ notify }) {
           </div>
           <div className="board-stage">
             <Board
+              replay={replay}
+              animationMs={animateStep ? motionTiming(speed).durationMs : 0}
               frame={frame}
               selected={selected}
               onSelect={setSelected}
@@ -372,8 +410,8 @@ export function Match({ notify }) {
           </div>
           <div className="playback">
             <div className="seek-label">
-              <span>MOVE {index.toString().padStart(2, "0")}</span>
-              <small>{end} recorded {roomRecording ? "events" : "moves"} · viewing speed only</small>
+              <span>EVENT {index.toString().padStart(2, "0")}</span>
+              <small>{end} recorded events · viewing speed only</small>
             </div>
             <input
               aria-label="Replay move"
@@ -403,7 +441,7 @@ export function Match({ notify }) {
                   className="play-button"
                   aria-label={playing ? "Pause replay" : "Play replay"}
                   onClick={() => {
-                    if (index === end) setIndex(0);
+                    if (index === end) {setAnimateStep(false);setIndex(0);}
                     setPlaying(!playing);
                   }}
                 >
@@ -453,10 +491,11 @@ export function Match({ notify }) {
             ))}
           </div>
           <div className="log-content">
+            {index > 199 && tab === "events" && <small>Showing the latest 200 events. Use the timeline to inspect earlier events.</small>}
             {tab === "events" ? (
               replay.frames
-                .slice(0, index + 1)
-                .map((f, i) => ({ frame: f, index: i }))
+                .slice(Math.max(0,index - 199), index + 1)
+                .map((f, i) => ({ frame: f, index: Math.max(0,index - 199)+i }))
                 .filter(({ frame: f }) => f.event !== "match-end")
                 .map(({ frame: f, index: i }) => (
                   <button
@@ -593,38 +632,6 @@ export function Rankings() {
   );
 }
 export function Submission({ bot, save }) {
-  const pythonExample = `def beats(attacker, defender):
-    return (
-        (attacker == "rock" and defender == "scissors")
-        or (attacker == "scissors" and defender == "paper")
-        or (attacker == "paper" and defender == "rock")
-    )
-
-def choose_move(state):
-    occupied = {piece.square: piece for piece in state.pieces}
-    choices = []
-    for piece in state.pieces:
-        if piece.color != state.color:
-            continue
-        file_index = ord(piece.square[0]) - ord("a")
-        rank = int(piece.square[1])
-        for file_step in (-1, 0, 1):
-            for rank_step in (-1, 0, 1):
-                if file_step == 0 and rank_step == 0:
-                    continue
-                destination_file = file_index + file_step
-                destination_rank = rank + rank_step
-                if not (0 <= destination_file < 9 and 1 <= destination_rank <= 9):
-                    continue
-                destination = chr(ord("a") + destination_file) + str(destination_rank)
-                target = occupied.get(destination)
-                if target is not None and target.color == state.color:
-                    continue
-                if target is not None and not beats(piece.type, target.type):
-                    continue
-                choices.append((piece.square, destination))
-
-    return choices[0] if choices else ("a1", "a1")`;
   const [white, setWhite] = useState(pythonExample),
     [black, setBlack] = useState(pythonExample),
     [whiteLanguage, setWhiteLanguage] = useState("python"),
@@ -632,10 +639,22 @@ def choose_move(state):
     [error, setError] = useState(""),
     [matchId, setMatchId] = useState(""),
     [busy, setBusy] = useState(false);
+  const [spec,setSpec] = useState(null), [mapId,setMapId] = useState('standard-9'), [maxTurns,setMaxTurns] = useState(31), [firstSide,setFirstSide] = useState('white');
+  useEffect(()=>{
+    if(window.__OFFLINE_PREVIEW__) return;
+    const controller=new AbortController();
+    getGameSpecification(controller.signal).then(setSpec).catch(()=>{});
+    return ()=>controller.abort();
+  },[]);
+  const maps=spec?.maps || bundledMaps;
   const submit = async (e) => {
     e.preventDefault();
     if (!white.trim() || !black.trim()) {
       setError("Paste source code for both players.");
+      return;
+    }
+    if (window.__OFFLINE_PREVIEW__) {
+      setError("Offline preview: submission requires the running backend. Use npm run dev with VITE_API_BASE_URL configured to test real bot matches.");
       return;
     }
     setError("");
@@ -645,8 +664,9 @@ def choose_move(state):
         submitBot("web-white", whiteLanguage, white),
         submitBot("web-black", blackLanguage, black),
       ]);
-      const match = await createBotMatch(whiteSubmission.id, blackSubmission.id);
+      const match = await createBotMatch(whiteSubmission.id, blackSubmission.id, {gameId:'ottv2',mapId,config:{maxTurns:Number(maxTurns),firstSide}});
       setMatchId(match.id);
+      writeHistory({id:match.id,matchId:match.id,title:`Match ${match.id}`,language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:maps.find(m=>m.id===mapId)?.config.mapName||mapId,createdAt:new Date().toISOString(),status:match.status||'queued',whiteSubmissionId:whiteSubmission.id,blackSubmissionId:blackSubmission.id},historyStorage());
       save({
         ...bot,
         language: `${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,
@@ -671,10 +691,14 @@ def choose_move(state):
       <div className="submission-layout">
         <form className="card submission-form" onSubmit={submit}>
           <h2>SUBMIT A BOT</h2>
-          <p>Choose C++ or Python independently for each player. The backend runs both programs on the server.</p>
+          <p>Choose a language and map. The backend validates moves and records the result.</p>
+          <label>Map<select value={mapId} onChange={e=>setMapId(e.target.value)}>{maps.map(m=><option key={m.id} value={m.id}>{m.config.mapName}</option>)}</select></label>
+          <label>Turn limit<input type="number" min="1" max="10000" value={maxTurns} onChange={e=>setMaxTurns(e.target.value)} required /></label>
+          <label>First side<select value={firstSide} onChange={e=>setFirstSide(e.target.value)}><option value="white">White</option><option value="black">Black</option></select></label>
           <label>
             White language
-            <select value={whiteLanguage} onChange={(e) => setWhiteLanguage(e.target.value)}>
+            <select value={whiteLanguage} onChange={(e) => {if(white === botExamples[whiteLanguage]) setWhite(botExamples[e.target.value]);setWhiteLanguage(e.target.value);}}>
+              <option value="java">Java</option>
               <option value="cpp">C++</option>
               <option value="python">Python</option>
             </select>
@@ -685,7 +709,8 @@ def choose_move(state):
           </label>
           <label>
             Black language
-            <select value={blackLanguage} onChange={(e) => setBlackLanguage(e.target.value)}>
+            <select value={blackLanguage} onChange={(e) => {if(black === botExamples[blackLanguage]) setBlack(botExamples[e.target.value]);setBlackLanguage(e.target.value);}}>
+              <option value="java">Java</option>
               <option value="cpp">C++</option>
               <option value="python">Python</option>
             </select>
@@ -807,137 +832,4 @@ export function Tournament({ go }) {
     </>
   );
 }
-export function Rules() {
-  const [tab, setTab] = useState("Game rules");
-  return (
-    <>
-      <div className="page-heading">
-        <div>
-          <span className="eyebrow">GAME SPECIFICATION / VERSION 2.1</span>
-          <h1>KNOW THE BOARD.</h1>
-        </div>
-        <div className="rules-sprites">
-          {TYPES.map((t) => (
-            <Pixel kind={t} key={t} />
-          ))}
-        </div>
-      </div>
-      <div className="round-tabs">
-        {["Game rules", "SDK integration", "Replay protocol"].map((t) => (
-          <button
-            key={t}
-            className={t === tab ? "active" : ""}
-            onClick={() => setTab(t)}
-          >
-            {t}
-          </button>
-        ))}
-      </div>
-      <div className="rules-content">
-        {tab === "Game rules" ? (
-          <>
-            <h2>SMALL MOVES. BIG CONSEQUENCES.</h2>
-            <div className="rule-grid">
-              {[
-                [
-                  "01",
-                  "THE BOARD",
-                  "A 9×9 board, columns a–i and rows 1–9. The judge supplies the initial map and first side.",
-                ],
-                [
-                  "02",
-                  "MOVEMENT",
-                  "A piece moves one square in any of eight directions. Pieces on the same side block one another.",
-                ],
-                [
-                  "03",
-                  "CAPTURES",
-                  "Hammer (rock) beats scissors. Scissors beat paper. Paper beats hammer. Equal types block; they cannot capture.",
-                ],
-                [
-                  "04",
-                  "VICTORY",
-                  "White targets i9; black targets a1. Enter your target or eliminate every opposing piece of one type.",
-                ],
-                [
-                  "05",
-                  "MOVE LIMIT",
-                  "The judge sets the maximum moves. There is no game execution time limit. Replay speed only changes viewing speed.",
-                ],
-                [
-                  "06",
-                  "BOT COMPETITION",
-                  "Players submit bots in Python or C++. The judge runs matches and confirms results; the web renders the logs.",
-                ],
-              ].map(([n, t, d]) => (
-                <article key={n}>
-                  <span className="step-number">{n}</span>
-                  <h3>{t}</h3>
-                  <p>{d}</p>
-                </article>
-              ))}
-            </div>
-          </>
-        ) : tab === "SDK integration" ? (
-          <>
-            <h2>ONE PORTAL. CHANGING GAMES.</h2>
-            <p>
-              The frontend selects a game renderer by gameId and rulesVersion.
-              Teams, submissions, tournament navigation, and rankings stay
-              independent of game-specific rendering.
-            </p>
-            <div className="notice">
-              Your official SDK and repository URLs are not configured in this
-              prototype. Add them when connecting the backend.
-            </div>
-            <pre>{`// Integration points\nGET /api/games/current\nGET /api/tournaments/:id\nGET /api/rankings\nPOST /api/submissions\nGET /api/matches/:id/replay\n\nSupported bot languages: Python, C++`}</pre>
-          </>
-        ) : (
-          <>
-            <h2>RENDER WHAT THE JUDGE RECORDED.</h2>
-            <p>
-              The viewer accepts an OTTv2 JSON replay with complete state
-              snapshots. Export the included demo from Match viewer for a
-              working example. Validation checks structure, board bounds, piece
-              types, and duplicate positions; the judge remains responsible for
-              rules and results.
-            </p>
-            <pre>
-              {JSON.stringify(
-                {
-                  schemaVersion: 1,
-                  gameId: "ottv2",
-                  rulesVersion: "2.1",
-                  boardSize: 9,
-                  mapName: "Meadow 09",
-                  maxMoves: 100,
-                  firstSide: "white",
-                  teams: { white: "Atlas Team", black: "Byte Knights" },
-                  frames: [
-                    {
-                      event: "Judge initialized board",
-                      pieces: [
-                        {
-                          id: "white-0",
-                          side: "white",
-                          type: "rock",
-                          x: 0,
-                          y: 8,
-                        },
-                      ],
-                    },
-                  ],
-                },
-                null,
-                2,
-              )}
-            </pre>
-            <a href="#match" className="text-link">
-              Open replay ↗
-            </a>
-          </>
-        )}
-      </div>
-    </>
-  );
-}
+export { OttRules as Rules } from "./games/ottv2/Rules.jsx";

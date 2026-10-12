@@ -1,0 +1,67 @@
+{
+  "id": "02-black-enemy-source",
+  "title": "Black reaches White source a1",
+  "config": {
+    "boardSize": 9,
+    "maxTurns": 20,
+    "firstSide": "black",
+    "initialPieces": [
+      {
+        "color": "black",
+        "type": "rock",
+        "square": "d4"
+      },
+      {
+        "color": "black",
+        "type": "paper",
+        "square": "g9"
+      },
+      {
+        "color": "black",
+        "type": "scissors",
+        "square": "h9"
+      },
+      {
+        "color": "white",
+        "type": "rock",
+        "square": "i5"
+      },
+      {
+        "color": "white",
+        "type": "paper",
+        "square": "h5"
+      },
+      {
+        "color": "white",
+        "type": "scissors",
+        "square": "g5"
+      }
+    ]
+  },
+  "moves": [
+    [
+      "d4",
+      "c3"
+    ],
+    [
+      "i5",
+      "i6"
+    ],
+    [
+      "c3",
+      "b2"
+    ],
+    [
+      "i6",
+      "i5"
+    ],
+    [
+      "b2",
+      "a1"
+    ]
+  ],
+  "expected": {
+    "winner": "black",
+    "reason": "enemy-source-reached"
+  }
+}

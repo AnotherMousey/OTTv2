@@ -1,0 +1,72 @@
+{
+  "id": "03-limit-white-more-pieces",
+  "title": "Limit reached after a capture: White 4, Black 3",
+  "config": {
+    "boardSize": 9,
+    "maxTurns": 4,
+    "initialPieces": [
+      {
+        "color": "white",
+        "type": "rock",
+        "square": "d4"
+      },
+      {
+        "color": "white",
+        "type": "rock",
+        "square": "b1"
+      },
+      {
+        "color": "white",
+        "type": "paper",
+        "square": "c1"
+      },
+      {
+        "color": "white",
+        "type": "scissors",
+        "square": "d1"
+      },
+      {
+        "color": "black",
+        "type": "scissors",
+        "square": "e5"
+      },
+      {
+        "color": "black",
+        "type": "rock",
+        "square": "g9"
+      },
+      {
+        "color": "black",
+        "type": "paper",
+        "square": "h9"
+      },
+      {
+        "color": "black",
+        "type": "scissors",
+        "square": "f9"
+      }
+    ]
+  },
+  "moves": [
+    [
+      "d4",
+      "e5"
+    ],
+    [
+      "g9",
+      "g8"
+    ],
+    [
+      "e5",
+      "e6"
+    ],
+    [
+      "g8",
+      "g9"
+    ]
+  ],
+  "expected": {
+    "winner": "white",
+    "reason": "move-limit-more-pieces"
+  }
+}

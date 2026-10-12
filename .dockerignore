@@ -1,0 +1,9 @@
+.git
+**/node_modules
+**/dist
+frontend
+upload
+.env
+.env.*
+
+data

@@ -2,15 +2,16 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const GameEngine = require('./engine');
+const {resolveGame,resolveConfig,specification} = require('./games/registry');
 const { resetRecording, recordMove, recordTerminal } = require('./recording');
 const { createSubmission } = require('./submissions');
-const { createMatch, getMatch, publicMatch } = require('./match');
+const { createMatch, getMatch, publicMatch, listHistory } = require('./match');
 
+const {runtimes}=require('./runtime');
 const rooms = new Map();
 const FRONTEND_DIST = path.resolve(__dirname, '../frontend/dist');
 const SERVE_FRONTEND = process.env.SERVE_FRONTEND !== 'false';
-const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173')
+const ALLOWED_ORIGINS = new Set((process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000')
   .split(',').map(value => value.trim()).filter(Boolean));
 const ROOM_TTL_MS = 6 * 60 * 60 * 1000;
 
@@ -59,11 +60,11 @@ function createRoomId() {
   return id;
 }
 
-function createRoom(ownerClientId) {
+function createRoom(ownerClientId, {gameId='ottv2',mapId,config}={}) {
   const id = createRoomId();
   const room = {
     id,
-    game: new GameEngine(),
+    game: resolveGame(gameId).create(resolveConfig(mapId,config,'room'),'room'),
     players: {
       white: ownerClientId || null,
       black: null,
@@ -133,6 +134,17 @@ function cleanupOldRooms() {
 }
 
 setInterval(cleanupOldRooms, 30 * 60 * 1000).unref();
+
+function replayPage(log,url) {
+  if (!url.searchParams.has('afterSeq')) return log;
+  const after=Number(url.searchParams.get('afterSeq'));
+  const limit=Number(url.searchParams.get('limit') || 200);
+  if (!Number.isInteger(after)||after < -1||!Number.isInteger(limit)||limit<1||limit>500) throw Error('Invalid replay cursor.');
+  const reset=Boolean(url.searchParams.get('recordingId') && url.searchParams.get('recordingId')!==log.matchId);
+  const start=reset ? 0 : Math.min(after+1,log.frames.length);
+  const frames=log.frames.slice(start,start+limit).map((frame,i)=>({...frame,seq:start+i}));
+  return {...log,frames,reset,totalFrames:log.frames.length,nextSeq:frames.length?frames.at(-1).seq:(reset?-1:after),hasMore:start+frames.length<log.frames.length};
+}
 
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
@@ -214,6 +226,11 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
+    if(req.method==='GET' && url.pathname==='/api/runtime'){sendJson(res,200,{languages:Object.fromEntries(Object.entries(runtimes()).map(([language,r])=>[language,{available:r.available,message:r.available?'':r.message}]))});return;}
+    if(req.method==='GET' && url.pathname==='/api/submission-history'){sendJson(res,200,{records:listHistory(url.searchParams.get('clientId'))});return;}
+    if (req.method === 'GET' && ['/api/games/current','/api/games/ottv2/spec'].includes(url.pathname)) {
+      sendJson(res,200,specification()); return;
+    }
     if (!SERVE_FRONTEND && (req.method === 'GET' || req.method === 'HEAD') && url.pathname === '/') {
       sendJson(res, 200, { ok: true, service: 'ottv2-api', health: '/health' });
       return;
@@ -239,6 +256,7 @@ const server = http.createServer(async (req, res) => {
       const match = createMatch({
         whiteSubmissionId: body.whiteSubmissionId,
         blackSubmissionId: body.blackSubmissionId,
+        clientId: body.clientId, gameId: body.gameId, mapId: body.mapId, config: body.config,
       });
       sendJson(res, 202, match);
       return;
@@ -252,7 +270,7 @@ const server = http.createServer(async (req, res) => {
       } else if (!match.replay) {
         sendJson(res, 202, publicMatch(match));
       } else {
-        sendJson(res, 200, match.replay);
+        sendJson(res, 200, replayPage(match.replay,url));
       }
       return;
     }
@@ -266,7 +284,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/rooms') {
       const body = await parseJsonBody(req);
       if (!body.clientId) throw new Error('clientId is required.');
-      const room = createRoom(body.clientId);
+      const room = createRoom(body.clientId,body);
       sendJson(res, 201, roomPayload(room, body.clientId));
       return;
     }
@@ -280,7 +298,7 @@ const server = http.createServer(async (req, res) => {
 
       if (req.method === 'GET' && action === 'replay') {
         recordTerminal(room);
-        sendJson(res, 200, room.recording);
+        sendJson(res, 200, replayPage(room.recording,url));
         return;
       }
 
@@ -339,8 +357,7 @@ const server = http.createServer(async (req, res) => {
         if (!['white', 'black'].includes(role)) {
           throw new Error('Only players can forfeit.');
         }
-        room.game.status = 'finished';
-        room.game.winner = role === 'white' ? 'black' : 'white';
+        room.game.forfeit(role);
         recordTerminal(room, `${role} forfeited. Winner: ${room.game.winner}.`);
         sendJson(res, 200, roomPayload(room, body.clientId));
         return;
@@ -363,7 +380,7 @@ const server = http.createServer(async (req, res) => {
 
     sendJson(res, 404, { error: 'Not found.' });
   } catch (error) {
-    sendJson(res, 400, { error: error.message || 'Bad request.' });
+    sendJson(res, error.statusCode || 400, { error: error.message || 'Bad request.', code:error.code });
   }
 });
 

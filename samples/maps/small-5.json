@@ -1,0 +1,36 @@
+{
+  "mapName": "Small 5×5 — 3 pieces per side",
+  "boardSize": 5,
+  "initialPieces": [
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "b1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "c1"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "d1"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "b5"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "c5"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "d5"
+    }
+  ]
+}

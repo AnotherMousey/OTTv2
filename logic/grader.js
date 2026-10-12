@@ -1,16 +1,14 @@
+const {metadata,result} = require('./protocol');
 const fs = require('fs/promises');
 const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 const { capture } = require('./replay-log');
 
-const JAVA = process.env.OTTV2_JAVA || 'java';
-const JAVAC = process.env.OTTV2_JAVAC || 'javac';
-const CXX = process.env.OTTV2_CXX || 'g++';
-const PYTHON = process.env.OTTV2_PYTHON || 'python';
+const {requireRuntime}=require('./runtime');
 const TURN_TIMEOUT_MS = 2000;
 const COMPILE_TIMEOUT_MS = 15000;
-const MAX_TURNS = 31;
+
 const RUNNER = path.join(__dirname, 'grader', 'JavaRunner.java');
 const SDK = path.join(__dirname, 'sdk', 'java');
 const CPP_SDK = path.join(__dirname, 'sdk', 'cpp');
@@ -47,6 +45,7 @@ function runCommand(command, args, options, timeoutMs) {
 }
 
 async function compilePlayer(source, language, matchId, color) {
+  const runtime=requireRuntime(language);
   const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'ottv2-grader-'));
   const filenames = { java: 'RobotPlayer.java', cpp: 'player.cpp', python: 'player.py' };
   const sourcePath = path.join(directory, filenames[language]);
@@ -55,14 +54,14 @@ async function compilePlayer(source, language, matchId, color) {
     if (language === 'python') {
       const sdkPath = path.join(directory, 'ottv2.py');
       await fs.copyFile(path.join(__dirname, 'sdk', 'python', 'ottv2.py'), sdkPath);
-      const processHandle = spawn(PYTHON, [PYTHON_RUNNER, sourcePath], {
+      const processHandle = spawn(runtime.command, [PYTHON_RUNNER, sourcePath], {
         cwd: directory, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true,
       });
       return makePlayer(processHandle, directory);
     }
     if (language === 'cpp') {
       const executable = path.join(directory, process.platform === 'win32' ? 'player.exe' : 'player');
-      await runCommand(CXX, ['-std=c++20', '-O2', '-I', CPP_SDK, sourcePath, CPP_RUNNER, '-o', executable],
+      await runCommand(runtime.command, ['-std=c++20', '-O2', '-I', CPP_SDK, sourcePath, CPP_RUNNER, '-o', executable],
         { stdio: ['ignore', 'pipe', 'pipe'] }, COMPILE_TIMEOUT_MS);
       return makePlayer(spawn(executable, [color], {
         stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true,
@@ -73,11 +72,11 @@ async function compilePlayer(source, language, matchId, color) {
         .filter(file => file.endsWith('.java'))
         .map(file => path.join(SDK, 'ottv2', 'sdk', file)),
     ];
-    await runCommand(JAVAC, [
+    await runCommand(runtime.compiler, [
       '-encoding', 'UTF-8', '-d', directory,
       ...sdkFiles, RUNNER, sourcePath,
     ], { stdio: ['ignore', 'pipe', 'pipe'] }, COMPILE_TIMEOUT_MS);
-    const processHandle = spawn(JAVA, ['-cp', directory, 'JavaRunner', color], {
+    const processHandle = spawn(runtime.command, ['-cp', directory, 'JavaRunner', color], {
       stdio: ['pipe', 'pipe', 'pipe'],
       windowsHide: true,
     });
@@ -89,8 +88,9 @@ async function compilePlayer(source, language, matchId, color) {
 }
 
 function makePlayer(child, directory, output = '', errors = '') {
-  child.stdout.on('data', chunk => { output += chunk.toString(); });
-  child.stderr.on('data', chunk => { errors += chunk.toString(); });
+  child.on('error', error => { errors += `Could not start player: ${error.message}`; });
+  child.stdout.on('data', chunk => { output += chunk.toString(); if(output.length>1024*1024){errors+=' Player output exceeded limit.';child.kill();} });
+  child.stderr.on('data', chunk => { errors = (errors + chunk.toString()).slice(-65536); });
   return {
     child,
     get output() { return output; },
@@ -104,16 +104,11 @@ async function requestMove(player, state) {
   if (player.child.exitCode !== null) {
     throw new Error(`Player process exited with code ${player.child.exitCode}. ${player.errors}`.trim());
   }
-  player.child.stdin.write([
-    state.color,
-    state.state.currentTurn,
-    state.state.history.length,
-    ...state.state.board.flat().filter(Boolean)
-      .map(piece => [piece.id, piece.color, piece.type, piece.square].join(',')),
-  ].join('|') + '\n');
+  player.child.stdin.write(state);
 
   const started = Date.now();
   while (Date.now() - started < TURN_TIMEOUT_MS) {
+    if (player.child.exitCode !== null || player.child.killed || player.errors.startsWith('Could not start player')) throw Error(`Player process stopped. ${player.errors}`.trim());
     const newline = player.output.indexOf('\n');
     if (newline >= 0) {
       const line = player.output.slice(0, newline).trim();
@@ -124,7 +119,7 @@ async function requestMove(player, state) {
     }
     await new Promise(resolve => setTimeout(resolve, 5));
   }
-  throw new Error('Player did not return a move before the timeout.');
+  throw new Error(`Player did not return a move before the timeout. ${player.errors}`.trim());
 }
 
 async function stopPlayer(player) {
@@ -149,7 +144,7 @@ async function runMatch({
   matchId, whiteSource, blackSource, whiteLanguage = 'java', blackLanguage = 'java', game,
 }) {
   const replay = {
-    matchId,
+    ...metadata(game,{matchId,mode:'bot-match'}),
     format: 'ottv2-log-v1',
     frames: [capture(game, 'match-start')],
   };
@@ -157,19 +152,16 @@ async function runMatch({
   try {
     players.white = await compilePlayer(whiteSource, whiteLanguage, matchId, 'white');
     players.black = await compilePlayer(blackSource, blackLanguage, matchId, 'black');
-    for (let turn = 0; turn < MAX_TURNS && game.status === 'active'; turn += 1) {
+    for (let turn = 0; turn < game.config.maxTurns && game.status === 'active'; turn += 1) {
       const color = game.currentTurn;
       try {
-        const move = await requestMove(players[color], {
-          color,
-          state: game.getPublicState(color),
-        });
+        const move = await requestMove(players[color], game.serializeBotState(color));
         try {
           game.movePiece(move.from, move.to);
           replay.frames.push(capture(game, `${color}-move`, game.history.at(-1)));
         } catch (error) {
           if (game.status !== 'active') throw error;
-          game.afterTurn();
+          game.skipTurn();
           replay.frames.push(capture(
             game,
             `${color}-invalid-move: ${move.from} → ${move.to}; turn forfeited: ${error.message}`,
@@ -177,22 +169,16 @@ async function runMatch({
           ));
         }
       } catch (error) {
-        game.status = 'finished';
-        game.winner = color === 'white' ? 'black' : 'white';
+        game.forfeit(color, 'bot-error');
         replay.frames.push(capture(game, `${color}-forfeit: ${error.message}`));
         break;
       }
     }
     if (game.status === 'active') {
-      game.status = 'finished';
-      game.winner = null;
-      replay.frames.push(capture(game, 'draw: turn limit exceeded'));
+      game.finishAtLimit();
     }
-    replay.result = {
-      status: game.status,
-      winner: game.winner,
-      turns: game.history.length,
-    };
+    replay.result = result(game);
+    replay.frames.push(capture(game, `Match finished: ${game.endReason || 'finished'}. Winner: ${game.winner || 'draw'}.`));
     return replay;
   } finally {
     await Promise.all(Object.values(players).map(stopPlayer));

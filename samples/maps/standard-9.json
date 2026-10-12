@@ -1,0 +1,96 @@
+{
+  "mapName": "Standard 9×9 — 9 pieces per side",
+  "boardSize": 9,
+  "initialPieces": [
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "b1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "c1"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "d1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "b2"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "c2"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "d2"
+    },
+    {
+      "color": "white",
+      "type": "scissors",
+      "square": "b3"
+    },
+    {
+      "color": "white",
+      "type": "rock",
+      "square": "c3"
+    },
+    {
+      "color": "white",
+      "type": "paper",
+      "square": "d3"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "f9"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "g9"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "h9"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "f8"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "g8"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "h8"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "f7"
+    },
+    {
+      "color": "black",
+      "type": "rock",
+      "square": "g7"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "h7"
+    }
+  ]
+}

@@ -1,0 +1,7880 @@
+{
+  "schemaVersion": 1,
+  "gameId": "ottv2",
+  "rulesVersion": "2.1",
+  "mapName": "Meadow 09",
+  "boardSize": 9,
+  "maxMoves": 100,
+  "firstSide": "white",
+  "teams": {
+    "white": "Atlas Team",
+    "black": "Byte Knights"
+  },
+  "bots": {
+    "white": {
+      "language": "Python",
+      "version": "Atlas v12"
+    },
+    "black": {
+      "language": "Java",
+      "version": "Knight v8"
+    }
+  },
+  "frames": [
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 6
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "Judge initialized Meadow 09. White moves first.",
+      "side": "white"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 5
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "white: rock a3 → b4",
+      "side": "white",
+      "from": "a3",
+      "to": "b4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 5
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "black: paper h7 → g6",
+      "side": "black",
+      "from": "h7",
+      "to": "g6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "white: rock b4 → b5",
+      "side": "white",
+      "from": "b4",
+      "to": "b5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "black: rock g7 → f6",
+      "side": "black",
+      "from": "g7",
+      "to": "f6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "white: rock b5 → c6",
+      "side": "white",
+      "from": "b5",
+      "to": "c6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "black: rock f6 → e5",
+      "side": "black",
+      "from": "f6",
+      "to": "e5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "white: scissors c2 → d3",
+      "side": "white",
+      "from": "c2",
+      "to": "d3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 8
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "black: paper g6 → f5",
+      "side": "black",
+      "from": "g6",
+      "to": "f5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 1
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "white: scissors c1 → d2",
+      "side": "white",
+      "from": "c1",
+      "to": "d2"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "black: scissors i8 → h7",
+      "side": "black",
+      "from": "i8",
+      "to": "h7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 2
+        }
+      ],
+      "event": "white: scissors d2 → e3",
+      "side": "white",
+      "from": "d2",
+      "to": "e3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 4,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: scissors i7 → h6",
+      "side": "black",
+      "from": "i7",
+      "to": "h6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: scissors e3 → f4",
+      "side": "white",
+      "from": "e3",
+      "to": "f4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 8
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: paper h8 → g7",
+      "side": "black",
+      "from": "h8",
+      "to": "g7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper b1 → c2",
+      "side": "white",
+      "from": "b1",
+      "to": "c2"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "white-8",
+          "side": "white",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: paper g7 → f6",
+      "side": "black",
+      "from": "g7",
+      "to": "f6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 8,
+          "y": 0
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: scissors f4 → e5 · defeated by rock",
+      "side": "white",
+      "from": "f4",
+      "to": "e5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: scissors i9 → h8",
+      "side": "black",
+      "from": "i9",
+      "to": "h8"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper b3 → c4",
+      "side": "white",
+      "from": "b3",
+      "to": "c4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-2",
+          "side": "white",
+          "type": "scissors",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock e5 → d4",
+      "side": "black",
+      "from": "e5",
+      "to": "d4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 2
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: scissors c3 → d4 · defeated by rock",
+      "side": "white",
+      "from": "c3",
+      "to": "d4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: scissors h7 → g6",
+      "side": "black",
+      "from": "h7",
+      "to": "g6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-5",
+          "side": "white",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: rock c6 → d7",
+      "side": "white",
+      "from": "c6",
+      "to": "d7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock d4 → d3 · captured scissors",
+      "side": "black",
+      "from": "d4",
+      "to": "d3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-6",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: rock d7 → d8",
+      "side": "white",
+      "from": "d7",
+      "to": "d8"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 7
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock d3 → c4 · defeated by paper",
+      "side": "black",
+      "from": "d3",
+      "to": "c4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 1
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: rock a2 → b3",
+      "side": "white",
+      "from": "a2",
+      "to": "b3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: scissors h8 → g7",
+      "side": "black",
+      "from": "h8",
+      "to": "g7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper c4 → c5",
+      "side": "white",
+      "from": "c4",
+      "to": "c5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock g9 → f8",
+      "side": "black",
+      "from": "g9",
+      "to": "f8"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper b2 → c3",
+      "side": "white",
+      "from": "b2",
+      "to": "c3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 7
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock f8 → f7",
+      "side": "black",
+      "from": "f8",
+      "to": "f7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper c2 → d3",
+      "side": "white",
+      "from": "c2",
+      "to": "d3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock f7 → e7",
+      "side": "black",
+      "from": "f7",
+      "to": "e7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper c3 → d4",
+      "side": "white",
+      "from": "c3",
+      "to": "d4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "black: rock e7 → d7",
+      "side": "black",
+      "from": "e7",
+      "to": "d7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 7,
+          "y": 3
+        }
+      ],
+      "event": "white: paper d3 → e4",
+      "side": "white",
+      "from": "d3",
+      "to": "e4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: scissors h6 → g5",
+      "side": "black",
+      "from": "h6",
+      "to": "g5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: rock d8 → e8",
+      "side": "white",
+      "from": "d8",
+      "to": "e8"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 0,
+          "y": 8
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: paper f6 → e5",
+      "side": "black",
+      "from": "f6",
+      "to": "e5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 7,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: rock a1 → b2",
+      "side": "white",
+      "from": "a1",
+      "to": "b2"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 6
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: paper h9 → g9",
+      "side": "black",
+      "from": "h9",
+      "to": "g9"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 6,
+          "y": 0
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: rock b3 → c4",
+      "side": "white",
+      "from": "b3",
+      "to": "c4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 4,
+          "y": 1
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: paper g9 → f8",
+      "side": "black",
+      "from": "g9",
+      "to": "f8"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 3,
+          "y": 2
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: rock e8 → f9",
+      "side": "white",
+      "from": "e8",
+      "to": "f9"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 2,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: rock d7 → c6",
+      "side": "black",
+      "from": "d7",
+      "to": "c6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 2
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: paper c5 → d5",
+      "side": "white",
+      "from": "c5",
+      "to": "d5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: scissors g7 → f6",
+      "side": "black",
+      "from": "g7",
+      "to": "f6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 2,
+          "y": 3
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: paper d5 → e6",
+      "side": "white",
+      "from": "d5",
+      "to": "e6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 1,
+          "y": 7
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: rock c6 → b5",
+      "side": "black",
+      "from": "c6",
+      "to": "b5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-1",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: rock b2 → c3",
+      "side": "white",
+      "from": "b2",
+      "to": "c3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: scissors f6 → e6 · captured paper",
+      "side": "black",
+      "from": "f6",
+      "to": "e6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: paper e4 → f4",
+      "side": "white",
+      "from": "e4",
+      "to": "f4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-0",
+          "side": "white",
+          "type": "rock",
+          "x": 5,
+          "y": 0
+        },
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "black: paper f5 → e4",
+      "side": "black",
+      "from": "f5",
+      "to": "e4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "white-7",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 4
+        }
+      ],
+      "event": "white: rock f9 → f8 · defeated by paper",
+      "side": "white",
+      "from": "f9",
+      "to": "f8"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: scissors g5 → f4 · captured paper",
+      "side": "black",
+      "from": "g5",
+      "to": "f4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-3",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: rock c4 → d5",
+      "side": "white",
+      "from": "c4",
+      "to": "d5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: paper e4 → d5 · captured rock",
+      "side": "black",
+      "from": "e4",
+      "to": "d5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 6,
+          "y": 3
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: paper d4 → e4",
+      "side": "white",
+      "from": "d4",
+      "to": "e4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: scissors g6 → f5",
+      "side": "black",
+      "from": "g6",
+      "to": "f5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 6,
+          "y": 1
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: paper e4 → f3",
+      "side": "white",
+      "from": "e4",
+      "to": "f3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 2,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: rock g8 → f7",
+      "side": "black",
+      "from": "g8",
+      "to": "f7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 5,
+          "y": 1
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: rock c3 → d3",
+      "side": "white",
+      "from": "c3",
+      "to": "d3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 5,
+          "y": 6
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: paper f8 → e7",
+      "side": "black",
+      "from": "f8",
+      "to": "e7"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 4
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: paper f3 → g4",
+      "side": "white",
+      "from": "f3",
+      "to": "g4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: scissors f5 → e4",
+      "side": "black",
+      "from": "f5",
+      "to": "e4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 1,
+          "y": 4
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: rock d3 → d4",
+      "side": "white",
+      "from": "d3",
+      "to": "d4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 6,
+          "y": 5
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: rock b5 → a4",
+      "side": "black",
+      "from": "b5",
+      "to": "a4"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 7,
+          "y": 4
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 5
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: paper g4 → h5",
+      "side": "white",
+      "from": "g4",
+      "to": "h5"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 7,
+          "y": 4
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: scissors e4 → d3",
+      "side": "black",
+      "from": "e4",
+      "to": "d3"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 8,
+          "y": 3
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 3,
+          "y": 4
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "white: paper h5 → i6",
+      "side": "white",
+      "from": "h5",
+      "to": "i6"
+    },
+    {
+      "pieces": [
+        {
+          "id": "white-4",
+          "side": "white",
+          "type": "paper",
+          "x": 8,
+          "y": 3
+        },
+        {
+          "id": "white-6",
+          "side": "white",
+          "type": "rock",
+          "x": 3,
+          "y": 5
+        },
+        {
+          "id": "black-0",
+          "side": "black",
+          "type": "rock",
+          "x": 0,
+          "y": 5
+        },
+        {
+          "id": "black-1",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 2
+        },
+        {
+          "id": "black-2",
+          "side": "black",
+          "type": "scissors",
+          "x": 4,
+          "y": 3
+        },
+        {
+          "id": "black-3",
+          "side": "black",
+          "type": "rock",
+          "x": 5,
+          "y": 2
+        },
+        {
+          "id": "black-4",
+          "side": "black",
+          "type": "paper",
+          "x": 4,
+          "y": 4
+        },
+        {
+          "id": "black-5",
+          "side": "black",
+          "type": "scissors",
+          "x": 3,
+          "y": 6
+        },
+        {
+          "id": "black-7",
+          "side": "black",
+          "type": "paper",
+          "x": 2,
+          "y": 5
+        },
+        {
+          "id": "black-8",
+          "side": "black",
+          "type": "scissors",
+          "x": 5,
+          "y": 5
+        }
+      ],
+      "event": "black: paper d5 → c4",
+      "side": "black",
+      "from": "d5",
+      "to": "c4"
+    }
+  ]
+}
