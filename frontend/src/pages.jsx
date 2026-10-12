@@ -1,4 +1,3 @@
-import {createPortal} from 'react-dom';
 import {MatchLoading} from './MatchLoading.jsx';
 import {motionTiming} from "./motion.js";
 import {getPreviewRecord,previewReplay,savePreviewSubmission} from "./SubmissionHistory.jsx";
@@ -162,7 +161,7 @@ export function Home({ go, bot }) {
     </>
   );
 }
-export function Match({ notify }) {
+export function Match({ notify, prepare, preparing=false }) {
   const roomId = new URLSearchParams(window.location.search).get("room");
   const botMatchId = new URLSearchParams(window.location.search).get("match");
   const previewRecord = window.__OFFLINE_PREVIEW__ ? getPreviewRecord(botMatchId) : null;
@@ -215,6 +214,14 @@ export function Match({ notify }) {
     setIndex(0);
     setPlaying(false);
   }, [botRemote.replay]);
+  useEffect(()=>{
+    if(!preparing)return;
+    if(previewRecord){prepare(previewLoading?previewStage:null,botMatchId);return;}
+    if(botRemote.error||botRemote.status?.error){prepare(null);return;}
+    if(botRemote.replay && replay.matchId===botMatchId){prepare(null);return;}
+    if(!botRemote.status)return; // Preserve the submission stage while the first status request is pending.
+    prepare(botRemote.status?.status==='finished'?'replay':botRemote.status?.status==='running'?'running':botRemote.status?.status==='queued'?'queued':'connect',botMatchId);
+  },[preparing,prepare,previewRecord?.matchId,previewLoading,previewStage,botRemote.error,botRemote.status?.status,botRemote.status?.error,botRemote.replay,replay.matchId,botMatchId]);
   const failure = matchFailure(replay);
   const game = resolveGame(replay);
   const GamePiece = game.Piece;
@@ -282,10 +289,12 @@ export function Match({ notify }) {
     e.target.value = "";
   };
   const piece = frame.pieces.find((p) => p.id === selected);
+  if(previewLoading && preparing)return null;
   if(previewLoading)return <MatchLoading stage={previewStage} preview matchId={botMatchId}/>;
-  if(botRemoteEnabled && !botRemote.replay){
+  if(botRemoteEnabled && (!botRemote.replay || replay.matchId!==botMatchId)){
     const problem=botRemote.status?.error||botRemote.error;
     if(problem)return <section className="match-loading loading-failure"><span className="eyebrow">BOT MATCH / {botMatchId}</span><h1>MATCH NOT READY.</h1><p className="error" role="alert">{problem}</p><p className="muted">Check your connection and backend status.</p><Button secondary onClick={()=>window.location.reload()}>Retry connection ↗</Button></section>;
+    if(preparing)return null;
     return <MatchLoading stage={botRemote.status?.status==='finished'?'replay':botRemote.status?.status==='running'?'running':botRemote.status?.status==='queued'?'queued':'connect'} matchId={botMatchId}/>;
   }
   return (
@@ -642,15 +651,19 @@ export function Rankings() {
     </>
   );
 }
-export function Submission({ bot, save }) {
+function openMatch(matchId){
+ const url=new URL(window.location.href);url.searchParams.delete('room');url.searchParams.set('match',matchId);url.hash='match';
+ window.history.pushState(null,'',url.href);
+ window.dispatchEvent(new HashChangeEvent('hashchange'));
+}
+export function Submission({ bot, save, prepare }) {
   const [white, setWhite] = useState(pythonExample),
     [black, setBlack] = useState(pythonExample),
     [whiteLanguage, setWhiteLanguage] = useState("python"),
     [blackLanguage, setBlackLanguage] = useState("python"),
     [error, setError] = useState(""),
     [matchId, setMatchId] = useState(""),
-    [busy, setBusy] = useState(false),
-    [loadingStage,setLoadingStage]=useState('connect');
+    [busy, setBusy] = useState(false);
   const handedOff=useRef(false);
   const [spec,setSpec] = useState(null), [mapId,setMapId] = useState('standard-9'), [maxTurns,setMaxTurns] = useState(31), [firstSide,setFirstSide] = useState('white');
   useEffect(()=>{
@@ -667,23 +680,23 @@ export function Submission({ bot, save }) {
       return;
     }
     setError("");
-    setBusy(true);setLoadingStage('connect');
+    setBusy(true);prepare('connect');
     try {
       if(window.__OFFLINE_PREVIEW__){
-        await new Promise(r=>setTimeout(r,1200));setLoadingStage('upload');
-        await new Promise(r=>setTimeout(r,1200));setLoadingStage('queued');
+        await new Promise(r=>setTimeout(r,1200));prepare('upload');
+        await new Promise(r=>setTimeout(r,1200));prepare('queued');
         await new Promise(r=>setTimeout(r,900));
         const size=maps.find(m=>m.id===mapId)?.config.boardSize||9;
         const sample=samples.find(s=>s.replay.boardSize===size)||samples[0];
         savePreviewSubmission({id:'preview-submitted',matchId:'PREVIEW-SUBMITTED',title:'Preview submitted match',language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:`${size}×${size}`,createdAt:new Date().toISOString(),status:'finished',sampleId:sample.id,preview:true});
-        handedOff.current=true;window.location.href='?match=PREVIEW-SUBMITTED#match';return;
+        handedOff.current=true;prepare('queued','PREVIEW-SUBMITTED');openMatch('PREVIEW-SUBMITTED');return;
       }
-      await waitForBackend();setLoadingStage('upload');
+      await waitForBackend();prepare('upload');
       const [whiteSubmission, blackSubmission] = await Promise.all([
         submitBot("web-white", whiteLanguage, white),
         submitBot("web-black", blackLanguage, black),
       ]);
-      setLoadingStage('queued');
+      prepare('queued');
       const match = await createBotMatch(whiteSubmission.id, blackSubmission.id, {gameId:'ottv2',mapId,config:{maxTurns:Number(maxTurns),firstSide}});
       setMatchId(match.id);
       writeHistory({id:match.id,matchId:match.id,title:`Match ${match.id}`,language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:maps.find(m=>m.id===mapId)?.config.mapName||mapId,createdAt:new Date().toISOString(),status:match.status||'queued',whiteSubmissionId:whiteSubmission.id,blackSubmissionId:blackSubmission.id},historyStorage());
@@ -693,16 +706,15 @@ export function Submission({ bot, save }) {
         file: `${match.id} submissions`,
       });
       handedOff.current=true;
-      window.location.href = `?match=${encodeURIComponent(match.id)}#match`;
+      prepare('queued',match.id);openMatch(match.id);
     } catch (submitError) {
-      setError(submitError.message);
+      prepare(null);setError(submitError.message);
     } finally {
       if(!handedOff.current)setBusy(false);
     }
   };
   return (
     <>
-      {busy&&createPortal(<div className="submission-loading-overlay"><MatchLoading stage={loadingStage} preview={Boolean(window.__OFFLINE_PREVIEW__)}/></div>,document.body)}
       <div className="page-heading">
         <div>
           <span className="eyebrow">MY TEAM / BOT SUBMISSION</span>

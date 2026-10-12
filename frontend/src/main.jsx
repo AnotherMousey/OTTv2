@@ -1,5 +1,7 @@
 import {SubmissionHistory} from "./SubmissionHistory.jsx";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import {MatchLoading} from './MatchLoading.jsx';
+import {createPortal} from 'react-dom';
 import { createRoot } from "react-dom/client";
 import "./style.css";
 import { Pixel } from "./Pixel";
@@ -7,6 +9,8 @@ import { Button } from "./ui";
 import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
 import { initialTheme, persistTheme } from "./theme";
 function App() {
+  const [preparation,setPreparation]=useState(null);
+  const prepare=useCallback((stage,matchId)=>setPreparation(current=>stage?{stage,matchId:matchId||current?.matchId}:null),[]);
   const [theme, setTheme] = useState(() => {
     let storage;
     try {
@@ -76,6 +80,7 @@ function App() {
   };
   return (
     <>
+      {preparation&&createPortal(<div className="submission-loading-overlay"><MatchLoading stage={preparation.stage} matchId={preparation.matchId} preview={Boolean(window.__OFFLINE_PREVIEW__)}/></div>,document.body)}
       <header className="header">
         <a className="brand" href="#home">
           <Pixel />
@@ -138,13 +143,13 @@ function App() {
         {page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
-          <Match notify={setToast} />
+          <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
         ) : page === "rankings" ? (
           <Rankings />
         ) : page === "submissions" ? (
           <SubmissionHistory go={go} />
         ) : page === "submit" ? (
-          <Submission bot={bot} save={saveBot} />
+          <Submission bot={bot} save={saveBot} prepare={prepare}/>
         ) : page === "tournament" ? (
           <Tournament go={go} />
         ) : page === "rules" ? (
