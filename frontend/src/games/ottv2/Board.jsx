@@ -14,31 +14,26 @@ export function Board({
   const width = replay?.board?.width ?? replay?.boardSize ?? 9;
   const height = replay?.board?.height ?? replay?.boardSize ?? 9;
   const goals = replay?.board?.goals ?? [{x: width - 1, y: 0}, {x: 0, y: height - 1}];
-  const sources = replay?.board?.sources ?? {
-    white: goals[1], // White's source
-    black: goals[0], // Black's source
-  };
-
-  const sourceSide = (x, y) =>
-    ['white', 'black'].find(
-      side => sources[side]?.x === x && sources[side]?.y === y
-    );
+  // Goals are ordered white target, black target; a source belongs to the opposing target's side.
+  const sources = replay?.board?.sources ?? {white: goals[1] ?? {x:0,y:height-1}, black: goals[0] ?? {x:width-1,y:0}};
+  const sourceSide = (x,y) => ['white','black'].find(side=>sources[side]?.x===x && sources[side]?.y===y);
   const isGoal = (x, y) => goals.some(g => g.x === x && g.y === y);
   return (
     <div className={`board-wrap ${compact ? "compact" : ""}`} style={{"--board-width": width, "--board-height": height}}>
       <div className="board" style={{aspectRatio: `${width} / ${height}`}}>
         {Array.from({ length: width * height }, (_, i) => {
-          const x = i % width,
-            y = Math.floor(i / width);
+          const displayX = i % width, displayY = Math.floor(i / width);
+          const x = flipped ? width - 1 - displayX : displayX,
+            y = flipped ? height - 1 - displayY : displayY;
+          const side = sourceSide(x,y);
           return (
             <div
               key={i}
-              className={`tile ${(x + y) % 2 ? "dark" : ""}
-                ${isGoal(x, y) ? "goal" : ""}
-                ${sourceSide(x, y) || ""}`}
+              className={`tile ${(x + y) % 2 ? "dark" : ""} ${isGoal(x, y) || side ? "goal" : ""} ${side ? `source ${side}` : ''}`}
+              data-source-side={side}
             >
-              {(isGoal(x, y)) && (
-                <Pixel kind="flag" />
+              {side && (
+                <Pixel kind="flag" side={side}/>
               )}
             </div>
           );

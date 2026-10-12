@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <title>OTTv2 — Gold and Blue Bot Arena</title>
+  <!-- Hand-drawn pixel silhouette; every segment follows the 32px grid. -->
+  <path fill="#19201B" d="M4 0h24v2h2v2h2v24h-2v2h-2v2H4v-2H2v-2H0V4h2V2h2z"/>
+  <path fill="#FED43A" d="M8 5h8v3H6v3H4v10h3v4h9v-3H9v-3H7v-6h3V9h6V5z"/>
+  <path fill="#89CFF1" d="M16 5h8v3h2v3h2v10h-3v4h-9v-3h7v-3h2v-6h-3V9h-6V5z"/>
+  <path fill="#F5A641" d="M10 9h6v13H9v-3H7v-6h3z"/>
+  <path fill="#458DE0" d="M16 9h6v4h3v6h-2v3h-7z"/>
+  <path fill="#19201B" d="M9 13h14v6H9z"/>
+  <path fill="#FFF8DF" d="M10 14h4v3h-4zm8 0h4v3h-4z"/>
+  <path fill="#FFF8DF" d="M12 23h8v2h-8z"/>
+  <path fill="#FED43A" d="M8 27h6v2H8z"/>
+  <path fill="#89CFF1" d="M18 27h6v2h-6z"/>
+</svg>

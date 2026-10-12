@@ -128,7 +128,7 @@ const sprites = {
   ],
 };
 export function Pixel({ kind = "bot", side = "white", className = "" }) {
-  if(kind === "flag") return <Flag className={className}/>;
+  if(kind === "flag") return <Flag className={className} side={side}/>;
   const rows = sprites[kind === "rock" ? "hammer" : kind] || sprites.bot;
   const palette = {
     "#": kind === "flag" ? "var(--flag-stroke, #18221d)" : "#18221d",

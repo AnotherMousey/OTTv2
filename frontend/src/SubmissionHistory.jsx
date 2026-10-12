@@ -9,7 +9,9 @@ export const previewRecords=[
  {id:'preview-limit',matchId:'PREVIEW-LIMIT',title:'Turn-limit match',language:'Java / C++',mapName:'9×9',createdAt:'Preview entry 02',status:'finished',sampleId:samples[2].id,preview:true},
  {id:'preview-runtime',matchId:'PREVIEW-RUNTIME',title:'Runtime diagnostic',language:'Python / Python',mapName:'9×9',createdAt:'Preview entry 01',status:'failed',preview:true,runtimeFailure:true},
 ];
-export function getPreviewRecord(matchId){return previewRecords.find(r=>r.matchId===matchId);}
+function previewSubmission(){try{return JSON.parse(sessionStorage.getItem('ott-preview-submitted')||'null');}catch{return null;}}
+export function savePreviewSubmission(record){sessionStorage.setItem('ott-preview-submitted',JSON.stringify(record));}
+export function getPreviewRecord(matchId){const submitted=previewSubmission();return submitted?.matchId===matchId?submitted:previewRecords.find(r=>r.matchId===matchId);}
 export function previewReplay(record) {
  const replay=structuredClone(samples.find(s=>s.id===record?.sampleId)?.replay || samples[4].replay);
  replay.matchId=record.matchId;replay.mode='preview-submission';
@@ -30,7 +32,7 @@ export function SubmissionHistory({go}) {
   refresh();const timer=setInterval(refresh,3000);
   return()=>{cancelled=true;clearInterval(timer);controller.abort();};
  },[]);
- const display=records.length?records:(window.__OFFLINE_PREVIEW__?previewRecords:[]);
+ const display=records.length?records:(window.__OFFLINE_PREVIEW__?[...(previewSubmission()?[previewSubmission()]:[]),...previewRecords]:[]);
  return <>
   <div className="page-heading"><div><span className="eyebrow">MY SUBMISSIONS</span><h1>SUBMISSION HISTORY.</h1></div><Button onClick={()=>go('submit')}>New submission ↗</Button></div>
   <p className="muted">{window.__OFFLINE_PREVIEW__?'Preview entries demonstrate the history and replay flow. No bots are executed.':'Submission history and replays are saved on the server for this browser’s client ID.'}</p>

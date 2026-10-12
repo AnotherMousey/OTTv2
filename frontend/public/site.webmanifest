@@ -1,0 +1,20 @@
+{
+  "name": "OTTv2 Bot Arena",
+  "short_name": "OTTv2",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#191e1b",
+  "theme_color": "#191e1b",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

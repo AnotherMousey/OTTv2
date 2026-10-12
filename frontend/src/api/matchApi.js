@@ -54,3 +54,15 @@ export async function getBotReplay(matchId, signal) {
 export function getGameSpecification(signal) { return request("/api/games/current", {signal}); }
 
 export function getSubmissionHistory(signal){return request(`/api/submission-history?clientId=${encodeURIComponent(submissionClientId())}`,{signal});}
+
+export async function waitForBackend(){
+ const deadline=Date.now()+120000;
+ while(Date.now()<deadline){
+  let response;
+  try{response=await fetch(`${API_BASE_URL}/health`,{cache:'no-store',signal:AbortSignal.timeout(10000)});}catch{}
+  if(response?.status===403)throw Error('Backend refused this frontend origin. Check ALLOWED_ORIGINS.');
+  try{if(response?.ok&&(await response.json()).ok)return;}catch{}
+  await new Promise(r=>setTimeout(r,2000));
+ }
+ throw Error('Backend is unavailable. Please try again shortly.');
+}
