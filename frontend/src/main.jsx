@@ -6,7 +6,8 @@ import { createRoot } from "react-dom/client";
 import "./style.css";
 import { Pixel } from "./Pixel";
 import { Button } from "./ui";
-import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
+import { Home, Login, Match, Rankings, Submission, Tournament, Rules } from "./pages";
+import { clearAuthSession, readAuthSession } from "./api/authApi.js";
 import { initialTheme, persistTheme } from "./theme";
 function App() {
   const [preparation,setPreparation]=useState(null);
@@ -30,6 +31,7 @@ function App() {
     persistTheme(storage, theme);
   }, [theme]);
   const [page, setPage] = useState(location.hash.slice(1) || "home"),
+    [account, setAccount] = useState(() => readAuthSession()?.account || null),
     [menu, setMenu] = useState(false),
     [toast, setToast] = useState(""),
     [bot, setBot] = useState(() => {
@@ -131,6 +133,13 @@ function App() {
         <Button onClick={() => go("submit")}>
           Submit bot <span>↗</span>
         </Button>
+        {account ? (
+          <button className="account-chip" type="button" onClick={() => { clearAuthSession(); setAccount(null); }} title="Sign out">
+            {account.username} · Sign out
+          </button>
+        ) : (
+          <Button secondary onClick={() => go("login")}>Login</Button>
+        )}
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
@@ -140,7 +149,9 @@ function App() {
         </span>
       </div>
       <main className="page" key={page}>
-        {page === "home" ? (
+        {page === "login" ? (
+          <Login go={go} onLogin={setAccount} />
+        ) : page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
           <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
