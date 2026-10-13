@@ -6,6 +6,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY logic ./logic
 COPY samples ./samples
+RUN mkdir -p ./data/tournaments
+COPY data/account.json ./data/account.json
+COPY data/tournaments ./data/tournaments
 ENV NODE_ENV=production SERVE_FRONTEND=false PORT=10000 OTTV2_PYTHON=python3 MATCH_WORKERS=1
 EXPOSE 10000
 CMD ["node", "logic/main.js"]
