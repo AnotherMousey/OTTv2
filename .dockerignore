@@ -6,4 +6,8 @@ upload
 .env
 .env.*
 
-data
+data/*
+!data/
+!data/account.json
+!data/tournaments/
+!data/tournaments/pro.json
