@@ -56,9 +56,13 @@ Frontend: Vercel, Root Directory `frontend`, Vite, `npm ci`, `npm run build`, ou
 
 Backend: Render Docker service using the included `Dockerfile` and `render.yaml`, with `ALLOWED_ORIGINS` set to the exact frontend origin. Docker includes Java/Python/C++ toolchains. Full steps: `DEPLOY_VERCEL_RENDER.md`.
 
+## Accounts and tournaments
+
+The backend supports operator-provisioned accounts and multi-round tournaments. Bootstrap the operator with `OPERATOR_USERNAME` and `OPERATOR_PASSWORD`; use the bearer token returned by `/api/auth/login` for account, registration, code upload, and round-management APIs. Account records live in the private `DATA_DIR/account.json`, and each tournament has its own ignored JSON file under `DATA_DIR/tournaments`.
+
 ## Preserved scope and limits
 
-Navigation, theme, pixel assets, replay controls, import/export and the room/bot workflows remain. Rankings and tournaments retain the existing demo content; this integration does not claim to implement Elo, pairing, login or scheduling.
+Navigation, theme, pixel assets, replay controls, import/export and the room/bot workflows remain. The existing frontend demo rankings remain separate from backend tournament standings. Tournament pairings use weighted random ordering plus current points and coefficients; the backend does not eliminate players between rounds.
 
 Rooms, submissions, queue and recordings are still in process memory and are lost on restart. The worker bound limits concurrent graders; it is not a distributed queue or a 4,000-user load-test result. Bot source still executes directly in server processes, as in the original project: use trusted submissions until isolated workers are implemented. Docker supplies dependencies; it does not provide per-bot isolation.
 
@@ -66,6 +70,6 @@ Rooms, submissions, queue and recordings are still in process memory and are los
 
 The accepted v5 frontend is now the live application in `frontend/`. It retains the original rectangular gold flag, subdued dark-mode pole and YOU badge, and smooth 720 ms piece movement at 1× with capture fading. Submission-linked replays hide the sample selector and import control. My Submissions loads real server history, polls status, and opens the corresponding real replay. The offline `frontend/preview.html` remains a demonstration only.
 
-Server source, match metadata and terminal replays are atomically stored under `DATA_DIR` (default `./data`). Keep that directory private and outside source control. A stable browser client ID associates history with the browser; clearing site data loses that association. This is not an account/login system. Live rooms remain in memory. Run one backend process with this file adapter; use a database adapter before horizontal scaling.
+Server source, match metadata, terminal replays, account records and tournament records are atomically stored under `DATA_DIR` (default `./data`). Keep that directory private and outside source control. A stable browser client ID still associates legacy submission history with the browser. Live rooms remain in memory. Run one backend process with this file adapter; use a database adapter before horizontal scaling.
 
 See [DEPLOY_VERCEL_RENDER.md](DEPLOY_VERCEL_RENDER.md) for exact deployment settings, persistence requirements and CLI deployment when a teammate owns the repository. `frontend/` replaces the old `/ottv2` build folder; do not keep using the old Render frontend build command. With `SERVE_FRONTEND=false`, Render serves the API without requiring a frontend build.

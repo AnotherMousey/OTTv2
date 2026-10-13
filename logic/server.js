@@ -6,6 +6,8 @@ const {resolveGame,resolveConfig,specification} = require('./games/registry');
 const { resetRecording, recordMove, recordTerminal } = require('./recording');
 const { createSubmission } = require('./submissions');
 const { createMatch, getMatch, publicMatch, listHistory } = require('./match');
+const { login, createAccount, authenticate, requireRole, publicAccount } = require('./accounts');
+const { createTournament, registerPlayer, updateCode, startNextRound, syncTournament } = require('./tournaments');
 
 const {runtimes}=require('./runtime');
 const rooms = new Map();
@@ -154,6 +156,16 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
+function authToken(req) { return req.headers.authorization || ''; }
+function requireAccount(req) {
+  try { return authenticate(authToken(req)); }
+  catch (error) { error.statusCode = 401; throw error; }
+}
+function requireOperator(req) {
+  try { return requireRole(authToken(req), 'operator'); }
+  catch (error) { error.statusCode = error.message.includes('authorization') ? 403 : 401; throw error; }
+}
+
 function contentType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
   return {
@@ -226,6 +238,54 @@ const server = http.createServer(async (req, res) => {
   }
 
   try {
+    if (req.method === 'POST' && url.pathname === '/api/auth/login') {
+      const body = await parseJsonBody(req);
+      sendJson(res, 200, await login(body.username, body.password));
+      return;
+    }
+    if (req.method === 'GET' && url.pathname === '/api/auth/me') {
+      sendJson(res, 200, {account: publicAccount(requireAccount(req))});
+      return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/accounts') {
+      requireOperator(req);
+      const body = await parseJsonBody(req);
+      sendJson(res, 201, {account: createAccount({username: body.username, password: body.password, role: 'player'})});
+      return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/tournaments') {
+      requireOperator(req);
+      sendJson(res, 201, createTournament(await parseJsonBody(req)));
+      return;
+    }
+    const tournamentRoute = /^\/api\/tournaments\/([a-z0-9-]+)(?:\/(register|code|next-round))?$/i.exec(url.pathname);
+    if (tournamentRoute) {
+      const tournamentId = tournamentRoute[1];
+      const action = tournamentRoute[2] || 'state';
+      if (req.method === 'GET' && action === 'state') {
+        sendJson(res, 200, syncTournament(tournamentId));
+        return;
+      }
+      if (req.method === 'POST' && action === 'register') {
+        requireOperator(req);
+        sendJson(res, 200, registerPlayer(tournamentId, await parseJsonBody(req)));
+        return;
+      }
+      if (req.method === 'POST' && action === 'code') {
+        const account = requireAccount(req);
+        const body = await parseJsonBody(req);
+        if (account.role !== 'operator' && account.username !== body.username) throw Object.assign(new Error('You can only update your own code.'), {statusCode: 403});
+        sendJson(res, 200, updateCode(tournamentId, body.username || account.username, body));
+        return;
+      }
+      if (req.method === 'POST' && action === 'next-round') {
+        requireOperator(req);
+        sendJson(res, 200, startNextRound(tournamentId));
+        return;
+      }
+      sendJson(res, 405, {error: 'Method not allowed.'});
+      return;
+    }
     if(req.method==='GET' && url.pathname==='/api/runtime'){sendJson(res,200,{languages:Object.fromEntries(Object.entries(runtimes()).map(([language,r])=>[language,{available:r.available,message:r.available?'':r.message}]))});return;}
     if(req.method==='GET' && url.pathname==='/api/submission-history'){sendJson(res,200,{records:listHistory(url.searchParams.get('clientId'))});return;}
     if (req.method === 'GET' && ['/api/games/current','/api/games/ottv2/spec'].includes(url.pathname)) {

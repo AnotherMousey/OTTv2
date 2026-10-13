@@ -17,6 +17,20 @@ Start via `npm start` from the root. `logic/main.js` binds `0.0.0.0` on Render's
 - `GET /api/matches/:id/replay` — 202 until recorded log is available; 409 on job failure.
 - `GET /health` — process health and room count.
 
+## Accounts and tournaments
+
+Set `OPERATOR_USERNAME` and `OPERATOR_PASSWORD` on the first deployment to bootstrap the operator account. Accounts are stored in `DATA_DIR/account.json` as valid JSON grouped by `MM/DD/YYYY` creation date, and passwords are stored as scrypt hashes. The file is private and should be protected in deployment.
+
+- `POST /api/auth/login {username,password}` — obtain a 24-hour bearer token.
+- `POST /api/accounts {username,password}` — operator-only account creation.
+- `POST /api/tournaments {id,name,rounds,coefficient}` — operator-only tournament creation.
+- `POST /api/tournaments/:id/register {username,coefficient}` — operator-only registration.
+- `POST /api/tournaments/:id/code {source,language}` — submit or replace the authenticated player's code before the next round.
+- `POST /api/tournaments/:id/next-round` — operator-only weighted random pairing and match start.
+- `GET /api/tournaments/:id` — tournament standings, pairings, rounds, and match states.
+
+Each tournament is stored as `DATA_DIR/tournaments/<id>.json`; it contains registered players, coefficients, standings, round count, pairings, and submission references. There are no elimination rounds: every configured round is played, and each next round may use the player's latest code.
+
 Room/match creation also accepts `gameId`, `mapId` and `config`. `GET /api/games/current` and `/api/games/ottv2/spec` expose capabilities and the three configured sample maps. Optional replay pagination is documented in `docs/PROTOCOL.md`.
 
 ## Game library

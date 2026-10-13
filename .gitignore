@@ -28,5 +28,11 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 
-# Server submissions, source and match logs
-data/
+# Keep generated server records out of Git by default.
+data/*
+
+# Version the seeded account and Pro tournament used for deployment tests.
+!data/account.json
+!data/tournaments/
+data/tournaments/*
+!data/tournaments/pro.json
