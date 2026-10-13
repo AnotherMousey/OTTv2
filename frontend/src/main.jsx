@@ -1,3 +1,5 @@
+import {PreviewAccounts,useAccounts} from './PreviewAccounts.jsx';
+import {LoginPage,LoginGate,AccountControl,TournamentAccountPage,AccountRankings} from './AccountPages.jsx';
 import {SubmissionHistory} from "./SubmissionHistory.jsx";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import {MatchLoading} from './MatchLoading.jsx';
@@ -6,10 +8,10 @@ import { createRoot } from "react-dom/client";
 import "./style.css";
 import { Pixel } from "./Pixel";
 import { Button } from "./ui";
-import { Home, Login, Match, Rankings, Submission, Tournament, Rules } from "./pages";
-import { clearAuthSession, readAuthSession } from "./api/authApi.js";
+import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
 import { initialTheme, persistTheme } from "./theme";
 function App() {
+  const {user}=useAccounts();
   const [preparation,setPreparation]=useState(null);
   const prepare=useCallback((stage,matchId)=>setPreparation(current=>stage?{stage,matchId:matchId||current?.matchId}:null),[]);
   const [theme, setTheme] = useState(() => {
@@ -31,7 +33,6 @@ function App() {
     persistTheme(storage, theme);
   }, [theme]);
   const [page, setPage] = useState(location.hash.slice(1) || "home"),
-    [account, setAccount] = useState(() => readAuthSession()?.account || null),
     [menu, setMenu] = useState(false),
     [toast, setToast] = useState(""),
     [bot, setBot] = useState(() => {
@@ -130,39 +131,27 @@ function App() {
           <Pixel kind={theme === "dark" ? "sun" : "moon"} />
           <span>{theme === "dark" ? "Light" : "Dark"}</span>
         </button>
-        <Button onClick={() => go("submit")}>
-          Submit bot <span>↗</span>
-        </Button>
-        {account ? (
-          <button className="account-chip" type="button" onClick={() => { clearAuthSession(); setAccount(null); }} title="Sign out">
-            {account.username} · Sign out
-          </button>
-        ) : (
-          <Button secondary onClick={() => go("login")}>Login</Button>
-        )}
+        <AccountControl go={go}/>
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        BOT MATCH PLATFORM{" "}
-        <span>
-          {page === "match" && new URLSearchParams(window.location.search).has("match") ? "Java / C++ / Python submissions · server grader · live replay log" : "Java / C++ / Python bot submissions · recorded demo replay"}
-        </span>
+        LIVE ARENA{" "}<span>Organizer accounts · tournament pairings and standings</span>
       </div>
       <main className="page" key={page}>
-        {page === "login" ? (
-          <Login go={go} onLogin={setAccount} />
-        ) : page === "home" ? (
+        {page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
           <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
         ) : page === "rankings" ? (
-          <Rankings />
+          <AccountRankings />
         ) : page === "submissions" ? (
-          <SubmissionHistory go={go} />
+          user ? <SubmissionHistory go={go} /> : <LoginGate go={go}/>
         ) : page === "submit" ? (
-          <Submission bot={bot} save={saveBot} prepare={prepare}/>
+          user ? <Submission bot={bot} save={saveBot} prepare={prepare}/> : <LoginGate go={go}/>
         ) : page === "tournament" ? (
-          <Tournament go={go} />
+          <TournamentAccountPage go={go} />
+        ) : page === "login" ? (
+          <LoginPage go={go}/>
         ) : page === "rules" ? (
           <Rules />
         ) : (
@@ -185,4 +174,4 @@ function App() {
     </>
   );
 }
-createRoot(document.getElementById("root")).render(<App />);
+createRoot(document.getElementById("root")).render(<PreviewAccounts><App /></PreviewAccounts>);

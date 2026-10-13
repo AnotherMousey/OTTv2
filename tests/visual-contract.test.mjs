@@ -1,11 +1,8 @@
 import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';import crypto from 'node:crypto';
 const expected=JSON.parse(fs.readFileSync(new URL('../VISUAL_BASELINE.json',import.meta.url)));
-const changed=new Set(['src/style.css','src/Board.jsx','src/replay.js','src/replay.test.js','src/Pixel.jsx']);
-test('unchanged visual assets and relocated OTT sprites preserve baseline hashes',()=>{
+test('approved frontend visual assets preserve baseline hashes',()=>{
  for(const [file,hash] of Object.entries(expected)) {
-  if(changed.has(file))continue;
-  const target=file==='src/Pixel.jsx'?'src/games/ottv2/Pixel.jsx':file;
-  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(new URL('../frontend/'+target,import.meta.url))).digest('hex'),hash,target);
+  assert.equal(crypto.createHash('sha256').update(fs.readFileSync(new URL('../frontend/'+file,import.meta.url))).digest('hex'),hash,file);
  }
 });
 

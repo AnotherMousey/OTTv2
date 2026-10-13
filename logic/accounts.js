@@ -44,7 +44,7 @@ function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
 
 async function verifyPassword(password, encoded) {
   const [salt, expected] = String(encoded || '').split(':');
-  if (!salt || !expected || typeof password !== 'string') return false;
+  if (!salt || !expected || typeof password !== 'string' || password.length < 8) return false;
   const actual = hashPassword(password, salt).split(':')[1];
   return crypto.timingSafeEqual(Buffer.from(actual, 'hex'), Buffer.from(expected, 'hex'));
 }
@@ -89,6 +89,8 @@ function login(username, password) {
   })();
 }
 
+function logout(token) { sessions.delete(String(token || '').replace(/^Bearer\s+/i, '')); }
+
 function authenticate(token) {
   const session = sessions.get(String(token || '').replace(/^Bearer\s+/i, ''));
   if (!session || session.expiresAt < Date.now()) throw new Error('Authentication required.');
@@ -104,4 +106,4 @@ function requireRole(token, role) {
 }
 
 load();
-module.exports = {accounts, createAccount, login, authenticate, requireRole, publicAccount, accountFile};
+module.exports = {accounts, createAccount, login, logout, authenticate, requireRole, publicAccount, accountFile};

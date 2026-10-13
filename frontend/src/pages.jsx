@@ -1,3 +1,4 @@
+import {useAccounts} from './PreviewAccounts.jsx';
 import {MatchLoading} from './MatchLoading.jsx';
 import {motionTiming} from "./motion.js";
 import {getPreviewRecord,previewReplay,savePreviewSubmission} from "./SubmissionHistory.jsx";
@@ -14,59 +15,10 @@ import { Board } from "./Board";
 import { useRoomReplay } from "./hooks/useRoomReplay.js";
 import { useBotMatch } from "./hooks/useBotMatch.js";
 import { createBotMatch, submitBot, getGameSpecification, waitForBackend } from "./api/matchApi.js";
-import { login } from "./api/authApi.js";
 import { Button, Landscape, ranks } from "./ui";
-
-export function Login({ go, onLogin }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  const submit = async (event) => {
-    event.preventDefault();
-    setError("");
-    setBusy(true);
-    try {
-      const session = await login(username, password);
-      onLogin(session.account);
-      go("home");
-    } catch (loginError) {
-      setError(loginError.message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  return (
-    <section className="auth-layout">
-      <div className="auth-intro">
-        <span className="eyebrow">OPERATOR-ISSUED ACCESS</span>
-        <h1>ENTER THE<br />ARENA<span className="yellow-dot">.</span></h1>
-        <p>Sign in with the account issued by the tournament operator to upload code and follow your rounds.</p>
-      </div>
-      <form className="card auth-form" onSubmit={submit}>
-        <div>
-          <span className="eyebrow">ACCOUNT LOGIN</span>
-          <h2>WELCOME BACK.</h2>
-        </div>
-        <label>
-          Username
-          <input autoComplete="username" value={username} onChange={(event) => setUsername(event.target.value)} required />
-        </label>
-        <label>
-          Password
-          <input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-        </label>
-        {error && <p className="error" role="alert">{error}</p>}
-        <Button disabled={busy}>{busy ? "Signing in..." : "Sign in ↗"}</Button>
-        <button className="text-link auth-back" type="button" onClick={() => go("home")}>Back to overview</button>
-      </form>
-    </section>
-  );
-}
-
 export function Home({ go, bot }) {
+  const {user,rankings}=useAccounts();
+  const ranks=rankings.map(p=>[p.name,p.rating]);
   return (
     <>
       <section className="hero">
@@ -117,11 +69,10 @@ export function Home({ go, bot }) {
             <span>C++</span>
           </div>
           <div className="hero-actions">
-            <Button onClick={() => go("submit")}>Submit your bot ↗</Button>
+            <Button onClick={() => go(user?"tournament":"login")}>{user?"Your tournament ↗":"Log in to compete ↗"}</Button>
             <Button secondary onClick={() => go("rules")}>
               Explore the rules
             </Button>
-            <Button secondary onClick={() => go("login")}>Account login</Button>
           </div>
         </div>
       </section>
@@ -130,7 +81,7 @@ export function Home({ go, bot }) {
           <Pixel kind="flag" />
           SEASON 2026
         </b>
-        <span>Weekly submission · 21:00</span>
+        <span>Live tournament · judge-assigned rounds</span>
       </section>
       <div className="section-heading">
         <h2>YOUR COMPETITION</h2>

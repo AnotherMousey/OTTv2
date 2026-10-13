@@ -85,7 +85,7 @@ function finishPreviousRound(tournament) {
   const previous = tournament.pairings.filter(pairing => pairing.round === tournament.currentRound);
   if (previous.some(pairing => !['finished', 'draw', 'bye'].includes(pairing.status))) throw new Error('The previous round has not finished.');
   for (const pairing of previous) {
-    if (pairing.applied) continue;
+    if (pairing.applied || pairing.status === 'bye') continue;
     const result = getMatch(pairing.matchId).replay?.result;
     const white = tournament.players.find(player => player.username === pairing.white);
     const black = tournament.players.find(player => player.username === pairing.black);
@@ -118,7 +118,11 @@ function startNextRound(id) {
 function syncTournament(id) {
   const tournament = getTournament(id);
   for (const pairing of tournament.pairings) if (pairing.matchId) { const match = getMatch(pairing.matchId); pairing.status = match.status; }
-  if (tournament.currentRound === tournament.rounds && tournament.pairings.filter(pairing => pairing.round === tournament.currentRound).every(pairing => pairing.status === 'finished' || pairing.status === 'bye')) tournament.status = 'finished';
+  const roundFinished = tournament.currentRound > 0 && tournament.pairings.filter(pairing => pairing.round === tournament.currentRound).every(pairing => pairing.status === 'finished' || pairing.status === 'bye');
+  if (roundFinished) {
+    finishPreviousRound(tournament);
+    if (tournament.currentRound === tournament.rounds) tournament.status = 'finished';
+  }
   save(tournament); return publicTournament(tournament);
 }
 load();

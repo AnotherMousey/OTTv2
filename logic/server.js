@@ -6,7 +6,7 @@ const {resolveGame,resolveConfig,specification} = require('./games/registry');
 const { resetRecording, recordMove, recordTerminal } = require('./recording');
 const { createSubmission } = require('./submissions');
 const { createMatch, getMatch, publicMatch, listHistory } = require('./match');
-const { login, createAccount, authenticate, requireRole, publicAccount } = require('./accounts');
+const { login, logout, createAccount, authenticate, requireRole, publicAccount } = require('./accounts');
 const { createTournament, registerPlayer, updateCode, startNextRound, syncTournament } = require('./tournaments');
 
 const {runtimes}=require('./runtime');
@@ -228,7 +228,7 @@ const server = http.createServer(async (req, res) => {
     }
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     res.setHeader('Access-Control-Max-Age', '600');
   }
   if (req.method === 'OPTIONS') {
@@ -241,6 +241,11 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/api/auth/login') {
       const body = await parseJsonBody(req);
       sendJson(res, 200, await login(body.username, body.password));
+      return;
+    }
+    if (req.method === 'POST' && url.pathname === '/api/auth/logout') {
+      logout(authToken(req));
+      sendJson(res, 200, {ok: true});
       return;
     }
     if (req.method === 'GET' && url.pathname === '/api/auth/me') {
@@ -267,14 +272,16 @@ const server = http.createServer(async (req, res) => {
         return;
       }
       if (req.method === 'POST' && action === 'register') {
-        requireOperator(req);
-        sendJson(res, 200, registerPlayer(tournamentId, await parseJsonBody(req)));
+        const account = requireAccount(req);
+        const body = await parseJsonBody(req);
+        if (account.role !== 'operator' && body.username && body.username !== account.username) throw Object.assign(new Error('You can only join as yourself.'), {statusCode: 403});
+        sendJson(res, 200, registerPlayer(tournamentId, account.role === 'operator' ? body : {username: account.username}));
         return;
       }
       if (req.method === 'POST' && action === 'code') {
         const account = requireAccount(req);
         const body = await parseJsonBody(req);
-        if (account.role !== 'operator' && account.username !== body.username) throw Object.assign(new Error('You can only update your own code.'), {statusCode: 403});
+        if (account.role !== 'operator' && body.username && account.username !== body.username) throw Object.assign(new Error('You can only update your own code.'), {statusCode: 403});
         sendJson(res, 200, updateCode(tournamentId, body.username || account.username, body));
         return;
       }
