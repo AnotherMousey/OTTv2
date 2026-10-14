@@ -22,7 +22,7 @@ There is no 4,000 concurrent-user or match throughput guarantee. Establish capac
 2. Copy the contents of `changed-files/` into the **root** of your original `OTTv2-main` folder, preserving all relative paths.
 3. Keep files not listed in `CHANGED_FILES.txt`. No deletions are required. Do not run the old JSON server for the production frontend.
 4. Commit the result to the Git repository you will connect to Render.
-5. Install Node.js 24 locally. Run `npm ci`, `npm run db:generate`, then `npm --prefix frontend ci`.
+5. Install Node.js 26 locally. Run `npm ci`, `npm run db:generate`, then `npm --prefix frontend ci`.
 
 New production entry points are `npm start`, `npm run worker` and `npm run runner`. The existing game engine and SDK stay in place. The API image intentionally does not install compilers or run uploaded code.
 
@@ -76,7 +76,7 @@ Set variables:
 | --- | --- |
 | API | `DATABASE_URL`, `MIGRATION_DATABASE_URL`, `ALLOWED_ORIGINS` |
 | Worker | `DATABASE_URL`, `RUNNER_URL`, `RUNNER_SECRET`; `WORKER_CONCURRENCY=2` initially |
-| Frontend | `VITE_API_BASE_URL=https://YOUR_API.onrender.com`; Node 24 |
+| Frontend | `VITE_API_BASE_URL=https://YOUR_API.onrender.com`; Node 26 |
 
 `ALLOWED_ORIGINS` contains exact frontend origins separated by commas, without paths or trailing slashes. Example: `https://YOUR_FRONTEND.onrender.com,https://your-domain.example`. Rebuild the frontend when changing `VITE_API_BASE_URL`, because Vite embeds it at build time. The frontend uses hash routes and needs no history-route rewrites.
 
@@ -94,7 +94,7 @@ npm run db:bootstrap
 
 This creates one judge account. Bootstrap never overwrites an existing account or resets its password. Remove the temporary password variable after use. The login is the username and password you selected.
 
-For organizer-issued players, use authenticated `POST /api/accounts` with `{ "username": "player01", "name": "Player One", "password": "YOUR_PRIVATE_PASSWORD" }`, or bulk-create from a private JSON array:
+For organizer-issued accounts, use authenticated `POST /api/accounts` with `{ "username": "player01", "name": "Player One", "password": "YOUR_PRIVATE_PASSWORD", "role": "player" }`. The optional `role` accepts `player` or `judge` and defaults to `player`. Bulk-create from a private JSON array:
 
 ```bash
 npm run db:accounts -- /private/path/players.json

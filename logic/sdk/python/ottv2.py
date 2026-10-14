@@ -22,6 +22,12 @@ class coordinate:
     def getYCor(self):
         return self._yCor
 
+    def xCor(self):
+        return self._xCor
+
+    def yCor(self):
+        return self._yCor
+
     def setXCor(self, value):
         self._xCor = value
 
@@ -43,6 +49,12 @@ class Move:
         return self._from_square
 
     def getTo(self):
+        return self._to_square
+
+    def from_(self):
+        return self._from_square
+
+    def to(self):
         return self._to_square
 
     def __iter__(self):
@@ -268,3 +280,23 @@ def read_state():
 
 def yield_turn(next_move):
     print(next_move.getFrom(), next_move.getTo(), flush=True)
+
+
+# Java-compatible names. The legacy lowercase names remain available.
+class Direction:
+    N, NE, E, SE, S, SW, W, NW = N, NE, E, SE, S, SW, W, NW
+
+
+class SoldierType:
+    rock, paper, scissor = rock, paper, scissor
+
+
+class TeamType:
+    A, B = A, B
+
+
+Coordinate = coordinate
+Soldier = soldier
+Team = team
+GameEngine = gameEngine
+Piece = _piece

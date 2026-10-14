@@ -37,6 +37,6 @@ services:
     staticPublishPath: ./frontend/dist
     envVars:
       - key: NODE_VERSION
-        value: "24"
+        value: "26"
       - key: VITE_API_BASE_URL
         sync: false

@@ -11,24 +11,28 @@ enum class teamType { A, B };
 enum class direction { N, NE, E, SE, S, SW, W, NW };
 struct Move {
 private:
-  std::string from, to;
+  std::string fromValue, toValue;
 public:
   Move() = default;
   Move(std::string fromValue, std::string toValue)
-    : from(std::move(fromValue)), to(std::move(toValue)) {}
-  const std::string& getFrom() const { return from; }
-  const std::string& getTo() const { return to; }
+    : fromValue(std::move(fromValue)), toValue(std::move(toValue)) {}
+  const std::string& getFrom() const { return fromValue; }
+  const std::string& getTo() const { return toValue; }
+  const std::string& from() const { return fromValue; }
+  const std::string& to() const { return toValue; }
 };
 struct coordinate {
 private:
-  int xCor{}, yCor{};
+  int xValue{}, yValue{};
 public:
   coordinate() = default;
-  coordinate(int x, int y) : xCor(x), yCor(y) {}
-  int getXCor() const { return xCor; }
-  int getYCor() const { return yCor; }
-  void setXCor(int value) { xCor = value; }
-  void setYCor(int value) { yCor = value; }
+  coordinate(int x, int y) : xValue(x), yValue(y) {}
+  int getXCor() const { return xValue; }
+  int getYCor() const { return yValue; }
+  int xCor() const { return xValue; }
+  int yCor() const { return yValue; }
+  void setXCor(int value) { xValue = value; }
+  void setYCor(int value) { yValue = value; }
 };
 struct soldier {
 private:
@@ -126,6 +130,7 @@ public:
   const team& getTeam() const { return own_team; }
   const team& getEnemyTeam() const { return enemy_team; }
   bool has_moves() const { return color == current_turn; }
+  bool hasMoves() const { return has_moves(); }
   void setColor(std::string value) { color = std::move(value); }
   void setCurrentTurn(std::string value) { current_turn = std::move(value); }
   void setTurnNumber(int value) { turn_number = value; }
@@ -202,4 +207,13 @@ inline State read_state(std::istream& input) {
 inline void yield_turn(const Move& next) {
   std::cout << next.getFrom() << ' ' << next.getTo() << '\n' << std::flush;
 }
+
+// Java-compatible type names. The legacy lowercase names remain available.
+using SoldierType = soldierType;
+using TeamType = teamType;
+using Direction = direction;
+using Coordinate = coordinate;
+using Soldier = soldier;
+using Team = team;
+using GameEngine = gameEngine;
 }
