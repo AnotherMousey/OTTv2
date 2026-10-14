@@ -66,3 +66,5 @@
  .submission-history td[data-label]::before{content:attr(data-label) ": ";color:var(--muted)}
  .submission-history .history-actions .button{flex:1;min-height:44px}
 }
+
+.move-log-heading{display:block;width:100%;padding:18px 16px;font-size:14px;border-bottom:3px solid var(--action-gold);background:var(--surface)}

@@ -20,7 +20,7 @@ function adapt(log,mode) {
   const frames=log.frames.map(frame=>{
     if(Array.isArray(frame.pieces))return frame;
     const {state,event,move,moveNumber}=frame;
-    return {pieces:stateToPieces(state),event,moveNumber,side:move?.player||state.currentTurn,...(move?{from:move.from,to:move.to}:{}),status:state.status,winner:state.winner,endReason:state.endReason,currentTurn:state.currentTurn,clocks:{white:state.whiteTimeMs,black:state.blackTimeMs}};
+    return {pieces:stateToPieces(state),event,moveNumber,side:move?.player||state.currentTurn,...(move?{from:move.from,to:move.to,move:{...move}}:{}),status:state.status,winner:state.winner,endReason:state.endReason,currentTurn:state.currentTurn,clocks:{white:state.whiteTimeMs,black:state.blackTimeMs}};
   });
   return parseReplay(JSON.stringify({
     ...log,schemaVersion:1,gameId:log.gameId ?? 'ottv2',rendererVersion:log.rendererVersion ?? '1',

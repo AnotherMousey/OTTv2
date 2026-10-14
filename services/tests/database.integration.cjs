@@ -9,6 +9,7 @@ const server=await new Promise(resolve=>{const s=createApp().listen(0,'127.0.0.1
 const call=async(path,user,body,method=body===undefined?'GET':'POST')=>{const response=await fetch(base+path,{method,headers:{'Content-Type':'application/json',...(user?{Authorization:'Bearer '+tokens[user]}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});return {status:response.status,data:await response.json()};};
 try{
 assert.equal((await call('/api/auth/login',null,{username:'alice',password:'bad'})).status,401);
+assert.equal((await call('/health')).data.apiVersion,'history-actions-v2');const preflight=await fetch(base+'/api/practice/history/delete',{method:'OPTIONS',headers:{Origin:'http://localhost:5173','Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'authorization,content-type'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('access-control-allow-methods'),/POST/);
 for(const name of Object.keys(users)){const r=await call('/api/auth/login',null,{username:name,password:'integration-password-123'});assert.equal(r.status,200);tokens[name]=r.data.token;}
 assert.equal((await call('/api/tournaments','alice',{name:'Unauthorized'})).status,403);
 const created=await call('/api/tournaments','judge',{name:'Integration Cup',totalRounds:1,capacity:2});assert.equal(created.status,201);const id=created.data.id;const path='/api/tournaments/'+id;
@@ -48,7 +49,7 @@ const aliceSources=await prisma.match.findUnique({where:{id:aliceJob.matchId}});
 assert.equal((await call('/api/practice/history/'+bobPractice.data.id,'alice',undefined,'DELETE')).status,404);
 assert.equal((await call('/api/practice/history/'+aliceJob.matchId,'judge',undefined,'DELETE')).status,403);
 assert.equal((await call('/api/practice/history/'+aliceJob.matchId,null,undefined,'DELETE')).status,401);
-const [removed]=await Promise.all([call('/api/practice/history/'+aliceJob.matchId,'alice',undefined,'DELETE'),queue.append(aliceJob,{seq:21,frame:{event:'racing deletion'}})]);
+const [removed]=await Promise.all([call('/api/practice/history/'+aliceJob.matchId+'/delete','alice',{}),queue.append(aliceJob,{seq:21,frame:{event:'racing deletion'}})]);
 assert.equal(removed.status,200);assert.equal(removed.data.deleted,1);
 assert.equal(await prisma.frame.count({where:{matchId:aliceJob.matchId}}),0);assert.equal(await prisma.job.count({where:{matchId:aliceJob.matchId}}),0);
 assert.equal(await prisma.submission.count({where:{id:{in:[aliceSources.whiteSubmissionId,aliceSources.blackSubmissionId]}}}),0);
@@ -60,7 +61,7 @@ const next=await call('/api/practice','alice',{white:{source:'print(1)',language
 await prisma.match.createMany({data:Array.from({length:105},(_,i)=>({id:'HISTORY-'+i,ownerId:users.alice.id,whiteId:users.alice.id,status:'finished',config:{mapId:'small-5'}}))});
 let history=await call('/api/practice/history','alice');assert.equal(history.data.records.length,100);assert.equal(history.data.total,106);assert.ok(!('snapshot' in history.data.records[0]));
 const ratingBefore=await prisma.user.findUnique({where:{id:users.alice.id}});
-const all=await call('/api/practice/history','alice',undefined,'DELETE');assert.equal(all.status,200);assert.equal(all.data.deleted,106);
+const all=await call('/api/practice/history/delete','alice',{});assert.equal(all.status,200);assert.equal(all.data.deleted,106);
 assert.equal((await call('/api/practice/history','alice')).data.total,0);assert.equal((await call('/api/practice/history','bob')).data.total,1);
 assert.equal(await prisma.match.count({where:{tournamentId:id}}),1);assert.equal(await prisma.entry.count({where:{tournamentId:id}}),2);
 assert.equal((await prisma.user.findUnique({where:{id:users.alice.id}})).rating,ratingBefore.rating);

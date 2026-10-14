@@ -1,3 +1,4 @@
+import {describeMove} from './moveLog.js';
 import {useAccounts} from './PreviewAccounts.jsx';
 import {MatchLoading} from './MatchLoading.jsx';
 import {motionTiming} from "./motion.js";
@@ -194,7 +195,6 @@ export function Match({ notify, prepare, preparing=false }) {
     [speed, setSpeed] = useState(1),
     [flipped, setFlipped] = useState(false),
     [selected, setSelected] = useState(null),
-    [tab, setTab] = useState("events"),
     [error, setError] = useState("");
   const input = useRef();
   useEffect(() => {
@@ -502,25 +502,14 @@ export function Match({ notify, prepare, preparing=false }) {
           </div>
         </section>
         <aside className="log-sidebar">
-          <div className="log-tabs">
-            {["events", "output"].map((t) => (
-              <button
-                key={t}
-                className={tab === t ? "active" : ""}
-                onClick={() => setTab(t)}
-              >
-                {t === "events" ? "Move log" : "Bot output"}
-              </button>
-            ))}
-          </div>
+          <div className="log-tabs"><span className="move-log-heading">Move log</span></div>
           <div className="log-content">
-            {index > 199 && tab === "events" && <small>Showing the latest 200 events. Use the timeline to inspect earlier events.</small>}
-            {tab === "events" ? (
+            {index > 199 && <small>Showing the latest 200 events. Use the timeline to inspect earlier events.</small>}
+            {(
               replay.frames
                 .slice(Math.max(0,index - 199), index + 1)
                 .map((f, i) => ({ frame: f, index: Math.max(0,index - 199)+i }))
-                .filter(({ frame: f }) => f.event !== "match-end")
-                .map(({ frame: f, index: i }) => (
+                                .map(({ frame: f, index: i }) => (
                   <button
                     key={i}
                     className={`log-entry ${i === index ? "current" : ""}`}
@@ -531,22 +520,11 @@ export function Match({ notify, prepare, preparing=false }) {
                       {f.side?.toUpperCase() || "JUDGE"}
                     </small>
                     <span>
-                      {f.event}
-                      {f.event === "match-end" && f.winner && (
-                        <strong className="log-result">{f.winner} wins</strong>
-                      )}
+                      {describeMove(f)}
                     </span>
                   </button>
                 ))
                 .reverse()
-            ) : (
-              <div className="terminal">
-                <p>&gt; {roomRecording ? "room output channel" : botMatchId ? "practice engine log" : "sample recording log"}</p>
-                <pre>{frame.output ? (typeof frame.output === "string" ? frame.output : JSON.stringify(frame.output,null,2)) : "No stdout captured for this move."}</pre>
-                <p>
-                  The production judge may provide stdout and stderr per move.
-                </p>
-              </div>
             )}
           </div>
           <div className="log-footer">
