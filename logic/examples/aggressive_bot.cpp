@@ -12,21 +12,21 @@ bool beats(const std::string& attacker, const std::string& defender) {
 }
 
 const ottv2::Piece* piece_at(const ottv2::State& state, const std::string& square) {
-  for (const auto& piece : state.pieces) {
-    if (piece.square == square) return &piece;
+  for (const auto& piece : state.getPieces()) {
+    if (piece.getSquare() == square) return &piece;
   }
   return nullptr;
 }
 
 std::string square_at(const std::string& square, int file_step, int rank_step) {
-  return std::string(1, static_cast<char>(square[0] + file_step))
-      + static_cast<char>(square[1] + rank_step);
+  const int rank = std::stoi(square.substr(1)) + rank_step;
+  return std::string(1, static_cast<char>(square[0] + file_step)) + std::to_string(rank);
 }
 
-bool valid_square(const std::string& square) {
-  return square.size() == 2
-      && square[0] >= 'a' && square[0] <= 'i'
-      && square[1] >= '1' && square[1] <= '9';
+bool valid_square(const std::string& square, const ottv2::State& state) {
+  if (square.size() < 2 || square[0] < 'a' || square[0] >= 'a' + state.getLength()) return false;
+  const int rank = std::stoi(square.substr(1));
+  return rank >= 1 && rank <= state.getWidth();
 }
 
 int distance_to_target(const std::string& square, const std::string& color) {
@@ -43,21 +43,21 @@ ottv2::Move choose_move(const ottv2::State& state) {
   };
   Candidate best{{"", ""}, std::numeric_limits<int>::max()};
 
-  for (const auto& piece : state.pieces) {
-    if (piece.color != state.color) continue;
+  for (const auto& piece : state.getPieces()) {
+    if (piece.getColor() != state.getColor()) continue;
     for (int file_step = -1; file_step <= 1; ++file_step) {
       for (int rank_step = -1; rank_step <= 1; ++rank_step) {
         if (file_step == 0 && rank_step == 0) continue;
-        const std::string destination = square_at(piece.square, file_step, rank_step);
-        if (!valid_square(destination)) continue;
+        const std::string destination = square_at(piece.getSquare(), file_step, rank_step);
+        if (!valid_square(destination, state)) continue;
 
         const auto* target = piece_at(state, destination);
-        if (target && target->color == state.color) continue;
-        if (target && !beats(piece.type, target->type)) continue;
+        if (target && target->getColor() == state.getColor()) continue;
+        if (target && !beats(piece.getType(), target->getType())) continue;
 
-        int score = distance_to_target(destination, state.color);
+        int score = distance_to_target(destination, state.getColor());
         if (target) score -= 1000; // Captures have priority over quiet moves.
-        if (score < best.score) best = {{piece.square, destination}, score};
+        if (score < best.score) best = {{piece.getSquare(), destination}, score};
       }
     }
   }
