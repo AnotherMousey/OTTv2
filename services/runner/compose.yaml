@@ -1,0 +1,17 @@
+# Run on a separate Docker-capable Linux host. Never mount this socket into a bot container.
+services:
+  runner:
+    build:
+      context: ../..
+      dockerfile: services/runner/Runner.Dockerfile
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set a random secret of at least 32 characters}
+      BOT_IMAGE: ottv2-bot:latest
+      RUNNER_CONCURRENCY: "2"
+      # Optional after installing gVisor's runsc on the host:
+      # DOCKER_RUNTIME: runsc
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped

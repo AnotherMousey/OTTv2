@@ -11,6 +11,8 @@ function normalizeConfig(input = {}, mode = 'room') {
   if (maxTurns !== null && (!Number.isInteger(maxTurns) || maxTurns < 1 || maxTurns > 10000)) throw Error('maxTurns must be null or 1–10000.');
   // Bot jobs always have a finite bound; unlimited rooms retain legacy behavior.
   if (mode === 'bot' && maxTurns === null) throw Error('Bot matches require a finite maxTurns.');
+  const moveTimeLimitMs = input.moveTimeLimitMs ?? 2000;
+  if (!Number.isInteger(moveTimeLimitMs) || moveTimeLimitMs < 100 || moveTimeLimitMs > 10000) throw Error('moveTimeLimitMs must be 100–10000.');
   const startingClockMs = input.startingClockMs ?? 300000;
   if (!Number.isInteger(startingClockMs) || startingClockMs < 1 || startingClockMs > 86400000) throw Error('Invalid startingClockMs.');
   const elimination = input.elimination ?? 'all-pieces';
@@ -36,6 +38,6 @@ function normalizeConfig(input = {}, mode = 'room') {
     if (elimination==='one-type' && TYPES.some(t=>!pieces.some(p=>p.color===side && p.type===t))) throw Error('one-type elimination requires each side to start with every type.');
     if (pieces.some(p=>p.color===side && p.square===targets[side])) throw Error('A piece cannot start on its own victory target.');
   }
-  return {boardSize:size,firstSide,maxTurns,startingClockMs,elimination,limitPolicy,targets:{...targets},initialPieces:pieces,mapName:String(input.mapName || `OTTv2 ${size}×${size}`).slice(0,100)};
+  return {boardSize:size,firstSide,maxTurns,moveTimeLimitMs,startingClockMs,elimination,limitPolicy,targets:{...targets},initialPieces:pieces,mapName:String(input.mapName || `OTTv2 ${size}×${size}`).slice(0,100)};
 }
 module.exports = {normalizeConfig,TYPES};

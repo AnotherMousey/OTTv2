@@ -100,14 +100,14 @@ function makePlayer(child, directory, output = '', errors = '') {
   };
 }
 
-async function requestMove(player, state) {
+async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 10000) throw Error('Invalid bot move time limit.');
   if (player.child.exitCode !== null) {
     throw new Error(`Player process exited with code ${player.child.exitCode}. ${player.errors}`.trim());
   }
+  const started = performance.now();
   player.child.stdin.write(state);
-
-  const started = Date.now();
-  while (Date.now() - started < TURN_TIMEOUT_MS) {
+  while (performance.now() - started < timeoutMs) {
     if (player.child.exitCode !== null || player.child.killed || player.errors.startsWith('Could not start player')) throw Error(`Player process stopped. ${player.errors}`.trim());
     const newline = player.output.indexOf('\n');
     if (newline >= 0) {
@@ -119,7 +119,7 @@ async function requestMove(player, state) {
     }
     await new Promise(resolve => setTimeout(resolve, 5));
   }
-  throw new Error(`Player did not return a move before the timeout. ${player.errors}`.trim());
+  throw Object.assign(new Error(`Bot exceeded ${timeoutMs} ms thinking limit and loses. ${player.errors}`.trim()), {code:'BOT_MOVE_TIMEOUT'});
 }
 
 async function stopPlayer(player) {
@@ -142,6 +142,7 @@ async function stopPlayer(player) {
 
 async function runMatch({
   matchId, whiteSource, blackSource, whiteLanguage = 'java', blackLanguage = 'java', game,
+  playerFactory = compilePlayer, playerStop = stopPlayer, onFrame = async () => {}, signal,
 }) {
   const replay = {
     ...metadata(game,{matchId,mode:'bot-match'}),
@@ -150,12 +151,14 @@ async function runMatch({
   };
   const players = {};
   try {
-    players.white = await compilePlayer(whiteSource, whiteLanguage, matchId, 'white');
-    players.black = await compilePlayer(blackSource, blackLanguage, matchId, 'black');
+    await onFrame(replay.frames[0], metadata(game,{matchId,mode:'bot-match'}));
+    players.white = await playerFactory(whiteSource, whiteLanguage, matchId, 'white');
+    players.black = await playerFactory(blackSource, blackLanguage, matchId, 'black');
     for (let turn = 0; turn < game.config.maxTurns && game.status === 'active'; turn += 1) {
+      if(signal?.aborted)throw Error('Execution cancelled.');
       const color = game.currentTurn;
       try {
-        const move = await requestMove(players[color], game.serializeBotState(color));
+        const move = await requestMove(players[color], game.serializeBotState(color), game.config.moveTimeLimitMs ?? TURN_TIMEOUT_MS);
         try {
           game.movePiece(move.from, move.to);
           replay.frames.push(capture(game, `${color}-move`, game.history.at(-1)));
@@ -169,20 +172,23 @@ async function runMatch({
           ));
         }
       } catch (error) {
-        game.forfeit(color, 'bot-error');
+        game.forfeit(color, error.code === 'BOT_MOVE_TIMEOUT' ? 'move-timeout' : 'bot-error');
         replay.frames.push(capture(game, `${color}-forfeit: ${error.message}`));
+        await onFrame(replay.frames.at(-1));
         break;
       }
+      await onFrame(replay.frames.at(-1));
     }
     if (game.status === 'active') {
       game.finishAtLimit();
     }
     replay.result = result(game);
     replay.frames.push(capture(game, `Match finished: ${game.endReason || 'finished'}. Winner: ${game.winner || 'draw'}.`));
+    await onFrame(replay.frames.at(-1));
     return replay;
   } finally {
-    await Promise.all(Object.values(players).map(stopPlayer));
+    await Promise.all(Object.values(players).map(playerStop));
   }
 }
 
-module.exports = { runMatch };
+module.exports = { runMatch, compilePlayer, requestMove, stopPlayer, makePlayer };

@@ -5,9 +5,6 @@ frontend
 upload
 .env
 .env.*
-
-data/*
-!data/
-!data/account.json
-!data/tournaments/
-!data/tournaments/pro.json
+data
+preview.html
+*.zip

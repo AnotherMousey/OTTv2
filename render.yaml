@@ -1,18 +1,42 @@
 services:
   - type: web
-    name: ottv2
+    name: ottv2-api
     runtime: docker
+    plan: 1c-2g
     dockerfilePath: ./Dockerfile
-    dockerContext: .
-    plan: free
-    autoDeployTrigger: commit
-    healthCheckPath: /health
+    healthCheckPath: /ready
+    preDeployCommand: DATABASE_URL="$MIGRATION_DATABASE_URL" npm run db:migrate
     envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: MIGRATION_DATABASE_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
       - key: NODE_ENV
         value: production
-      - key: SERVE_FRONTEND
-        value: "false"
-      - key: MATCH_WORKERS
-        value: "1"
-      - key: ALLOWED_ORIGINS
+  - type: worker
+    name: ottv2-worker
+    runtime: docker
+    plan: 1c-2g
+    dockerfilePath: ./Dockerfile
+    dockerCommand: node services/worker/index.cjs
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: RUNNER_URL
+        sync: false
+      - key: RUNNER_SECRET
+        sync: false
+      - key: WORKER_CONCURRENCY
+        value: "2"
+  - type: web
+    name: ottv2-frontend
+    runtime: static
+    buildCommand: npm --prefix frontend ci && npm --prefix frontend run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: VITE_API_BASE_URL
         sync: false

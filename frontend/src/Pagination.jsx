@@ -1,0 +1,2 @@
+import React from 'react';import {Button} from './ui.jsx';
+export function Pagination({offset=0,total=0,limit=100,onChange,busy=false,label='records'}){if(total<=limit)return null;return <div className="phase-actions"><Button secondary disabled={busy||offset===0} onClick={()=>onChange(Math.max(0,offset-limit))}>Previous</Button><span>{offset+1}–{Math.min(total,offset+limit)} of {total} {label}</span><Button secondary disabled={busy||offset+limit>=total} onClick={()=>onChange(offset+limit)}>Next</Button></div>;}

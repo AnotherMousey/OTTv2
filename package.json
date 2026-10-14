@@ -1,17 +1,27 @@
 {
-  "name": "ottv2-fullstack",
-  "version": "1.0.0",
+  "name": "ottv2-tournament-platform",
+  "version": "2.0.0",
   "private": true,
-  "scripts": {
-    "build": "npm run samples && npm --prefix frontend ci && npm --prefix frontend run build && node scripts/build-preview.mjs",
-    "start": "node logic/main.js",
-    "dev": "node scripts/dev.cjs",
-    "test": "node --test tests/*.test.mjs && npm --prefix frontend test",
-    "demo:room": "node scripts/demo-room.mjs",
-    "samples": "node scripts/generate-samples.cjs",
-    "test:bots": "node --test tests/bot-runners.test.mjs"
-  },
   "engines": {
     "node": ">=24.0.0 <25.0.0"
+  },
+  "scripts": {
+    "start": "node services/api/index.cjs",
+    "worker": "node services/worker/index.cjs",
+    "runner": "node services/runner/index.cjs",
+    "dev": "node --watch services/api/index.cjs",
+    "build": "prisma generate && npm --prefix frontend ci && npm --prefix frontend run build",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:bootstrap": "node services/api/bootstrap.cjs",
+    "db:import": "node services/api/import-json.cjs",
+    "test": "node --test services/tests/*.test.cjs && npm --prefix frontend test",
+    "test:db": "node --test services/tests/database.integration.cjs",
+    "db:accounts": "node services/api/accounts.cjs"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.0",
+    "prisma": "6.19.0",
+    "express": "5.1.0"
   }
 }

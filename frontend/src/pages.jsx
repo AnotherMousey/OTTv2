@@ -14,10 +14,10 @@ import { Pixel } from "./Pixel";
 import { Board } from "./Board";
 import { useRoomReplay } from "./hooks/useRoomReplay.js";
 import { useBotMatch } from "./hooks/useBotMatch.js";
-import { createBotMatch, submitBot, getGameSpecification, waitForBackend } from "./api/matchApi.js";
+import { createBotMatch, submitBot, getGameSpecification, waitForBackend, startPractice } from "./api/matchApi.js";
 import { Button, Landscape, ranks } from "./ui";
 export function Home({ go, bot }) {
-  const {user,rankings}=useAccounts();
+  const {user,rankings,tournament}=useAccounts();
   const ranks=rankings.map(p=>[p.name,p.rating]);
   return (
     <>
@@ -69,7 +69,7 @@ export function Home({ go, bot }) {
             <span>C++</span>
           </div>
           <div className="hero-actions">
-            <Button onClick={() => go(user?"tournament":"login")}>{user?"Your tournament ↗":"Log in to compete ↗"}</Button>
+            <Button onClick={() => go(user?.role==='judge'?"tournaments":user?"tournaments":"login")}>{user?.role==='judge'?"Manage tournaments":user?"Find a tournament":"Log in to compete"}</Button>
             <Button secondary onClick={() => go("rules")}>
               Explore the rules
             </Button>
@@ -81,7 +81,7 @@ export function Home({ go, bot }) {
           <Pixel kind="flag" />
           SEASON 2026
         </b>
-        <span>Live tournament · judge-assigned rounds</span>
+        <span>Bot tournaments · judge-assigned rounds</span>
       </section>
       <div className="section-heading">
         <h2>YOUR COMPETITION</h2>
@@ -90,25 +90,25 @@ export function Home({ go, bot }) {
       <section className="dashboard-grid">
         <article className="card">
           <div className="card-title">
-            <h3>MY BOT</h3>
+            <h3>{user?.role==='judge'?"JUDGE WORKSPACE":"COMPETITION BOT"}</h3>
             <span>01</span>
           </div>
           <div className="bot-summary">
             <Pixel />
             <div>
               <h3>
-                {bot.name} v{bot.version}
+                {user?.role==='judge'?"Tournament management":tournament.name}
               </h3>
-              <p>{bot.language}</p>
+              <p>{user?.role==='judge'?"Participants · readiness · results":"One bot per tournament entry"}</p>
               <span className="status">
                 <i />
-                Saved locally
+                Account workspace
               </span>
             </div>
           </div>
           <div className="card-bottom">
-            <small>Your saved bot version</small>
-            <Button onClick={() => go("submissions")}>My Submission ↗</Button>
+            <small>Join, prepare, then compete</small>
+            <Button onClick={() => go(user?.role==='judge'?"tournaments":"mybot")}>{user?.role==='judge'?"Manage tournaments":"My tournament bot"}</Button>
           </div>
         </article>
         <article className="card">
@@ -130,14 +130,14 @@ export function Home({ go, bot }) {
         </article>
         <article className="card match-card">
           <div className="card-title">
-            <h3>LATEST REPLAY</h3>
+            <h3>WATCH MATCHES</h3>
             <span>03</span>
           </div>
           <div className="preview-caption">
-            <span>No bot matches yet.</span>
-            <small>LIVE SUBMISSIONS ONLY</small>
+            <span>Explore matches across tournaments.</span>
+            <small>LIVE MATCHES AND COMPLETED RECORDINGS</small>
           </div>
-          <Button onClick={() => go("submit")}>Submit bots ▷</Button>
+          <Button onClick={() => go("watch")}>Find a match</Button>
         </article>
       </section>
       <section className="how-section">
@@ -260,7 +260,7 @@ export function Match({ notify, prepare, preparing=false }) {
     );
     const a = document.createElement("a");
     a.href = url;
-    a.download = replay.roomId ? `${replay.roomId}-replay.json` : "ottv2-demo-replay.json";
+    a.download = replay.roomId ? `${replay.roomId}-replay.json` : `${replay.matchId||"sample"}-replay.json`;
     a.click();
     URL.revokeObjectURL(url);
     notify("Replay exported. You can import it again.");
@@ -541,7 +541,7 @@ export function Match({ notify, prepare, preparing=false }) {
                 .reverse()
             ) : (
               <div className="terminal">
-                <p>&gt; {roomRecording ? "room output channel" : "demo output channel"}</p>
+                <p>&gt; {roomRecording ? "room output channel" : botMatchId ? "practice engine log" : "sample recording log"}</p>
                 <pre>{frame.output ? (typeof frame.output === "string" ? frame.output : JSON.stringify(frame.output,null,2)) : "No stdout captured for this move."}</pre>
                 <p>
                   The production judge may provide stdout and stderr per move.
@@ -668,7 +668,7 @@ export function Submission({ bot, save, prepare }) {
     [matchId, setMatchId] = useState(""),
     [busy, setBusy] = useState(false);
   const handedOff=useRef(false);
-  const [spec,setSpec] = useState(null), [mapId,setMapId] = useState('standard-9'), [maxTurns,setMaxTurns] = useState(31), [firstSide,setFirstSide] = useState('white');
+  const [spec,setSpec] = useState(null), [mapId,setMapId] = useState('standard-9'), [maxTurns,setMaxTurns] = useState(31), [thinkingSeconds,setThinkingSeconds] = useState(2), [firstSide,setFirstSide] = useState('white');
   useEffect(()=>{
     if(window.__OFFLINE_PREVIEW__) return;
     const controller=new AbortController();
@@ -695,14 +695,9 @@ export function Submission({ bot, save, prepare }) {
         handedOff.current=true;prepare('queued','PREVIEW-SUBMITTED');openMatch('PREVIEW-SUBMITTED');return;
       }
       await waitForBackend();prepare('upload');
-      const [whiteSubmission, blackSubmission] = await Promise.all([
-        submitBot("web-white", whiteLanguage, white),
-        submitBot("web-black", blackLanguage, black),
-      ]);
-      prepare('queued');
-      const match = await createBotMatch(whiteSubmission.id, blackSubmission.id, {gameId:'ottv2',mapId,config:{maxTurns:Number(maxTurns),firstSide}});
+      const match=await startPractice({white:{source:white,language:whiteLanguage},black:{source:black,language:blackLanguage},mapId,maxTurns:Number(maxTurns),moveTimeLimitMs:Math.round(Number(thinkingSeconds)*1000),firstSide});
       setMatchId(match.id);
-      writeHistory({id:match.id,matchId:match.id,title:`Match ${match.id}`,language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:maps.find(m=>m.id===mapId)?.config.mapName||mapId,createdAt:new Date().toISOString(),status:match.status||'queued',whiteSubmissionId:whiteSubmission.id,blackSubmissionId:blackSubmission.id},historyStorage());
+      writeHistory({id:match.id,matchId:match.id,title:`Match ${match.id}`,language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:maps.find(m=>m.id===mapId)?.config.mapName||mapId,createdAt:new Date().toISOString(),status:match.status||'queued'},historyStorage());
       save({
         ...bot,
         language: `${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,
@@ -720,17 +715,18 @@ export function Submission({ bot, save, prepare }) {
     <>
       <div className="page-heading">
         <div>
-          <span className="eyebrow">MY TEAM / BOT SUBMISSION</span>
-          <h1>YOUR NEXT MOVE.</h1>
+          <span className="eyebrow">PLAYER / PRACTICE MATCH</span>
+          <h1>PRACTICE MATCH.</h1>
         </div>
         <Pixel className="heading-sprite" />
       </div>
       <div className="submission-layout">
         <form className="card submission-form" onSubmit={submit}>
-          <h2>SUBMIT A BOT</h2>
-          <p>{window.__OFFLINE_PREVIEW__?'Try the submission loading flow. This preview opens a recorded sample and does not execute your code.':'Choose a language and map. The backend validates moves and records the result.'}</p>
+          <h2>SET UP A PRACTICE MATCH</h2>
+          <p>{window.__OFFLINE_PREVIEW__?'Set up a practice match. This does not submit a tournament bot.':'Choose a language and map. The backend validates moves and records the result.'}</p>
           <label>Map<select value={mapId} onChange={e=>setMapId(e.target.value)}>{maps.map(m=><option key={m.id} value={m.id}>{m.config.mapName}</option>)}</select></label>
-          <label>Turn limit<input type="number" min="1" max="10000" value={maxTurns} onChange={e=>setMaxTurns(e.target.value)} required /></label>
+          <label>Thinking seconds / move<input type="number" min="0.1" max="10" step="0.1" required value={thinkingSeconds} onChange={e=>setThinkingSeconds(e.target.value)}/></label>
+          <label>Turn limit<input type="number" min="1" max="500" value={maxTurns} onChange={e=>setMaxTurns(e.target.value)} required /></label>
           <label>First side<select value={firstSide} onChange={e=>setFirstSide(e.target.value)}><option value="white">White</option><option value="black">Black</option></select></label>
           <label>
             White language
@@ -762,14 +758,14 @@ export function Submission({ bot, save, prepare }) {
             </p>
           )}
           <Button disabled={busy || !white.trim() || !black.trim()} type="submit">
-            {busy ? "Preparing match…" : window.__OFFLINE_PREVIEW__ ? "Preview submission flow ↗" : "Submit and run match ↗"}
+            {busy ? "Preparing match…" : window.__OFFLINE_PREVIEW__ ? "Open sample practice replay" : "Run isolated practice match"}
           </Button>
           {matchId && <p className="status">Match created: {matchId}</p>}
-          <small>Each program is compiled and run as a temporary server process. Use this only on a trusted development server.</small>
+          <small>Both bots run on the isolated execution service. Practice does not update Elo or competition submissions.</small>
         </form>
         <aside>
           <article className="card">
-            <span className="eyebrow">CURRENT LOCAL VERSION</span>
+            <span className="eyebrow">PRACTICE ONLY / NOT YOUR TOURNAMENT ENTRY</span>
             <div className="bot-summary">
               <Pixel />
               <div>
@@ -787,7 +783,7 @@ export function Submission({ bot, save, prepare }) {
             </div>
           </article>
           <article className="submission-tip">
-            <span className="eyebrow">BEFORE YOU SUBMIT</span>
+            <span className="eyebrow">BEFORE YOU COMPETE</span>
             <h3>THINK AHEAD.</h3>
             <p>
               Use the SDK matching the current rules version. Test your bot
@@ -819,7 +815,7 @@ export function Tournament({ go }) {
             the organizer.
           </p>
         </div>
-        <Button onClick={() => go("submit")}>Prepare your bot ↗</Button>
+        <Button onClick={() => go("submit")}>My tournament bot</Button>
       </section>
       <div className="round-tabs">
         {["Round of 16", "Quarterfinals", "Semifinals", "Final"].map((r) => (

@@ -1,3 +1,7 @@
+import {MyBot} from './BotSubmission.jsx';
+import {TournamentDirectory} from './TournamentWorkspace.jsx';
+import {WatchLive} from './WatchLive.jsx';
+import './tournamentExtensions.css';
 import {PreviewAccounts,useAccounts} from './PreviewAccounts.jsx';
 import {LoginPage,LoginGate,AccountControl,TournamentAccountPage,AccountRankings} from './AccountPages.jsx';
 import {SubmissionHistory} from "./SubmissionHistory.jsx";
@@ -6,10 +10,13 @@ import {MatchLoading} from './MatchLoading.jsx';
 import {createPortal} from 'react-dom';
 import { createRoot } from "react-dom/client";
 import "./style.css";
+import "./refinements.css";
+import "./approvedDesign.css";
 import { Pixel } from "./Pixel";
 import { Button } from "./ui";
 import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
 import { initialTheme, persistTheme } from "./theme";
+
 function App() {
   const {user}=useAccounts();
   const [preparation,setPreparation]=useState(null);
@@ -98,19 +105,18 @@ function App() {
           ☰
         </button>
         <nav className={menu ? "open" : ""}>
-          {[
-            ["home", "Overview"],
-            ["tournament", "Tournament"],
-            ["rankings", "Rankings"],
-            ["match", "Replay"],
-            ["submissions", "My Submission"],
-            ["rules", "Rules & SDK"],
-          ].map(([id, label]) => (
+          {(user?.role==='judge'?[
+            ['home','Overview'],['tournaments','Manage Tournaments'],['watch','Watch Matches'],['rules','Rules & SDK']
+          ]:user?[
+            ['home','Overview'],['tournaments','Tournaments'],['mybot','My Bot'],['watch','Watch Matches'],['rules','Rules & SDK']
+          ]:[
+            ['home','Overview'],['tournaments','Tournaments'],['watch','Watch Matches'],['rules','Rules & SDK']
+          ]).map(([id, label]) => (
             <a
               key={id}
               href={`#${id}`}
               onClick={id === "match" ? e=>{e.preventDefault();go(id);} : undefined}
-              aria-current={page === id ? "page" : undefined}
+              aria-current={(page === id || (id === "watch" && page.startsWith("watch/")) || (id === "tournaments" && ["tournament","rankings"].includes(page)) || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
             >
               {label}
             </a>
@@ -135,19 +141,25 @@ function App() {
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        LIVE ARENA{" "}<span>Organizer accounts · tournament pairings and standings</span>
+        OTT ARENA{" "}<span>{user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span>
       </div>
       <main className="page" key={page}>
         {page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
           <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
+        ) : page === "tournaments" ? (
+          <TournamentDirectory go={go}/>
+        ) : page.startsWith("watch") ? (
+          <WatchLive go={go} route={page}/>
         ) : page === "rankings" ? (
           <AccountRankings />
+         ) : ["mybot","submit"].includes(page) ? (
+          <MyBot go={go}/>
         ) : page === "submissions" ? (
-          user ? <SubmissionHistory go={go} /> : <LoginGate go={go}/>
-        ) : page === "submit" ? (
-          user ? <Submission bot={bot} save={saveBot} prepare={prepare}/> : <LoginGate go={go}/>
+          user?.role==='player'||(user&&user.role!=='judge') ? <SubmissionHistory go={go}/> : <LoginGate go={go}/>
+        ) : page === "practice" ? (
+          user&&user.role!=='judge' ? <Submission bot={bot} save={saveBot} prepare={prepare}/> : <TournamentDirectory go={go}/>
         ) : page === "tournament" ? (
           <TournamentAccountPage go={go} />
         ) : page === "login" ? (

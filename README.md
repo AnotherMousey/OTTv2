@@ -1,3 +1,11 @@
+# Production deployment update
+
+The Render + Railway implementation replaces the JSON backend for production. Read [DEPLOYMENT.md](DEPLOYMENT.md). Use `npm start` for the Prisma/MySQL API and `npm run worker` for the durable worker. Bot execution needs the dedicated Docker runner described in that guide. There is no built-in production password.
+
+The approved frontend is connected to server data. Original fonts, artwork and engine rules remain. The older instructions below describe the original JSON implementation and are retained for reference.
+
+---
+
 # OTTv2 — Approved frontend v5 integrated with the backend
 
 This project integrates the approved pixel frontend with the existing room server and Java/C++/Python graders. Game rendering is selected through a frontend game registry; OTTv2 engine, rules, coordinate utilities and configuration live under `logic/games/ottv2`. Compatibility imports at `logic/engine.js`, `utils.js` and `constants.js` remain available.

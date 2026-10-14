@@ -1,0 +1,3 @@
+try{process.loadEnvFile();}catch{}
+const {prisma}=require('../shared/db.cjs');const {username,passwordHash,publicUser}=require('../shared/domain.cjs');
+(async()=>{const name=username(process.env.OPERATOR_USERNAME),password=process.env.OPERATOR_PASSWORD;if(await prisma.user.findUnique({where:{username:name}}))throw Error('Account already exists. Bootstrap never resets existing passwords.');const account=await prisma.user.create({data:{username:name,name:process.env.OPERATOR_NAME||'Tournament Judge',passwordHash:await passwordHash(password),role:'judge'}});console.log(JSON.stringify({created:account.username,role:account.role}));})().catch(e=>{console.error(e.message);process.exitCode=1;}).finally(()=>prisma.$disconnect());
