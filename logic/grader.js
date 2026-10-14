@@ -100,6 +100,19 @@ function makePlayer(child, directory, output = '', errors = '') {
   };
 }
 
+function waitForOutput(player,remainingMs){
+ const stream=player.child.stdout,child=player.child;
+ if(!stream?.once)return new Promise(resolve=>setTimeout(resolve,Math.min(5,remainingMs)));
+ return new Promise(resolve=>{
+  let timer;
+  const done=()=>{clearTimeout(timer);stream.removeListener('data',done);child.removeListener('close',done);child.removeListener('error',done);resolve();};
+  stream.once('data',done);child.once('close',done);child.once('error',done);
+  timer=setTimeout(done,remainingMs);
+  // Handle output/exit that arrived before the listeners were installed.
+  if(player.output.includes('\n')||child.exitCode!==null||child.killed)done();
+ });
+}
+
 async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 10000) throw Error('Invalid bot move time limit.');
   if (player.child.exitCode !== null) {
@@ -117,7 +130,8 @@ async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
       if (!from || !to) throw new Error('Player returned an invalid move.');
       return { from, to };
     }
-    await new Promise(resolve => setTimeout(resolve, 5));
+    // Wake on output instead of imposing a 5 ms polling delay on every move.
+    await waitForOutput(player, Math.max(1, timeoutMs-(performance.now()-started)));
   }
   throw Object.assign(new Error(`Bot exceeded ${timeoutMs} ms thinking limit and loses. ${player.errors}`.trim()), {code:'BOT_MOVE_TIMEOUT'});
 }

@@ -6,6 +6,7 @@ export function useBotMatch(matchId) {
   const [result, setResult] = useState({ status: null, replay: null, error: '', loading: Boolean(matchId) });
   useEffect(() => {
     if (!matchId) {setResult({status:null,replay:null,error:'',loading:false});return;}
+    setResult({status:null,replay:null,error:'',loading:true});
     let cancelled = false;
     let timer, controller;
     let terminal = false;

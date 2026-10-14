@@ -38,6 +38,33 @@ const match=await prisma.match.findUnique({where:{id:job.matchId}});const winner
 r=await call('/api/matches/'+job.matchId+'/live?runId='+job.claim+'&after=10');assert.equal(r.data.reset,true);assert.equal(r.data.frames.length,21);
 assert.equal((await call(path+'/advance','judge',{})).status,200);assert.equal((await call(path)).data.phase,'finished');assert.equal((await call('/api/matches?status=completed')).data.total,1);
 const practice=await call('/api/practice','alice',{white:{filename:'w.py',language:'python',source:'print(1)'},black:{filename:'b.py',language:'python',source:'print(1)'},maxTurns:1});assert.equal(practice.status,202);assert.equal((await call('/api/matches/'+practice.data.id,'bob')).status,403);assert.equal((await call('/api/matches/'+practice.data.id,'alice')).status,200);
+// Two match publishers run concurrently, including duplicate/out-of-order delivery.
+const bobPractice=await call('/api/practice','bob',{white:{source:'print(1)',language:'python'},black:{source:'print(1)',language:'python'},maxTurns:1});assert.equal(bobPractice.status,202);
+const activeJobs=[await queue.claim(),await queue.claim()];const aliceJob=activeJobs.find(j=>j.matchId===practice.data.id),bobJob=activeJobs.find(j=>j.matchId===bobPractice.data.id);assert.ok(aliceJob&&bobJob);
+await Promise.all(activeJobs.map(j=>queue.appendBatch(j,Array.from({length:20},(_,seq)=>({seq,frame:{event:'concurrent-'+seq}})))));
+await Promise.all([queue.appendBatch(aliceJob,[{seq:20,frame:{event:'latest'}}]),queue.appendBatch(aliceJob,[{seq:0,frame:{event:'duplicate'}}])]);
+assert.equal((await prisma.match.findUnique({where:{id:aliceJob.matchId}})).snapshot.event,'latest');
+const aliceSources=await prisma.match.findUnique({where:{id:aliceJob.matchId}});
+assert.equal((await call('/api/practice/history/'+bobPractice.data.id,'alice',undefined,'DELETE')).status,404);
+assert.equal((await call('/api/practice/history/'+aliceJob.matchId,'judge',undefined,'DELETE')).status,403);
+assert.equal((await call('/api/practice/history/'+aliceJob.matchId,null,undefined,'DELETE')).status,401);
+const [removed]=await Promise.all([call('/api/practice/history/'+aliceJob.matchId,'alice',undefined,'DELETE'),queue.append(aliceJob,{seq:21,frame:{event:'racing deletion'}})]);
+assert.equal(removed.status,200);assert.equal(removed.data.deleted,1);
+assert.equal(await prisma.frame.count({where:{matchId:aliceJob.matchId}}),0);assert.equal(await prisma.job.count({where:{matchId:aliceJob.matchId}}),0);
+assert.equal(await prisma.submission.count({where:{id:{in:[aliceSources.whiteSubmissionId,aliceSources.blackSubmissionId]}}}),0);
+assert.equal(await queue.append(aliceJob,{seq:22,frame:{event:'stale'}}),false);assert.equal(await queue.finish(aliceJob,{result:{winner:'white'},metadata:{}}),false);
+assert.equal((await call('/api/matches/'+aliceJob.matchId,'alice')).status,404);
+await queue.finish(bobJob,{result:{winner:null,reason:'fixture'},metadata:{format:'ottv2-log-v1'}});
+// Delete all covers records beyond the displayed latest 100 and cancels queued jobs.
+const next=await call('/api/practice','alice',{white:{source:'print(1)',language:'python'},black:{source:'print(1)',language:'python'},maxTurns:1});assert.equal(next.status,202);
+await prisma.match.createMany({data:Array.from({length:105},(_,i)=>({id:'HISTORY-'+i,ownerId:users.alice.id,whiteId:users.alice.id,status:'finished',config:{mapId:'small-5'}}))});
+let history=await call('/api/practice/history','alice');assert.equal(history.data.records.length,100);assert.equal(history.data.total,106);assert.ok(!('snapshot' in history.data.records[0]));
+const ratingBefore=await prisma.user.findUnique({where:{id:users.alice.id}});
+const all=await call('/api/practice/history','alice',undefined,'DELETE');assert.equal(all.status,200);assert.equal(all.data.deleted,106);
+assert.equal((await call('/api/practice/history','alice')).data.total,0);assert.equal((await call('/api/practice/history','bob')).data.total,1);
+assert.equal(await prisma.match.count({where:{tournamentId:id}}),1);assert.equal(await prisma.entry.count({where:{tournamentId:id}}),2);
+assert.equal((await prisma.user.findUnique({where:{id:users.alice.id}})).rating,ratingBefore.rating);
+assert.equal((await call('/api/practice/history','alice',undefined,'DELETE')).data.deleted,0);
 assert.equal((await call('/api/auth/logout','alice',{})).status,200);assert.equal((await call('/api/auth/me','alice')).status,401);
 }finally{await new Promise(resolve=>server.close(resolve));await prisma.$disconnect();}
 });

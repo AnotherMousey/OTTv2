@@ -18,6 +18,7 @@ export function MatchLoading({stage='connect',preview=false,matchId}){
   <div role="status" aria-live="polite" aria-atomic="true"><h1>{title}</h1><p className="loading-detail">{detail}</p></div>
   <ol className="loading-stages">{['CONNECT','SEND BOTS','RUN MATCH','LOAD REPLAY'].map((name,i)=><li key={name} className={i<active?'done':i===active?'current':''} aria-current={i===active?'step':undefined}><span>{i<active?'✓':String(i+1).padStart(2,'0')}</span>{name}</li>)}</ol>
   <div className="loading-footer"><span>{elapsed}s elapsed</span><span>{matchId||'Your submission stays on this page.'}</span></div>
+  {!preview&&matchId&&<p className="loading-preview-note">Your match is saved. <a className="text-link" href="#submissions">Open practice history</a> and return to its replay later.</p>}
   {preview&&<p className="loading-preview-note">Design demonstration only. No bot code is executed; a recorded sample opens next.</p>}
  </section>;
 }

@@ -220,7 +220,7 @@ export function Match({ notify, prepare, preparing=false }) {
   useEffect(()=>{
     if(!preparing)return;
     if(previewRecord){prepare(previewLoading?previewStage:null,botMatchId);return;}
-    if(botRemote.error||botRemote.status?.error){prepare(null);return;}
+    if(botRemote.error||botRemote.status?.status==='failed'){prepare(null);return;}
     if(botRemote.replay && replay.matchId===botMatchId){prepare(null);return;}
     if(!botRemote.status)return; // Preserve the submission stage while the first status request is pending.
     prepare(botRemote.status?.status==='finished'?'replay':botRemote.status?.status==='running'?'running':botRemote.status?.status==='queued'?'queued':'connect',botMatchId);
@@ -295,8 +295,8 @@ export function Match({ notify, prepare, preparing=false }) {
   if(previewLoading && preparing)return null;
   if(previewLoading)return <MatchLoading stage={previewStage} preview matchId={botMatchId}/>;
   if(botRemoteEnabled && (!botRemote.replay || replay.matchId!==botMatchId)){
-    const problem=botRemote.status?.error||botRemote.error;
-    if(problem)return <section className="match-loading loading-failure"><span className="eyebrow">BOT MATCH / {botMatchId}</span><h1>MATCH NOT READY.</h1><p className="error" role="alert">{problem}</p><p className="muted">Check your connection and backend status.</p><Button secondary onClick={()=>window.location.reload()}>Retry connection ↗</Button></section>;
+    const problem=(botRemote.status?.status==='failed'?botRemote.status.error||'Match execution failed.':null)||botRemote.error;
+    if(problem)return <section className="match-loading loading-failure"><span className="eyebrow">BOT MATCH / {botMatchId}</span><h1>MATCH NOT READY.</h1><p className="error" role="alert">{problem}</p><p className="muted">Your practice is saved in history. Check worker status before starting another match.</p><Button secondary onClick={()=>window.location.reload()}>Retry connection ↗</Button><Button secondary onClick={()=>{location.hash='submissions';}}>Practice history</Button></section>;
     if(preparing)return null;
     return <MatchLoading stage={botRemote.status?.status==='finished'?'replay':botRemote.status?.status==='running'?'running':botRemote.status?.status==='queued'?'queued':'connect'} matchId={botMatchId}/>;
   }
@@ -704,7 +704,7 @@ export function Submission({ bot, save, prepare }) {
         file: 'Practice bots',
       });
       handedOff.current=true;
-      prepare(null);openMatch(match.id);
+      prepare('queued',match.id);openMatch(match.id);
     } catch (submitError) {
       prepare(null);setError(submitError.message);
     } finally {
