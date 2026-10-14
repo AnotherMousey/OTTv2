@@ -17,7 +17,9 @@
     "db:import": "node services/api/import-json.cjs",
     "test": "node --test services/tests/*.test.cjs && npm --prefix frontend test",
     "test:db": "node --test services/tests/database.integration.cjs",
-    "db:accounts": "node services/api/accounts.cjs"
+    "db:accounts": "node services/api/accounts.cjs",
+    "worker:docker": "node scripts/start-railway-worker.cjs",
+    "queue:check": "node scripts/check-queue.cjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",
