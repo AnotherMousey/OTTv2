@@ -1,0 +1,33 @@
+# Demo worker: consumes the SAME Railway database used by the deployed API.
+# This does not create a local database or expose an execution endpoint publicly.
+services:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: node services/worker/index.cjs
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?Set the public Railway URL in .env}
+      RUNNER_URL: http://runner:8080
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+    depends_on:
+      runner:
+        condition: service_healthy
+    restart: unless-stopped
+  runner:
+    build:
+      context: .
+      dockerfile: services/runner/Runner.Dockerfile
+    environment:
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
+      RUNNER_CONCURRENCY: "2"
+      BOT_IMAGE: ottv2-bot:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    restart: unless-stopped
