@@ -152,8 +152,17 @@ async function runMatch({
   const players = {};
   try {
     await onFrame(replay.frames[0], metadata(game,{matchId,mode:'bot-match'}));
-    players.white = await playerFactory(whiteSource, whiteLanguage, matchId, 'white');
-    players.black = await playerFactory(blackSource, blackLanguage, matchId, 'black');
+    // Compile both sides concurrently, retaining fulfilled players for cleanup
+    // even when the other compilation fails.
+    const compiled = await Promise.allSettled([
+      playerFactory(whiteSource, whiteLanguage, matchId, 'white'),
+      playerFactory(blackSource, blackLanguage, matchId, 'black'),
+    ]);
+    for (const [i, side] of ['white', 'black'].entries()) {
+      if (compiled[i].status === 'fulfilled') players[side] = compiled[i].value;
+    }
+    const failure = compiled.find(outcome => outcome.status === 'rejected');
+    if (failure) throw failure.reason;
     for (let turn = 0; turn < game.config.maxTurns && game.status === 'active'; turn += 1) {
       if(signal?.aborted)throw Error('Execution cancelled.');
       const color = game.currentTurn;

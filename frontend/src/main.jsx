@@ -116,7 +116,7 @@ function App() {
               key={id}
               href={`#${id}`}
               onClick={id === "match" ? e=>{e.preventDefault();go(id);} : undefined}
-              aria-current={(page === id || (id === "watch" && page.startsWith("watch/")) || (id === "tournaments" && ["tournament","rankings"].includes(page)) || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
+              aria-current={(page === id || (id === "watch" && (page.startsWith("watch") || page==='match'&&new URLSearchParams(location.search).has('match'))) || (id === "tournaments" && ["tournament","rankings"].includes(page)) || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
             >
               {label}
             </a>
@@ -147,7 +147,7 @@ function App() {
         {page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
-          <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
+          new URLSearchParams(location.search).get('match') && !window.__OFFLINE_PREVIEW__ ? <WatchLive go={go} route={`watch/practice/${encodeURIComponent(new URLSearchParams(location.search).get('match'))}`}/> : <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
         ) : page === "tournaments" ? (
           <TournamentDirectory go={go}/>
         ) : page.startsWith("watch") ? (
