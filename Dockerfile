@@ -1,14 +1,14 @@
 FROM node:24-bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends openjdk-17-jdk-headless python3 g++ \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
+COPY prisma ./prisma
+RUN npx prisma generate
+COPY services ./services
 COPY logic ./logic
 COPY samples ./samples
-RUN mkdir -p ./data/tournaments
-COPY data/account.json ./data/account.json
-COPY data/tournaments ./data/tournaments
-ENV NODE_ENV=production SERVE_FRONTEND=false PORT=10000 OTTV2_PYTHON=python3 MATCH_WORKERS=1
+ENV NODE_ENV=production PORT=10000
+USER node
 EXPOSE 10000
-CMD ["node", "logic/main.js"]
+CMD ["node","services/api/index.cjs"]

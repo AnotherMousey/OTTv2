@@ -1,0 +1,49 @@
+# Local development only. Build the bot image before starting this stack.
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ottv2
+      MYSQL_USER: ott_app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD in .env}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD in .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
+      interval: 5s
+      retries: 20
+  api:
+    build: .
+    command: sh -c 'npm run db:migrate && node services/api/index.cjs'
+    ports: ["127.0.0.1:3000:10000"]
+    environment:
+      DATABASE_URL: mysql://ott_app:${MYSQL_PASSWORD}@mysql:3306/ottv2?connection_limit=5
+      ALLOWED_ORIGINS: http://localhost:5173,http://127.0.0.1:5173
+      OPERATOR_USERNAME: ${OPERATOR_USERNAME:-tournament-judge}
+      OPERATOR_NAME: ${OPERATOR_NAME:-Tournament Judge}
+      OPERATOR_PASSWORD: ${OPERATOR_PASSWORD:?Set OPERATOR_PASSWORD}
+    depends_on:
+      mysql: {condition: service_healthy}
+  worker:
+    build: .
+    command: node services/worker/index.cjs
+    environment:
+      DATABASE_URL: mysql://ott_app:${MYSQL_PASSWORD}@mysql:3306/ottv2?connection_limit=5
+      RUNNER_URL: http://runner:8080
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
+      WORKER_CONCURRENCY: "2"
+    depends_on:
+      api: {condition: service_started}
+      runner: {condition: service_started}
+  runner:
+    build:
+      context: .
+      dockerfile: services/runner/Runner.Dockerfile
+    environment:
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
+      RUNNER_CONCURRENCY: "2"
+      BOT_IMAGE: ottv2-bot:latest
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock"]
+volumes:
+  mysql-data:

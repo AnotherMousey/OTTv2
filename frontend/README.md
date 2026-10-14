@@ -1,16 +1,9 @@
-# OTTv2 frontend
+# OTTv2 approved frontend with production API
 
-The supplied Login Tournament frontend is connected to the existing main backend.
-Use organizer-issued accounts. No demo credentials or public account registration.
-Backend operator accounts appear as judges.
+React/Vite frontend. Preserve Pixeloid fonts, original sprites, team colors, and approved A layout with B accents.
 
-From the root: npm run build, then npm start. For hot reload: npm run dev.
-Configure VITE_API_BASE_URL with the backend origin and VITE_TOURNAMENT_ID with the
-existing tournament ID (default pro). Backend ALLOWED_ORIGINS must allow your frontend origin.
-Rebuild after changing Vite variables.
+This source uses real accounts, tournaments, bot validation and match recordings from the Prisma/MySQL backend. It has no built-in demo login.
 
-Players join and save their single tournament bot on Tournament. My Submission/Test bot
-retains the existing two-bot practice/replay workflow. Judges start rounds after all entrants
-save code. Engine results update live standings using points and fixed pairing coefficients.
-Automatic Elo and Prisma/MySQL are not added; original JSON persistence remains.
-preview.html is an offline visual/practice preview; use the served app for real login.
+Use Node.js 24. Run `npm ci`, then `npm run dev` in this folder. Locally, Vite proxies API calls to `http://127.0.0.1:3000`. For deployment, set `VITE_API_BASE_URL` before `npm run build`. Deploy the resulting `dist` directory as a static site.
+
+Read the root `DEPLOYMENT.md` for the API, worker, database, runner and credentials setup. The previous standalone `preview.html` is a separate design reference.

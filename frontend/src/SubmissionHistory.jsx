@@ -24,7 +24,7 @@ export function previewReplay(record) {
  return replay;
 }
 export function SubmissionHistory({go}) {
- const [records,setRecords]=useState(()=>readHistory(historyStorage())),[error,setError]=useState('');
+ const [records,setRecords]=useState(()=>window.__OFFLINE_PREVIEW__?readHistory(historyStorage()):[]),[error,setError]=useState('');
  useEffect(()=>{
   if(window.__OFFLINE_PREVIEW__)return;
   let cancelled=false;const controller=new AbortController();
@@ -34,11 +34,11 @@ export function SubmissionHistory({go}) {
  },[]);
  const display=records.length?records:(window.__OFFLINE_PREVIEW__?[...(previewSubmission()?[previewSubmission()]:[]),...previewRecords]:[]);
  return <>
-  <div className="page-heading"><div><span className="eyebrow">MY SUBMISSIONS</span><h1>SUBMISSION HISTORY.</h1></div><Button onClick={()=>go('submit')}>New submission ↗</Button></div>
-  <p className="muted">{window.__OFFLINE_PREVIEW__?'Preview entries demonstrate the history and replay flow. No bots are executed.':'Submission history and replays are saved on the server for this browser’s client ID.'}</p>
+  <div className="page-heading"><div><span className="eyebrow">PRACTICE / SERVER RECORDINGS</span><h1>PRACTICE HISTORY.</h1></div><Button onClick={()=>go('practice')}>New practice match</Button></div>
+  <p className="muted">{window.__OFFLINE_PREVIEW__?'Recorded example matches.':'Your practice matches and replays are saved to your account on the server.'}</p>
   {error&&<p className="error" role="alert">{error}</p>}
-  <div className="table-wrap submission-history"><table><thead><tr><th>Submission</th><th>Languages</th><th>Map</th><th>Status</th><th>Replay</th></tr></thead><tbody>
+  <div className="table-wrap submission-history"><table><thead><tr><th>Practice recording</th><th>Languages</th><th>Map</th><th>Status</th><th>Replay</th></tr></thead><tbody>
    {display.map(r=><tr key={r.id}><td><b>{r.title||r.matchId}</b><small className="history-meta">{r.preview?'PREVIEW':new Date(r.createdAt).toLocaleString()}</small></td><td>{r.language}</td><td>{r.mapName}</td><td><span className={`history-status ${r.status==='failed'||r.result?.reason==='bot-error'?'stopped':''}`}>{r.runtimeFailure?'Runtime unavailable':r.result?.reason==='bot-error'?'Bot stopped':r.status}</span></td><td><Button secondary onClick={()=>{window.location.href=`?match=${encodeURIComponent(r.matchId)}#match`;}}>View replay ↗</Button></td></tr>)}
-  </tbody></table>{!display.length&&<div className="empty">No submissions yet. Your submitted matches will appear here.</div>}</div>
+  </tbody></table>{!display.length&&<div className="empty">No practice matches yet. Your practice recordings will appear here.</div>}</div>
  </>;
 }

@@ -1,0 +1,33 @@
+/* Approved choice: A readability with B warm accents. Original fonts and artwork are unchanged. */
+/* Shared legibility improvements across A, B, C: same Pixeloid fonts and sprite data. */
+:root .page-heading h1{font-size:clamp(28px,3.3vw,48px);line-height:1.25}
+:root .match-player b{font-size:16px}
+:root .match-player small{font-size:13px;line-height:1.6}
+:root .match-topline .eyebrow{font-size:12px;letter-spacing:.65px}
+:root .match-status,:root .readiness-chip,:root .demo-tag{font-size:12px;white-space:normal}
+:root .match-card-footer>span{font-size:12px}
+:root .match-card-footer .button{font-size:13px}
+:root .watch-other-card b{font-size:14px}
+:root .watch-other-card small{font-size:12px}
+:root .account-note,:root .preview-footnote,:root .validation-note,:root .bot-actions span{font-size:13px;line-height:1.7}
+:root .workspace-tabs button{font-size:13px}
+:root input:not([type=range]):not([type=file]),:root select,:root .event-bot textarea{font-size:14px}
+:root .match-topline{gap:12px;flex-wrap:wrap}
+:root .match-topline .eyebrow{max-width:100%}
+:root .account-rankings{font-size:14px}
+:root .eyebrow{font-size:12px}
+/* B uses restrained warmth from the existing highlight token, not team colors. */
+:root .spectator-intro,:root .player-next-action,:root .bot-context{background:color-mix(in srgb,var(--highlight) 50%,var(--paper));border:1px solid var(--border);border-left:4px solid var(--border-strong);padding:22px}
+:root .match-overview-card{background:var(--paper);border-top-color:var(--border)}
+:root .match-miniature{background:color-mix(in srgb,var(--arena) 55%,var(--paper))}
+:root .watch-section-heading{border-bottom:3px solid var(--border-strong);padding-bottom:16px}
+:root .match-card-footer{background:color-mix(in srgb,var(--highlight) 35%,var(--paper));border:1px solid var(--border);padding:14px;margin-top:16px}
+:root .workspace-tabs{background:color-mix(in srgb,var(--highlight) 25%,var(--paper))}
+@media(max-width:600px){
+ :root .match-player b{font-size:15px}
+ :root .match-player small{font-size:12px}
+ :root input:not([type=range]):not([type=file]),:root select{font-size:16px}
+ :root .match-card-footer{flex-direction:column;align-items:stretch}
+ :root .match-card-footer>span{max-width:100%}
+ :root .match-card-footer .button{width:100%}
+}

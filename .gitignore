@@ -36,3 +36,7 @@ data/*
 !data/tournaments/
 data/tournaments/*
 !data/tournaments/pro.json
+
+# Private account provisioning inputs
+players.private.json
+accounts.private.json

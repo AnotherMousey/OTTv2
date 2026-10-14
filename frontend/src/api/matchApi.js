@@ -1,10 +1,11 @@
+import {request as platformRequest,post as platformPost,session} from './platformApi.js';
 import {submissionClientId} from '../submissionHistory.js';
 const API_BASE_URL = (import.meta.env?.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '');
 
 async function request(path, options = {}) {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
-    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
+    headers: { 'Content-Type': 'application/json', ...(session()?.token?{Authorization:'Bearer '+session().token}:{}), ...(options.headers || {}) },
   });
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
@@ -37,7 +38,7 @@ export function getBotMatch(matchId, signal) {
 }
 
 export async function getBotReplay(matchId, signal) {
-  const response = await fetch(`${API_BASE_URL}/api/matches/${encodeURIComponent(matchId)}/replay`, { signal });
+  const response = await fetch(`${API_BASE_URL}/api/matches/${encodeURIComponent(matchId)}/replay`, { signal,headers:(session()?.token?{Authorization:'Bearer '+session().token}:{}) });
   const contentType = response.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
     throw new Error(
@@ -53,7 +54,8 @@ export async function getBotReplay(matchId, signal) {
 
 export function getGameSpecification(signal) { return request("/api/games/current", {signal}); }
 
-export function getSubmissionHistory(signal){return request(`/api/submission-history?clientId=${encodeURIComponent(submissionClientId())}`,{signal});}
+export function getSubmissionHistory(signal){return platformRequest('/api/practice/history',{signal});}
+export function startPractice(body){return platformPost('/api/practice',body);}
 
 export async function waitForBackend(){
  const deadline=Date.now()+120000;

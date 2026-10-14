@@ -1,38 +1,26 @@
 import React,{createContext,useContext,useEffect,useRef,useState} from 'react';
-import {login as loginAccount,logout as logoutAccount,readAuthSession,clearAuthSession,accountRequest} from './api/authApi.js';
-import {getTournament,joinTournament,startRound,uploadTournamentBot,createTournament} from './api/tournamentApi.js';
+import {request,post,session,authenticate,signOut} from './api/platformApi.js';
 const Context=createContext(null);
-// Keep the component name to minimize changes to the approved frontend.
-export function PreviewAccounts({children}) {
- const [account,setAccount]=useState(null),[tournament,setTournament]=useState(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState('');
- const generation=useRef(0),tournamentVersion=useRef(0);
- useEffect(()=>{
-  const controller=new AbortController();let active=true,polling=false;
-  const expired=()=>{generation.current++;setAccount(null);setError('Your session expired. Please log in again.');};
-  window.addEventListener('ott-auth-expired',expired);
-  async function boot(){
-   const version=generation.current;
-   try {if(readAuthSession()){const data=await accountRequest('/api/auth/me',{signal:controller.signal});if(active&&version===generation.current)setAccount(data.account);}}
-   catch(e){if(active&&e.name!=='AbortError'){clearAuthSession();setError(e.message);}}
-   finally{if(active)setLoading(false);}
-  }
-  async function poll(){
-   if(polling)return;polling=true;const version=tournamentVersion.current;
-   try{const data=await getTournament(controller.signal);if(active&&version===tournamentVersion.current){setTournament(data);setError('');}}
-   catch(e){if(active&&e.name!=='AbortError')setError(e.message);}
-   finally{polling=false;}
-  }
-  boot();poll();const timer=setInterval(poll,4000);
-  return()=>{active=false;controller.abort();clearInterval(timer);window.removeEventListener('ott-auth-expired',expired);};
- },[]);
- async function login(username,password){generation.current++;const data=await loginAccount(username,password);setAccount(data.account);setError('');}
- async function logout(){generation.current++;setAccount(null);try{await logoutAccount();}catch(e){setError(e.message);}}
- async function mutate(action){setBusy(true);setError('');tournamentVersion.current++;try{const data=await action();setTournament(data.tournament||data);return data;}catch(e){setError(e.message);throw e;}finally{setBusy(false);}}
- const act=action=>()=>{mutate(action).catch(()=>{});};
- const players=(tournament?.players||[]).map(p=>({...p,id:p.username,name:p.username,rating:p.coefficient,joined:true,games:p.wins+p.draws+p.losses}));
- const user=account?{id:account.username,name:account.username,role:account.role==='operator'?'judge':'player',rating:players.find(p=>p.id===account.username)?.rating??1000,joined:players.some(p=>p.id===account.username)}:null;
- const rankings=[...players].sort((a,b)=>b.points-a.points||b.rating-a.rating||a.name.localeCompare(b.name));
- const pairs=(tournament?.pairings||[]).filter(p=>p.round===tournament.currentRound).map(p=>({...p,id:p.matchId||`bye-${p.round}-${p.white}`,score:p.match?.replay?.result?.winner==='white'?1:p.match?.replay?.result?.winner==='black'?0:.5}));
- return <Context.Provider value={{user,login,logout,loading,busy,error,tournament:tournament?{...tournament,players,pairs,round:tournament.currentRound||1}:null,rankings,join:act(joinTournament),assign:act(startRound),nextRound:act(startRound),create:act(createTournament),uploadBot:(source,language)=>mutate(()=>uploadTournamentBot(source,language))}}>{children}</Context.Provider>;
+const empty={id:'',name:'Select a tournament',phase:'registration',round:1,totalRounds:0,capacity:0,mapId:'standard-9',firstSide:'white',maxTurns:31,players:[],pairs:[],history:[],counts:{accepted:0,pending:0,botsReady:0}};
+const normalize=e=>({...e,players:(e.players||[]).map(p=>({...p,language:({python:'Python',java:'Java',cpp:'C++'}[p.language]||p.language)})),history:e.history||[],pairs:e.pairs||[],pagination:e.pagination||{},counts:e.counts||{accepted:0,pending:0,botsReady:0}});
+export function PreviewAccounts({children}){
+ const [user,setUser]=useState(null),[events,setEvents]=useState([]),[tournament,setTournament]=useState(empty),[rankings,setRankings]=useState([]),[error,setError]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[eventTotal,setEventTotal]=useState(0),[rankPage,setRankPage]=useState({offset:0,total:0});
+ const selected=useRef(''),generation=useRef(0),pages=useRef({offset:0,matchOffset:0,rankOffset:0});
+ async function loadDirectory(offset=0){const data=await request('/api/tournaments?limit=30&offset='+offset);setEvents(current=>offset?[...current,...data.events.map(normalize)].filter((e,i,list)=>list.findIndex(v=>v.id===e.id)===i):data.events.map(normalize));setEventTotal(data.total);if(!selected.current&&data.events[0])selected.current=data.events[0].id;return data;}
+ async function refresh(){const id=selected.current;if(!id)return;const version=generation.current;const p=pages.current;const [event,standings]=await Promise.all([request(`/api/tournaments/${id}?offset=${p.offset}&matchOffset=${p.matchOffset}`),request(`/api/tournaments/${id}/rankings?offset=${p.rankOffset}`)]);if(version!==generation.current)return;const value=normalize(event);value.entryRows=value.players;const people=[...value.players,...(event.pairingPlayers||[]),...(event.myEntry?[event.myEntry]:[])].filter((e,i,list)=>list.findIndex(v=>v.id===e.id)===i);value.players=people;value.pairs=[...value.pairs,...(event.myMatch?[event.myMatch]:[])].filter((p,i,list)=>list.findIndex(v=>v.id===p.id)===i);setTournament(value);setRankings(standings.rankings);setRankPage({offset:standings.offset,total:standings.total});setError('');}
+ useEffect(()=>{let active=true,polling=false;const expired=()=>{setUser(null);setError('Session expired. Log in again.');};window.addEventListener('ott-session-expired',expired);
+ (async()=>{try{if(session()){try{const data=await request('/api/auth/me');if(active)setUser(data.account);}catch(e){if(active)setError(e.message);}}await loadDirectory();if(active)await refresh();}catch(e){if(active)setError(e.message);}finally{if(active)setLoading(false);}})();
+ const timer=setInterval(async()=>{if(document.hidden||polling)return;const page=location.hash.slice(1);if(!['tournament','mybot','rankings'].includes(page))return;polling=true;try{await refresh();if(session()){const data=await request('/api/auth/me');if(active)setUser(data.account);}}catch(e){if(active)setError(e.message);}finally{polling=false;}},6000);
+ return()=>{active=false;clearInterval(timer);window.removeEventListener('ott-session-expired',expired);};},[]);
+ async function login(username,password){const account=await authenticate(username,password);setUser(account);await loadDirectory();await refresh();return account;}
+ async function logout(){setUser(null);try{await signOut();}catch(e){setError(e.message);}}
+ async function selectEvent(id){selected.current=id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};try{await refresh();}catch(e){setError(e.message);}}
+ async function mutate(path,body){if(busy)return false;setBusy(true);setError('');try{await post(`/api/tournaments/${selected.current}/${path}`,body);await Promise.all([refresh(),loadDirectory()]);return true;}catch(e){setError(e.message);throw e;}finally{setBusy(false);}}
+ const action=(path,body)=>()=>mutate(path,body).catch(()=>{});
+ const review=(id,accept)=>mutate('review',{userId:id,accept}).catch(()=>{});
+ const create=async values=>{setBusy(true);try{const data=await post('/api/tournaments',values);selected.current=data.id;pages.current={offset:0,matchOffset:0,rankOffset:0};await loadDirectory();await refresh();return true;}catch(e){setError(e.message);return false;}finally{setBusy(false);}};
+ const saveBot=bot=>mutate('bot',{filename:bot.name,language:({Python:'python',Java:'java','C++':'cpp'}[bot.language]||bot.language),source:bot.source});
+ const paginate=async(type,offset)=>{pages.current={...pages.current,[type]:offset};setBusy(true);try{await refresh();}catch(e){setError(e.message);}finally{setBusy(false);}};
+ return <Context.Provider value={{user,login,logout,events,eventTotal,tournament,rankings,rankPage,error,busy,loading,selectEvent,create,saveBot,join:action('join'),review,approveAll:action('review',{all:true,accept:true}),advance:action('advance'),configure:values=>mutate('settings',values).catch(()=>{}),paginate,loadMore:()=>loadDirectory(events.length).catch(e=>setError(e.message)),refresh}}>{children}</Context.Provider>;
 }
 export function useAccounts(){return useContext(Context);}

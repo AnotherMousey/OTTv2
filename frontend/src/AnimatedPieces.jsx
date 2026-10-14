@@ -14,7 +14,7 @@ export function AnimatedPieces({frame,width,height,flipped,compact,selected,onSe
  },[frame,width,height,animationMs,compact]);
  const position=p=>({left:0,top:0,transform:`translate3d(${(flipped?width-1-p.x:p.x)*100}%, ${(flipped?height-1-p.y:p.y)*100}%, 0)`, '--piece-motion':`${animationMs}ms`});
  return <div className="piece-layer">{items.map(p=>{
-  const props={key:p.id,'data-piece-id':p.id,className:`piece ${p.side} ${selected===p.id?'selected':''} ${p.exiting?'exiting':''}`,style:position(p)};
-  return compact?<div {...props}><Piece kind={p.type} side={p.side}/></div>:<button {...props} aria-hidden={p.exiting||undefined} disabled={p.exiting} aria-pressed={selected===p.id} aria-label={`${p.side} ${p.type} at ${String.fromCharCode(97+p.x)}${height-p.y}`} onClick={()=>onSelect?.(p.id)}><Piece kind={p.type} side={p.side}/></button>;
+  const props={'data-piece-id':p.id,className:`piece ${p.side} ${selected===p.id?'selected':''} ${p.exiting?'exiting':''}`,style:position(p)};
+  return compact?<div key={p.id} {...props}><Piece kind={p.type} side={p.side}/></div>:<button key={p.id} {...props} aria-hidden={p.exiting||undefined} disabled={p.exiting} aria-pressed={selected===p.id} aria-label={`${p.side} ${p.type} at ${String.fromCharCode(97+p.x)}${height-p.y}`} onClick={()=>onSelect?.(p.id)}><Piece kind={p.type} side={p.side}/></button>;
  })}</div>;
 }
