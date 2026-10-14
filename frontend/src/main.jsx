@@ -77,6 +77,7 @@ function App() {
     window.addEventListener("hashchange", fn);
     return () => window.removeEventListener("hashchange", fn);
   }, []);
+  useEffect(()=>{if(!['practice','match'].includes(page))setPreparation(null);},[page]);
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(""), 3500);
@@ -147,7 +148,7 @@ function App() {
         {page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
-          new URLSearchParams(location.search).get('match') && !window.__OFFLINE_PREVIEW__ ? <WatchLive go={go} route={`watch/practice/${encodeURIComponent(new URLSearchParams(location.search).get('match'))}`}/> : <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
+          <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
         ) : page === "tournaments" ? (
           <TournamentDirectory go={go}/>
         ) : page.startsWith("watch") ? (

@@ -50,3 +50,19 @@
    still use the original palette. */
 :root input:not([type=range]):not([type=file]),:root select,:root textarea{border-color:#79836c}
 :root[data-theme=dark] input:not([type=range]):not([type=file]),:root[data-theme=dark] select,:root[data-theme=dark] textarea{border-color:var(--border-strong)}
+
+.history-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.history-confirm{padding:22px;margin:20px 0;border-left:4px solid var(--action-gold)}
+.history-confirm p{max-width:850px}
+.history-confirm h2{font-size:22px}
+@media(max-width:600px){.page-heading>.history-actions{width:100%}.page-heading>.history-actions .button{flex:1}.history-confirm{padding:16px}}
+
+@media(max-width:600px){
+ .submission-history table{min-width:0;width:100%;display:block}
+ .submission-history thead{display:none}
+ .submission-history tbody{display:block}
+ .submission-history tr{display:grid;gap:12px;padding:18px;border-bottom:1px solid var(--border)}
+ .submission-history td{display:block;padding:0;border:0;overflow-wrap:anywhere}
+ .submission-history td[data-label]::before{content:attr(data-label) ": ";color:var(--muted)}
+ .submission-history .history-actions .button{flex:1;min-height:44px}
+}
