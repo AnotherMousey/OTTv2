@@ -60,7 +60,7 @@ Generate a secret locally with `node -e "console.log(require('node:crypto').rand
 docker compose --env-file .env -f services/runner/compose.yaml up -d --build
 ```
 
-The runner listens only at host `127.0.0.1:8080`. Put an HTTPS reverse proxy in front of it. Use a real TLS certificate and preserve streaming responses. Disable buffering for `/run`, and allow a request timeout of at least `75 + maxTurns × (moveTimeLimitMs / 1000 + 0.25)` seconds for the configured maximum match duration. Restrict ingress to the worker's outbound network where possible. Set `RUNNER_URL` on Render to that HTTPS origin, and set the worker's `RUNNER_SECRET` to the exact same value.
+The runner listens only at host `127.0.0.1:3667` (container port `8080`). Put an HTTPS reverse proxy in front of it. Use a real TLS certificate and preserve streaming responses. Disable buffering for `/run`, and allow a request timeout of at least `75 + maxTurns × (moveTimeLimitMs / 1000 + 0.25)` seconds for the configured maximum match duration. Restrict ingress to the worker's outbound network where possible. Set `RUNNER_URL` on Render to that HTTPS origin, and set the worker's `RUNNER_SECRET` to the exact same value.
 
 Bot restrictions include no networking, read-only root filesystem, dropped Linux capabilities, no-new-privileges, an unprivileged UID, bounded temporary storage, CPU/memory/PID limits, compilation timeout and per-move timeout. Use gVisor (`runsc`) or a stronger isolation runtime for hostile public submissions; install it on the host and enable `DOCKER_RUNTIME: runsc` in the runner compose file. Docker alone is not a complete security boundary against kernel exploits. Harden, patch and dedicate this host before accepting untrusted uploads.
 
