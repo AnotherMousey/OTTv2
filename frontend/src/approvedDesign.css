@@ -31,3 +31,22 @@
  :root .match-card-footer>span{max-width:100%}
  :root .match-card-footer .button{width:100%}
 }
+/* Bright warm gold, matching the original primary action. Team sprites keep
+   their original gold/blue palette; neutral panels no longer blend to olive. */
+:root{--action-gold:#f3d170;--action-ink:#19201b}
+:root .spectator-intro,:root .player-next-action,:root .bot-context{background:var(--surface);border-left-color:var(--action-gold)}
+:root .spectator-intro b,:root .bot-context h2{color:var(--ink)}
+:root .match-card-footer,:root .workspace-tabs{background:var(--surface)}
+:root .phase-step.current,:root .workspace-tabs button.active,:root .event-filters .active{background:var(--action-gold);color:var(--action-ink);border-color:var(--action-gold);box-shadow:inset 0 -3px var(--action-ink)}
+:root .workspace-tabs button.active small{color:var(--action-ink)}
+:root .watch-section-heading{border-bottom-color:var(--action-gold)}
+:root .bot-readiness{min-width:0}
+:root .bot-readiness>div,:root .match-player{min-width:0;overflow-wrap:anywhere}
+:root .broadcast-tools select{min-height:44px;max-width:100%}
+:root .broadcast-tools label{display:flex;gap:8px;align-items:center}
+:root .watch-navigation{flex-wrap:wrap}
+:root .broadcast-board input[type=range]{width:100%}
+/* Form boundaries remain visible in both themes; decorative panel borders
+   still use the original palette. */
+:root input:not([type=range]):not([type=file]),:root select,:root textarea{border-color:#79836c}
+:root[data-theme=dark] input:not([type=range]):not([type=file]),:root[data-theme=dark] select,:root[data-theme=dark] textarea{border-color:var(--border-strong)}

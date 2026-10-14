@@ -14,7 +14,7 @@ import { Pixel } from "./Pixel";
 import { Board } from "./Board";
 import { useRoomReplay } from "./hooks/useRoomReplay.js";
 import { useBotMatch } from "./hooks/useBotMatch.js";
-import { createBotMatch, submitBot, getGameSpecification, waitForBackend, startPractice } from "./api/matchApi.js";
+import { createBotMatch, submitBot, getGameSpecification, startPractice } from "./api/matchApi.js";
 import { Button, Landscape, ranks } from "./ui";
 export function Home({ go, bot }) {
   const {user,rankings,tournament}=useAccounts();
@@ -694,17 +694,17 @@ export function Submission({ bot, save, prepare }) {
         savePreviewSubmission({id:'preview-submitted',matchId:'PREVIEW-SUBMITTED',title:'Preview submitted match',language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:`${size}×${size}`,createdAt:new Date().toISOString(),status:'finished',sampleId:sample.id,preview:true});
         handedOff.current=true;prepare('queued','PREVIEW-SUBMITTED');openMatch('PREVIEW-SUBMITTED');return;
       }
-      await waitForBackend();prepare('upload');
+      prepare('upload');
       const match=await startPractice({white:{source:white,language:whiteLanguage},black:{source:black,language:blackLanguage},mapId,maxTurns:Number(maxTurns),moveTimeLimitMs:Math.round(Number(thinkingSeconds)*1000),firstSide});
       setMatchId(match.id);
-      writeHistory({id:match.id,matchId:match.id,title:`Match ${match.id}`,language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:maps.find(m=>m.id===mapId)?.config.mapName||mapId,createdAt:new Date().toISOString(),status:match.status||'queued'},historyStorage());
+      writeHistory({id:match.id,matchId:match.id,title:'Practice match',language:`${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,mapName:maps.find(m=>m.id===mapId)?.config.mapName||mapId,createdAt:new Date().toISOString(),status:match.status||'queued'},historyStorage());
       save({
         ...bot,
         language: `${whiteLanguage.toUpperCase()} / ${blackLanguage.toUpperCase()}`,
-        file: `${match.id} submissions`,
+        file: 'Practice bots',
       });
       handedOff.current=true;
-      prepare('queued',match.id);openMatch(match.id);
+      prepare(null);openMatch(match.id);
     } catch (submitError) {
       prepare(null);setError(submitError.message);
     } finally {

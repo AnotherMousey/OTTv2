@@ -8,3 +8,10 @@ export function botReadiness(player){
   default:return {title:'BOT NEEDED',label:player?.botName?'Saved · not ready':'Not submitted'};
  }
 }
+
+// Older pasted submissions used an internal CUID as their display filename.
+// Preserve real uploaded filenames and only hide that generated prefix.
+export function friendlyBotFilename(filename,language='Python'){
+ if(!filename)return '';
+ return /^c[a-z0-9]{20,}_bot\.(py|java|cpp)$/i.test(filename)?`bot.${({Python:'py',python:'py',Java:'java',java:'java','C++':'cpp',cpp:'cpp'}[language]||filename.split('.').at(-1))}`:filename;
+}
