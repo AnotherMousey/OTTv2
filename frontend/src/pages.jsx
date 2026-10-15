@@ -30,9 +30,9 @@ export function Home({ go, bot }) {
               <Pixel kind="hammer" />
             </div>
             <div className="art-label">
-              ONE BOARD.
+              ONE BOARD
               <br />
-              ENDLESS STRATEGIES.
+              ENDLESS STRATEGIES
             </div>
             <div className="art-piece p1">
               <Pixel kind="paper" side="black" />
@@ -56,9 +56,9 @@ export function Home({ go, bot }) {
           </div>
           <div className="eyebrow">UNIVERSITY BOT PROGRAMMING TOURNAMENT</div>
           <h1>
-            BUILD A BOT.
+            BUILD A BOT
             <br />
-            MAKE YOUR MOVE.
+            MAKE YOUR MOVE
           </h1>
           <p className="hero-copy">
             Your code. Your strategy. Your climb to the top.
@@ -148,7 +148,7 @@ export function Home({ go, bot }) {
           <h2>
             LET YOUR
             <br />
-            CODE COMPETE.
+            CODE COMPETE
           </h2>
         </div>
         {[
@@ -297,7 +297,7 @@ export function Match({ notify, prepare, preparing=false }) {
   if(previewLoading)return <MatchLoading stage={previewStage} preview matchId={botMatchId}/>;
   if(botRemoteEnabled && (!botRemote.replay || replay.matchId!==botMatchId)){
     const problem=(botRemote.status?.status==='failed'?botRemote.status.error||'Match execution failed.':null)||botRemote.error;
-    if(problem)return <section className="match-loading loading-failure"><span className="eyebrow">BOT MATCH / {botMatchId}</span><h1>MATCH NOT READY.</h1><p className="error" role="alert">{problem}</p><p className="muted">Your practice is saved in history. Check worker status before starting another match.</p><Button secondary onClick={()=>window.location.reload()}>Retry connection ↗</Button><Button secondary onClick={()=>{location.hash='submissions';}}>Practice history</Button></section>;
+    if(problem)return <section className="match-loading loading-failure"><span className="eyebrow">BOT MATCH / {botMatchId}</span><h1>MATCH NOT READY</h1><p className="error" role="alert">{problem}</p><p className="muted">Your practice is saved in history. Check worker status before starting another match.</p><Button secondary onClick={()=>window.location.reload()}>Retry connection ↗</Button><Button secondary onClick={()=>{location.hash='submissions';}}>Practice history</Button></section>;
     if(preparing)return null;
     return <MatchLoading stage={botRemote.status?.status==='finished'?'replay':botRemote.status?.status==='running'?'running':botRemote.status?.status==='queued'?'queued':'connect'} matchId={botMatchId}/>;
   }
@@ -558,7 +558,7 @@ export function Rankings() {
       <div className="page-heading">
         <div>
           <span className="eyebrow">SEASON 2026 / SAMPLE STANDINGS</span>
-          <h1>THE LEADERBOARD.</h1>
+          <h1>THE LEADERBOARD</h1>
         </div>
         <Pixel kind="trophy" className="heading-sprite" />
       </div>
@@ -696,7 +696,7 @@ export function Submission({ bot, save, prepare }) {
       <div className="page-heading">
         <div>
           <span className="eyebrow">PLAYER / PRACTICE MATCH</span>
-          <h1>PRACTICE MATCH.</h1>
+          <h1>PRACTICE MATCH</h1>
         </div>
         <Pixel className="heading-sprite" />
       </div>
@@ -764,7 +764,7 @@ export function Submission({ bot, save, prepare }) {
           </article>
           <article className="submission-tip">
             <span className="eyebrow">BEFORE YOU COMPETE</span>
-            <h3>THINK AHEAD.</h3>
+            <h3>THINK AHEAD</h3>
             <p>
               Use the SDK matching the current rules version. Test your bot
               against different maps and starting sides.
@@ -783,7 +783,7 @@ export function Tournament({ go }) {
       <div className="page-heading">
         <div>
           <span className="eyebrow">SEASON 2026 / DEMO BRACKET</span>
-          <h1>THE ROAD TO GLORY.</h1>
+          <h1>THE ROAD TO GLORY</h1>
         </div>
         <Pixel kind="flag" className="heading-sprite" />
       </div>

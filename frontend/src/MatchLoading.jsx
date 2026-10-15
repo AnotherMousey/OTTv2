@@ -1,11 +1,11 @@
 import React,{useEffect,useState} from 'react';
 import {Pixel} from './Pixel.jsx';
 const labels={
- connect:['WAKING THE ARENA.','Connecting to the backend. If it is asleep, this may take a little longer.'],
- upload:['SENDING YOUR BOTS.','Uploading both submissions. Keep this page open.'],
- queued:['YOUR MATCH IS QUEUED.','Waiting for the grader to become available.'],
- running:['BOTS ARE PLAYING.','The grader is running the match and recording each move.'],
- replay:['OPENING YOUR REPLAY.','Preparing the recorded board, moves and final result.'],
+ connect:['WAKING THE ARENA','Connecting to the backend. If it is asleep, this may take a little longer.'],
+ upload:['SENDING YOUR BOTS','Uploading both submissions. Keep this page open.'],
+ queued:['YOUR MATCH IS QUEUED','Waiting for the grader to become available.'],
+ running:['BOTS ARE PLAYING','The grader is running the match and recording each move.'],
+ replay:['OPENING YOUR REPLAY','Preparing the recorded board, moves and final result.'],
 };
 export function MatchLoading({stage='connect',preview=false,matchId}){
  const [elapsed,setElapsed]=useState(0);

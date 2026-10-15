@@ -59,7 +59,7 @@ export function OttRules() {
       <div className="page-heading">
         <div>
           <span className="eyebrow">BOT API / C++ · JAVA · PYTHON</span>
-          <h1>KNOW THE API.</h1>
+          <h1>API</h1>
         </div>
         <div className="rules-sprites">
           {TYPES.map((t) => (
@@ -86,7 +86,7 @@ export function OttRules() {
           </>
         ) : (
           <>
-            <h2>SMALL MOVES. BIG CONSEQUENCES.</h2>
+            <h2>SMALL MOVES BIG CONSEQUENCES</h2>
             <div className="rule-grid">
               {RULES.map(([n, t, d]) => (
                 <article key={n}>

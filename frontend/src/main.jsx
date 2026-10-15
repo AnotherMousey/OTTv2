@@ -176,7 +176,7 @@ function App() {
           <Pixel />
           OTTv2
         </a>
-        <span>CODE. COMPETE. REPEAT.</span>
+        <span>CODE COMPETE REPEAT</span>
         <a href="#api">API ↗</a>
       </footer>
       {toast && (
