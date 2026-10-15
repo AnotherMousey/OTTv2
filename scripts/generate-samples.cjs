@@ -10,7 +10,7 @@ const types=['rock','paper','scissors'];
 function map(size,depth,name) {
  const initialPieces=[];
  for(const color of ['white','black'])for(let y=0;y<depth;y++)for(let x=0;x<3;x++) {
-  const col=color==='white'?x+1:size-4+x;
+  const col=color==='white'?x:size-3+x;
   const rank=color==='white'?y+1:size-y;
   initialPieces.push({color,type:types[(x+y)%3],square:`${String.fromCharCode(97+col)}${rank}`});
  }

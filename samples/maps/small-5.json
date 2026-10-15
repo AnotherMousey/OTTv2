@@ -5,32 +5,32 @@
     {
       "color": "white",
       "type": "rock",
+      "square": "a1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
       "square": "b1"
     },
     {
       "color": "white",
-      "type": "paper",
-      "square": "c1"
-    },
-    {
-      "color": "white",
       "type": "scissors",
-      "square": "d1"
+      "square": "c1"
     },
     {
       "color": "black",
       "type": "rock",
-      "square": "b5"
-    },
-    {
-      "color": "black",
-      "type": "paper",
       "square": "c5"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "d5"
+    },
+    {
+      "color": "black",
+      "type": "scissors",
+      "square": "e5"
     }
   ]
 }

@@ -5,92 +5,92 @@
     {
       "color": "white",
       "type": "rock",
+      "square": "a1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
       "square": "b1"
     },
     {
       "color": "white",
-      "type": "paper",
+      "type": "scissors",
       "square": "c1"
     },
     {
       "color": "white",
-      "type": "scissors",
-      "square": "d1"
+      "type": "paper",
+      "square": "a2"
     },
     {
       "color": "white",
-      "type": "paper",
+      "type": "scissors",
       "square": "b2"
     },
     {
       "color": "white",
-      "type": "scissors",
+      "type": "rock",
       "square": "c2"
     },
     {
       "color": "white",
-      "type": "rock",
-      "square": "d2"
+      "type": "scissors",
+      "square": "a3"
     },
     {
       "color": "white",
-      "type": "scissors",
+      "type": "rock",
       "square": "b3"
     },
     {
       "color": "white",
-      "type": "rock",
+      "type": "paper",
       "square": "c3"
     },
     {
-      "color": "white",
-      "type": "paper",
-      "square": "d3"
-    },
-    {
       "color": "black",
       "type": "rock",
-      "square": "f9"
-    },
-    {
-      "color": "black",
-      "type": "paper",
       "square": "g9"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "h9"
     },
     {
       "color": "black",
-      "type": "paper",
-      "square": "f8"
+      "type": "scissors",
+      "square": "i9"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "g8"
     },
     {
       "color": "black",
-      "type": "rock",
+      "type": "scissors",
       "square": "h8"
     },
     {
       "color": "black",
-      "type": "scissors",
-      "square": "f7"
+      "type": "rock",
+      "square": "i8"
     },
     {
       "color": "black",
-      "type": "rock",
+      "type": "scissors",
       "square": "g7"
     },
     {
       "color": "black",
-      "type": "paper",
+      "type": "rock",
       "square": "h7"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "i7"
     }
   ]
 }

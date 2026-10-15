@@ -5,182 +5,182 @@
     {
       "color": "white",
       "type": "rock",
+      "square": "a1"
+    },
+    {
+      "color": "white",
+      "type": "paper",
       "square": "b1"
     },
     {
       "color": "white",
-      "type": "paper",
+      "type": "scissors",
       "square": "c1"
     },
     {
       "color": "white",
-      "type": "scissors",
-      "square": "d1"
+      "type": "paper",
+      "square": "a2"
     },
     {
       "color": "white",
-      "type": "paper",
+      "type": "scissors",
       "square": "b2"
     },
     {
       "color": "white",
-      "type": "scissors",
+      "type": "rock",
       "square": "c2"
     },
     {
       "color": "white",
-      "type": "rock",
-      "square": "d2"
+      "type": "scissors",
+      "square": "a3"
     },
     {
       "color": "white",
-      "type": "scissors",
+      "type": "rock",
       "square": "b3"
     },
     {
       "color": "white",
-      "type": "rock",
+      "type": "paper",
       "square": "c3"
     },
     {
       "color": "white",
-      "type": "paper",
-      "square": "d3"
+      "type": "rock",
+      "square": "a4"
     },
     {
       "color": "white",
-      "type": "rock",
+      "type": "paper",
       "square": "b4"
     },
     {
       "color": "white",
-      "type": "paper",
+      "type": "scissors",
       "square": "c4"
     },
     {
       "color": "white",
-      "type": "scissors",
-      "square": "d4"
+      "type": "paper",
+      "square": "a5"
     },
     {
       "color": "white",
-      "type": "paper",
+      "type": "scissors",
       "square": "b5"
     },
     {
       "color": "white",
-      "type": "scissors",
+      "type": "rock",
       "square": "c5"
     },
     {
       "color": "white",
-      "type": "rock",
-      "square": "d5"
+      "type": "scissors",
+      "square": "a6"
     },
     {
       "color": "white",
-      "type": "scissors",
+      "type": "rock",
       "square": "b6"
     },
     {
       "color": "white",
-      "type": "rock",
+      "type": "paper",
       "square": "c6"
     },
     {
-      "color": "white",
-      "type": "paper",
-      "square": "d6"
-    },
-    {
       "color": "black",
       "type": "rock",
-      "square": "j13"
-    },
-    {
-      "color": "black",
-      "type": "paper",
       "square": "k13"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "l13"
     },
     {
       "color": "black",
-      "type": "paper",
-      "square": "j12"
+      "type": "scissors",
+      "square": "m13"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "k12"
     },
     {
       "color": "black",
-      "type": "rock",
+      "type": "scissors",
       "square": "l12"
     },
     {
       "color": "black",
-      "type": "scissors",
-      "square": "j11"
+      "type": "rock",
+      "square": "m12"
     },
     {
       "color": "black",
-      "type": "rock",
+      "type": "scissors",
       "square": "k11"
     },
     {
       "color": "black",
-      "type": "paper",
+      "type": "rock",
       "square": "l11"
     },
     {
       "color": "black",
-      "type": "rock",
-      "square": "j10"
+      "type": "paper",
+      "square": "m11"
     },
     {
       "color": "black",
-      "type": "paper",
+      "type": "rock",
       "square": "k10"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "l10"
     },
     {
       "color": "black",
-      "type": "paper",
-      "square": "j9"
+      "type": "scissors",
+      "square": "m10"
     },
     {
       "color": "black",
-      "type": "scissors",
+      "type": "paper",
       "square": "k9"
     },
     {
       "color": "black",
-      "type": "rock",
+      "type": "scissors",
       "square": "l9"
     },
     {
       "color": "black",
-      "type": "scissors",
-      "square": "j8"
+      "type": "rock",
+      "square": "m9"
     },
     {
       "color": "black",
-      "type": "rock",
+      "type": "scissors",
       "square": "k8"
     },
     {
       "color": "black",
-      "type": "paper",
+      "type": "rock",
       "square": "l8"
+    },
+    {
+      "color": "black",
+      "type": "paper",
+      "square": "m8"
     }
   ]
 }
