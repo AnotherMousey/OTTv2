@@ -4,7 +4,6 @@ public interface RobotController {
   String getColor();
   String getCurrentTurn();
   int getTurnNumber();
-  GameState getState();
   java.util.List<Piece> sensePieces();
   boolean canMove(String from, String to);
   void move(String from, String to);

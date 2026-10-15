@@ -10,6 +10,7 @@ const {
 class GameEngine {
   constructor(config = {}, mode = 'room') {
     this.config = buildConfig(config, mode);
+    this.mode = mode;
     this.length = this.config.length;
     this.width = this.config.width;
     this.reset();
@@ -385,6 +386,9 @@ class GameEngine {
     }
 
     // Keep the original turn start: polling must never extend a deadline.
+
+    // Bot matches: the grader owns the deadline and skips a late turn.
+    if (this.mode === 'bot') return;
 
     if (this.whiteTimeMs <= 0) {
       this.status = 'finished';

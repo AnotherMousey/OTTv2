@@ -718,7 +718,7 @@ export function Submission({ bot, save, prepare }) {
           </label>
           <label>
             White player
-            <textarea value={white} required rows="10" onChange={(e) => setWhite(e.target.value)} placeholder={'C++: choose_move(state)\nPython: read_state() / yield_turn(...)'} />
+            <textarea value={white} required rows="10" onChange={(e) => setWhite(e.target.value)} placeholder={'C++ / Python: choose_move(game)\nJava: RobotPlayer.run(rc)'} />
           </label>
           <label>
             Black language
@@ -730,7 +730,7 @@ export function Submission({ bot, save, prepare }) {
           </label>
           <label>
             Black player
-            <textarea value={black} required rows="10" onChange={(e) => setBlack(e.target.value)} placeholder={'C++: choose_move(state)\nPython: read_state() / yield_turn(...)'} />
+            <textarea value={black} required rows="10" onChange={(e) => setBlack(e.target.value)} placeholder={'C++ / Python: choose_move(game)\nJava: RobotPlayer.run(rc)'} />
           </label>
           {error && (
             <p className="error" role="alert">

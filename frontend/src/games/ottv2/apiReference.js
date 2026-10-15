@@ -7,21 +7,10 @@ export const API_LANGUAGES = [
     label: "C++",
     module: "namespace ottv2",
     entry: {
-      signature: "ottv2::Move choose_move(const ottv2::State& state)",
-      doc: "Called once per turn. Read the game through state.getGameEngine() and return the move to play.",
+      signature: "ottv2::Move choose_move(const ottv2::GameEngine& game)",
+      doc: "You implement this. Called once per turn with the game engine; return the move to play.",
     },
     types: [
-      {
-        name: "Piece",
-        kind: "struct",
-        doc: "A piece in square notation.",
-        members: [
-          member("const std::string& getId() const", 'Stable piece ID, e.g. "white-rock-0".'),
-          member("const std::string& getColor() const", '"white" or "black".'),
-          member("const std::string& getType() const", '"rock", "paper" or "scissors".'),
-          member("const std::string& getSquare() const", 'Square such as "c3". File a… is x, rank 1… is y.'),
-        ],
-      },
       {
         name: "Move",
         kind: "struct",
@@ -52,7 +41,7 @@ export const API_LANGUAGES = [
         members: [
           member("teamType getTeamType() const", "A = your piece, B = enemy piece."),
           member("soldierType getSoldierType() const", "rock, paper or scissor."),
-          member("int getId() const", "Piece index for this turn."),
+          member("int getId() const", "Soldier index for this turn."),
           member("coordinate getPosition() const", "Current coordinate."),
           member("Move moveTo(direction next) const", "Move one step in a direction. Does not check board bounds."),
           member("void setPosition(coordinate value)", "Change the position (local copy only)."),
@@ -86,6 +75,8 @@ export const API_LANGUAGES = [
           member("coordinate getFlag() const", "Your own flag; the enemy wins by reaching it."),
           member("coordinate getEnemyFlag() const", "The enemy flag; you win by reaching it."),
           member("int getTurnNumber() const", "Turns already played."),
+          member("const team& getTeam() const", "Your soldiers and your own flag."),
+          member("const team& getEnemyTeam() const", "Enemy soldiers and the enemy flag."),
         ],
       },
       {
@@ -117,7 +108,7 @@ export const API_LANGUAGES = [
     module: "package ottv2.sdk",
     entry: {
       signature: "public static void run(RobotController rc) throws Exception",
-      doc: "Called once in class RobotPlayer. Loop forever: choose a move with rc.move(...), then call rc.yieldTurn() to send it and wait for the next state.",
+      doc: "You implement this in class RobotPlayer. Called once. Loop forever: choose a move with rc.move(...), then call rc.yieldTurn() to send it and wait for the next state.",
     },
     types: [
       {
@@ -137,20 +128,6 @@ export const API_LANGUAGES = [
           member("void move(String from, String to)", "Queue a move for this turn."),
           member("void submitMove(Move move)", "Queue a Move object for this turn."),
           member("void yieldTurn() throws InterruptedException", "Send the queued move (an empty move if none) and block until the next state."),
-        ],
-      },
-      {
-        name: "Board",
-        kind: "class",
-        doc: "Board queries in square notation.",
-        members: [
-          member("int length()", "Number of files. Alias: size()."),
-          member("int width()", "Number of ranks."),
-          member("List<Piece> pieces()", "Every piece on the board."),
-          member("Piece pieceAt(String square)", "Piece on a square, or null."),
-          member("boolean containsOwnPiece(String square, String color)", "True if that side has a piece there."),
-          member("boolean canStep(String from, String to, String color)", "Legal-looking step. Does not check whether a capture wins."),
-          member("static final int SIZE = 9", "Default board size."),
         ],
       },
       {
@@ -253,21 +230,10 @@ export const API_LANGUAGES = [
     label: "Python",
     module: "module ottv2",
     entry: {
-      signature: "def choose_move(state: State) -> Move | tuple[str, str]",
-      doc: "Called once per turn. Read the game through state.getGameEngine() and return a Move or a (from, to) tuple.",
+      signature: "def choose_move(game: GameEngine) -> Move | tuple[str, str]",
+      doc: "You implement this. Called once per turn with the game engine; return a Move or a (from, to) tuple.",
     },
     types: [
-      {
-        name: "Piece",
-        kind: "class",
-        doc: "A piece in square notation. Read-only.",
-        members: [
-          member("getId() -> str", "Stable piece ID. Property: id."),
-          member("getColor() -> str", '"white" or "black". Property: color.'),
-          member("getType() -> str", '"rock", "paper" or "scissors". Property: type.'),
-          member("getSquare() -> str", 'Square such as "c3". Property: square.'),
-        ],
-      },
       {
         name: "Move",
         kind: "class",
@@ -298,7 +264,7 @@ export const API_LANGUAGES = [
         members: [
           member("getTeamType() -> str", "A = white, B = black."),
           member("getSoldierType() -> str", '"rock", "paper" or "scissor".'),
-          member("getId() -> int", "Piece index for this turn."),
+          member("getId() -> int", "Soldier index for this turn."),
           member("getPosition() -> Coordinate", "Current coordinate."),
           member("moveTo(direction) -> Move", "Move one step in a direction. Does not check board bounds."),
           member("setPosition(value)", "Change the position (local copy only)."),
@@ -332,6 +298,8 @@ export const API_LANGUAGES = [
           member("getFlag() -> Coordinate", "Your own flag; the enemy wins by reaching it."),
           member("getEnemyFlag() -> Coordinate", "The enemy flag; you win by reaching it."),
           member("getTurnNumber() -> int", "Turns already played."),
+          member("getTeam() -> Team", "Your soldiers and your own flag."),
+          member("getEnemyTeam() -> Team", "Enemy soldiers and the enemy flag."),
         ],
       },
       {

@@ -91,7 +91,6 @@ public final class JavaRunner {
     @Override public String getColor() { return color; }
     @Override public String getCurrentTurn() { return currentTurn; }
     @Override public int getTurnNumber() { return state.turnNumber(); }
-    @Override public ottv2.sdk.GameState getState() { return state; }
     @Override public java.util.List<Piece> sensePieces() { return state.pieces(); }
     @Override public boolean canMove(String from, String to) { return state.canMove(from, to); }
     @Override public void move(String from, String to) { submitMove(new Move(from, to)); }

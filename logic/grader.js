@@ -119,6 +119,9 @@ async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
     throw new Error(`Player process exited with code ${player.child.exitCode}. ${player.errors}`.trim());
   }
   const started = performance.now();
+  // Bots answer every state once, in order. After a skipped (late) turn the
+  // answers to earlier states are still owed; they are read and discarded.
+  player.pending = (player.pending || 0) + 1;
   player.child.stdin.write(state);
   while (performance.now() - started < timeoutMs) {
     if (player.child.exitCode !== null || player.child.killed || player.errors.startsWith('Could not start player')) throw Error(`Player process stopped. ${player.errors}`.trim());
@@ -126,6 +129,7 @@ async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
     if (newline >= 0) {
       const line = player.output.slice(0, newline).trim();
       player.output = player.output.slice(newline + 1);
+      if (--player.pending > 0) continue;
       const [from, to] = line.split(/\s+/);
       if (!from || !to) throw Object.assign(new Error('Player returned an invalid move.'),{code:'BOT_INVALID_MOVE'});
       return { from, to };
@@ -133,7 +137,7 @@ async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
     // Wake on output instead of imposing a 5 ms polling delay on every move.
     await waitForOutput(player, Math.max(1, timeoutMs-(performance.now()-started)));
   }
-  throw Object.assign(new Error(`Bot exceeded ${timeoutMs} ms thinking limit and loses. ${player.errors}`.trim()), {code:'BOT_MOVE_TIMEOUT'});
+  throw Object.assign(new Error(`Bot exceeded ${timeoutMs} ms thinking limit.`), {code:'BOT_MOVE_TIMEOUT'});
 }
 
 async function stopPlayer(player) {
@@ -160,25 +164,28 @@ async function playTurn(player, game, signal) {
   const limit = game.config.timeTurnLimit ?? game.config.moveTimeLimitMs ?? TURN_TIMEOUT_MS;
   game.startTurnClock?.();
   const deadline = performance.now() + limit;
-  let invalidAttempts = 0;
+  let invalidAttempts = 0, lastIllegal = '';
+  const timeout = () => Object.assign(Error(`Bot exceeded ${limit} ms thinking limit.${lastIllegal ? ` Last illegal move: ${lastIllegal}.` : ''}`),
+    {code:'BOT_MOVE_TIMEOUT', invalidAttempts});
   while (true) {
     if(signal?.aborted)throw Error('Execution cancelled.');
     const state = game.serializeBotState(game.currentTurn);
     const remaining = Math.ceil(deadline - performance.now());
-    if(remaining <= 0)throw Object.assign(Error(`Bot exceeded ${limit} ms thinking limit and loses.`),{code:'BOT_MOVE_TIMEOUT'});
+    if(remaining <= 0)throw timeout();
     let move;
     try { move = await requestMove(player, state, remaining); }
     catch(error) {
-      if(error.code==='BOT_INVALID_MOVE'){invalidAttempts++;continue;}
-      if(error.code==='BOT_MOVE_TIMEOUT')error.message=`Bot exceeded ${limit} ms thinking limit and loses. ${player.errors||''}`.trim();
+      if(error.code==='BOT_INVALID_MOVE'){invalidAttempts++;lastIllegal='(unreadable output)';continue;}
+      if(error.code==='BOT_MOVE_TIMEOUT')throw timeout();
       throw error;
     }
     try {
       game.movePiece(move.from,move.to);
       return {move,invalidAttempts};
     } catch (error) {
-      if(game.status !== 'active'){if(game.endReason==='timeout')throw Object.assign(Error(`Bot exceeded ${limit} ms thinking limit and loses.`),{code:'BOT_MOVE_TIMEOUT'});throw error;}
+      if(game.status !== 'active'){if(game.endReason==='timeout')throw timeout();throw error;}
       invalidAttempts++;
+      lastIllegal = `${move.from} → ${move.to} (${error.message})`;
     }
   }
 }
@@ -217,8 +224,14 @@ async function runMatch({
         }));
       } catch (error) {
         if(signal?.aborted)throw Error('Execution cancelled.');
-        game.forfeit(color, error.code === 'BOT_MOVE_TIMEOUT' ? 'move-timeout' : 'bot-error');
-        if(error.code === 'BOT_MOVE_TIMEOUT' && game.endReason === 'timeout') game.endReason = 'move-timeout';
+        if(error.code === 'BOT_MOVE_TIMEOUT') {
+          // A late bot loses only this turn, not the match.
+          game.skipTurn();
+          replay.frames.push(capture(game, `${color}-timeout: turn skipped. ${error.message}`));
+          await onFrame(replay.frames.at(-1));
+          continue;
+        }
+        game.forfeit(color, 'bot-error');
         replay.frames.push(capture(game, `${color}-forfeit: ${error.message}`));
         await onFrame(replay.frames.at(-1));
         break;

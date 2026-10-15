@@ -81,6 +81,7 @@ private:
   std::vector<soldier> soldiers;
   coordinate flag, enemyFlag;
   int turnNumber{};
+  team ownTeam, enemyTeam;
 public:
   gameEngine() = default;
   gameEngine(coordinate sizeValue, int totalTurnsValue, int timeTurnLimitValue,
@@ -105,6 +106,10 @@ public:
   coordinate getEnemyFlag() const { return enemyFlag; }
   // Turns already played in this match.
   int getTurnNumber() const { return turnNumber; }
+  // Your soldiers and your own flag.
+  const team& getTeam() const { return ownTeam; }
+  // Enemy soldiers and the enemy flag.
+  const team& getEnemyTeam() const { return enemyTeam; }
   void setSize(coordinate value) { size = value; }
   void setTotalTurns(int value) { totalTurns = value; }
   void setTimeTurnLimit(int value) { timeTurnLimit = value; }
@@ -112,7 +117,12 @@ public:
   void setFlag(coordinate value) { flag = value; }
   void setEnemyFlag(coordinate value) { enemyFlag = value; }
   void setTurnNumber(int value) { turnNumber = value; }
+  void setTeam(team value) { ownTeam = std::move(value); }
+  void setEnemyTeam(team value) { enemyTeam = std::move(value); }
 };
+
+// Runner internals. Bots receive only a gameEngine; do not use these.
+namespace detail {
 struct Piece {
 public: // Legacy data fields remain available alongside getters.
   std::string id, color, type, square;
@@ -221,9 +231,12 @@ inline State read_state(std::istream& input) {
   const coordinate own_flag = state.getColor() == "white" ? white_flag : black_flag;
   const coordinate enemy_flag = state.getColor() == "white" ? black_flag : white_flag;
   state.setBoardSize(state.getLength());
-  state.setGameEngine(gameEngine(coordinate(state.getLength(), state.getWidth()),
+  gameEngine engine(coordinate(state.getLength(), state.getWidth()),
     (state.total_turns ? state.total_turns : 4 * state.getLength() * state.getWidth()), state.turn_ms, std::move(all),
-    own_flag, enemy_flag, state.getTurnNumber()));
+    own_flag, enemy_flag, state.getTurnNumber());
+  engine.setTeam(team(own_flag, own));
+  engine.setEnemyTeam(team(enemy_flag, enemy));
+  state.setGameEngine(std::move(engine));
   state.setTeam(team(own_flag, std::move(own)));
   state.setEnemyTeam(team(enemy_flag, std::move(enemy)));
   return state;
@@ -231,6 +244,7 @@ inline State read_state(std::istream& input) {
 inline void yield_turn(const Move& next) {
   std::cout << next.getFrom() << ' ' << next.getTo() << '\n' << std::flush;
 }
+}  // namespace detail
 
 // Java-compatible type names. The legacy lowercase names remain available.
 using SoldierType = soldierType;

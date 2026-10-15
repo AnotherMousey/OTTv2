@@ -28,15 +28,37 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 
-# Keep generated server records out of Git by default.
-data/*
-
-# Version the seeded account and Pro tournament used for deployment tests.
-!data/account.json
-!data/tournaments/
-data/tournaments/*
-!data/tournaments/pro.json
+# Old JSON backend records (accounts, tournaments). Never commit them.
+data/
 
 # Private account provisioning inputs
 players.private.json
 accounts.private.json
+
+# Not needed to run the website (frontend, API, worker, runner, database).
+# Local-only: examples, sample fixtures, docs, tests and the old JSON server.
+logic/examples/
+samples/bots/
+samples/plugins/
+samples/matches/
+samples/scenarios/
+samples/catalog.json
+samples/README.md
+docs/
+DEPLOY.md
+DEPLOY_VERCEL_RENDER.md
+logic/README.md
+schema-drift.sql
+VISUAL_BASELINE.json
+tests/
+services/tests/
+frontend/src/*.test.js
+logic/server.js
+logic/main.js
+logic/accounts.js
+logic/match.js
+logic/recording.js
+logic/storage.js
+logic/submissions.js
+logic/tournaments.js
+scripts/dev.cjs

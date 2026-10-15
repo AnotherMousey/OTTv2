@@ -1,7 +1,0 @@
-{
-  "10/13/2026": [
-    {"username":"operator","passwordHash":"7fc68f91199801c4fea31dc76996aed9:46cb33de81905eca668fa60ac8cfc7d02aebf973a55937016939c9e2b991df35070b665f9967e77161e2d113dca2f9559b65fbd152887c8ec7bfb53f7019f6fc","role":"operator","active":true,"createdAt":"2026-10-13T00:46:47.439Z"},
-    {"username":"pro-player-1","passwordHash":"e3ab81a61fbfb42b027e509c29a3bb4b:96a6c0330f3eca225e35ad0af6eed2bb1ac4a0ec7659f037d5d324fb935e5f3edab8df2d339b621c3b0b2d90800f2114b0ac558cb5b4d95dc958c3a4df55beec","role":"player","active":true,"createdAt":"2026-10-13T00:46:47.717Z"},
-    {"username":"pro-player-2","passwordHash":"d5fd0f6faf18e13d480539f911a47ea8:f2e7464a07f2c4d5dd831a3321727aeeb82a7ce1fadf64ed0ff89f14fa5ecaece89acbf81e6677c1c257a7eb67e0c98255499adb193acaebcb2c2d44c6021414","role":"player","active":true,"createdAt":"2026-10-13T00:46:47.773Z"}
-  ]
-}

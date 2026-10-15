@@ -124,9 +124,11 @@ class team:
 
 
 class gameEngine:
-    __slots__ = ("_size", "_totalTurns", "_timeTurnLimit", "_soldiers", "_flag", "_enemyFlag", "_turnNumber")
+    __slots__ = ("_size", "_totalTurns", "_timeTurnLimit", "_soldiers", "_flag", "_enemyFlag", "_turnNumber",
+                 "_team", "_enemyTeam")
 
-    def __init__(self, size, totalTurns, timeTurnLimit, soldiers, flag=None, enemyFlag=None, turnNumber=0):
+    def __init__(self, size, totalTurns, timeTurnLimit, soldiers, flag=None, enemyFlag=None, turnNumber=0,
+                 team=None, enemyTeam=None):
         self._size = size
         self._totalTurns = totalTurns
         self._timeTurnLimit = timeTurnLimit
@@ -134,6 +136,8 @@ class gameEngine:
         self._flag = flag
         self._enemyFlag = enemyFlag
         self._turnNumber = turnNumber
+        self._team = team
+        self._enemyTeam = enemyTeam
 
     def getSize(self):
         return self._size
@@ -165,6 +169,14 @@ class gameEngine:
         """Turns already played in this match."""
         return self._turnNumber
 
+    def getTeam(self):
+        """Your soldiers and your own flag."""
+        return self._team
+
+    def getEnemyTeam(self):
+        """Enemy soldiers and the enemy flag."""
+        return self._enemyTeam
+
 
 class _piece:
     __slots__ = ("_id", "_color", "_type", "_square")
@@ -193,7 +205,8 @@ class _piece:
         return self._square
 
 
-class State:
+# Runner internal. Bots receive only a gameEngine.
+class _State:
     __slots__ = (
         "_color", "_current_turn", "_turn_number", "_board_size",
         "_length", "_width", "_pieces", "_engine", "_team", "_enemy_team",
@@ -303,8 +316,8 @@ def read_state():
     enemy_color = "black" if fields[0] == "white" else "white"
     enemy_flag = _parse_flag(fields[3:], enemy_color, length, width)
     engine = gameEngine(coordinate(length, width), total_turns, turn_ms, soldiers,
-                        own_flag, enemy_flag, int(fields[2]))
-    return State(
+                        own_flag, enemy_flag, int(fields[2]), team(own_flag, own), team(enemy_flag, enemy))
+    return _State(
         fields[0], fields[1], int(fields[2]), pieces, length, length, width,
         engine, team(own_flag, own), team(enemy_flag, enemy),
     )

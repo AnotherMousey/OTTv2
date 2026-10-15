@@ -13,4 +13,4 @@ while True:
     state = read_state()
     if state is None:
         break
-    yield_turn(player.choose_move(state))
+    yield_turn(player.choose_move(state.getGameEngine()))

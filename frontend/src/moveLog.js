@@ -27,6 +27,8 @@ export function describeMove(frame){
  if(event==='match-end')return frame.winner?`${title(frame.winner)} wins`:'Match finished';
  const forfeit=/^(white|black)-forfeit:\s*(.*)$/.exec(event);
  if(forfeit)return `${title(forfeit[1])} forfeits: ${forfeit[2]}`;
+ const skipped=/^(white|black)-timeout:\s*turn skipped\.\s*(.*)$/.exec(event);
+ if(skipped)return `${title(skipped[1])} skips turn: ${skipped[2]}`;
  if(/^(white|black)-move$/.test(event))return `${title(event.split('-')[0])} moved · coordinates unavailable in this recording`;
  return event||'Recorded event';
 }
