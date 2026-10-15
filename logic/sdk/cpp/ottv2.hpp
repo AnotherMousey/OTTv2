@@ -79,22 +79,39 @@ private:
   int totalTurns{};
   int timeTurnLimit{};
   std::vector<soldier> soldiers;
+  coordinate flag, enemyFlag;
+  int turnNumber{};
 public:
   gameEngine() = default;
   gameEngine(coordinate sizeValue, int totalTurnsValue, int timeTurnLimitValue,
              std::vector<soldier> soldiersValue)
     : size(sizeValue), totalTurns(totalTurnsValue), timeTurnLimit(timeTurnLimitValue),
       soldiers(std::move(soldiersValue)) {}
+  gameEngine(coordinate sizeValue, int totalTurnsValue, int timeTurnLimitValue,
+             std::vector<soldier> soldiersValue, coordinate flagValue,
+             coordinate enemyFlagValue, int turnNumberValue)
+    : size(sizeValue), totalTurns(totalTurnsValue), timeTurnLimit(timeTurnLimitValue),
+      soldiers(std::move(soldiersValue)), flag(flagValue), enemyFlag(enemyFlagValue),
+      turnNumber(turnNumberValue) {}
   int getLength() const { return size.getXCor(); }
   int getWidth() const { return size.getYCor(); }
   int getTotalTurns() const { return totalTurns; }
   int getTimeTurnLimit() const { return timeTurnLimit; }
   const std::vector<soldier>& getSoldiers() const { return soldiers; }
   coordinate getSize() const { return size; }
+  // Your own flag; the enemy wins by reaching it.
+  coordinate getFlag() const { return flag; }
+  // The enemy flag; you win by reaching it.
+  coordinate getEnemyFlag() const { return enemyFlag; }
+  // Turns already played in this match.
+  int getTurnNumber() const { return turnNumber; }
   void setSize(coordinate value) { size = value; }
   void setTotalTurns(int value) { totalTurns = value; }
   void setTimeTurnLimit(int value) { timeTurnLimit = value; }
   void setSoldiers(std::vector<soldier> value) { soldiers = std::move(value); }
+  void setFlag(coordinate value) { flag = value; }
+  void setEnemyFlag(coordinate value) { enemyFlag = value; }
+  void setTurnNumber(int value) { turnNumber = value; }
 };
 struct Piece {
 public: // Legacy data fields remain available alongside getters.
@@ -201,11 +218,14 @@ inline State read_state(std::istream& input) {
     if (piece.getColor() == state.getColor()) own.push_back(current);
     else enemy.push_back(current);
   }
+  const coordinate own_flag = state.getColor() == "white" ? white_flag : black_flag;
+  const coordinate enemy_flag = state.getColor() == "white" ? black_flag : white_flag;
   state.setBoardSize(state.getLength());
   state.setGameEngine(gameEngine(coordinate(state.getLength(), state.getWidth()),
-    (state.total_turns ? state.total_turns : 20 * state.getLength() * state.getWidth()), state.turn_ms, std::move(all)));
-  state.setTeam(team(state.getColor() == "white" ? white_flag : black_flag, std::move(own)));
-  state.setEnemyTeam(team(state.getColor() == "white" ? black_flag : white_flag, std::move(enemy)));
+    (state.total_turns ? state.total_turns : 20 * state.getLength() * state.getWidth()), state.turn_ms, std::move(all),
+    own_flag, enemy_flag, state.getTurnNumber()));
+  state.setTeam(team(own_flag, std::move(own)));
+  state.setEnemyTeam(team(enemy_flag, std::move(enemy)));
   return state;
 }
 inline void yield_turn(const Move& next) {

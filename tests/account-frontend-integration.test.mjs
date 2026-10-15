@@ -5,11 +5,12 @@ import {once} from 'node:events';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {examples} from '../frontend/src/games/ottv2/botExamples.js';
 test('live frontend contract: CORS, accounts, self join, code, round scoring, bye, restart, logout', async()=>{
  const data=await fs.mkdtemp(path.join(os.tmpdir(),'ott-account-merge-'));let child;
  async function start(){
-  child=spawn(process.execPath,['-e',"const {server}=require('./logic/server');server.listen(0,'127.0.0.1',()=>console.log(server.address().port))"],{cwd:path.resolve(new URL('..',import.meta.url).pathname),env:{...process.env,DATA_DIR:data,SERVE_FRONTEND:'false',OPERATOR_USERNAME:'merge-judge',OPERATOR_PASSWORD:'merge-password',ALLOWED_ORIGINS:'https://arena.example'},stdio:['ignore','pipe','pipe']});
+  child=spawn(process.execPath,['-e',"const {server}=require('./logic/server');server.listen(0,'127.0.0.1',()=>console.log(server.address().port))"],{cwd:fileURLToPath(new URL('..',import.meta.url)),env:{...process.env,DATA_DIR:data,SERVE_FRONTEND:'false',OPERATOR_USERNAME:'merge-judge',OPERATOR_PASSWORD:'merge-password',ALLOWED_ORIGINS:'https://arena.example'},stdio:['ignore','pipe','pipe']});
   const port=await new Promise((resolve,reject)=>{let out='';let err='';child.stderr.on('data',c=>err+=c);child.stdout.on('data',c=>{out+=c;if(out.includes('\n'))resolve(Number(out.trim()));});child.once('exit',()=>reject(Error(err)));});
   return async(route,body,token,method)=>{const response=await fetch(`http://127.0.0.1:${port}${route}`,{method:method||(body===undefined?'GET':'POST'),headers:{'Content-Type':'application/json',Origin:'https://arena.example',...(token?{Authorization:`Bearer ${token}`}:{})},body:body===undefined?undefined:JSON.stringify(body)});return {status:response.status,headers:response.headers,data:response.status===204?null:await response.json()};};
  }

@@ -25,7 +25,6 @@ function ApiTree({language}) {
         <span className="eyebrow">ENTRY POINT</span>
         <code className="api-signature">{language.entry.signature}</code>
         <p>{language.entry.doc}</p>
-        <pre>{language.entry.example}</pre>
       </section>
       <ul className="api-root" aria-label={`${language.label} API`}>
         {language.types.map((type) => (

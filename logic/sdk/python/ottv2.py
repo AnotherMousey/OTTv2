@@ -124,13 +124,16 @@ class team:
 
 
 class gameEngine:
-    __slots__ = ("_size", "_totalTurns", "_timeTurnLimit", "_soldiers")
+    __slots__ = ("_size", "_totalTurns", "_timeTurnLimit", "_soldiers", "_flag", "_enemyFlag", "_turnNumber")
 
-    def __init__(self, size, totalTurns, timeTurnLimit, soldiers):
+    def __init__(self, size, totalTurns, timeTurnLimit, soldiers, flag=None, enemyFlag=None, turnNumber=0):
         self._size = size
         self._totalTurns = totalTurns
         self._timeTurnLimit = timeTurnLimit
         self._soldiers = tuple(soldiers)
+        self._flag = flag
+        self._enemyFlag = enemyFlag
+        self._turnNumber = turnNumber
 
     def getSize(self):
         return self._size
@@ -149,6 +152,18 @@ class gameEngine:
 
     def getSoldiers(self):
         return self._soldiers
+
+    def getFlag(self):
+        """Your own flag; the enemy wins by reaching it."""
+        return self._flag
+
+    def getEnemyFlag(self):
+        """The enemy flag; you win by reaching it."""
+        return self._enemyFlag
+
+    def getTurnNumber(self):
+        """Turns already played in this match."""
+        return self._turnNumber
 
 
 class _piece:
@@ -284,10 +299,11 @@ def read_state():
     enemy = tuple(item for item in soldiers if item.getTeamType() != own_team_id)
     total_turns = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@maxTurns=")), 20 * length * width)
     turn_ms = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@timeTurnLimit=")), 1000)
-    engine = gameEngine(coordinate(length, width), total_turns, turn_ms, soldiers)
     own_flag = _parse_flag(fields[3:], fields[0], length, width)
     enemy_color = "black" if fields[0] == "white" else "white"
     enemy_flag = _parse_flag(fields[3:], enemy_color, length, width)
+    engine = gameEngine(coordinate(length, width), total_turns, turn_ms, soldiers,
+                        own_flag, enemy_flag, int(fields[2]))
     return State(
         fields[0], fields[1], int(fields[2]), pieces, length, length, width,
         engine, team(own_flag, own), team(enemy_flag, enemy),

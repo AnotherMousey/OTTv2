@@ -12,16 +12,6 @@ export const API_LANGUAGES = [
     entry: {
       signature: "ottv2::Move choose_move(const ottv2::State& state)",
       doc: "Called once per turn. Return the move to play. The runner reads the state and prints your move.",
-      example: `#include "ottv2.hpp"
-
-ottv2::Move choose_move(const ottv2::State& state) {
-  for (const auto& soldier : state.getTeam().getSoldiers()) {
-    // Stay on the board; also avoid own pieces and same-type enemies.
-    if (soldier.getPosition().getYCor() + 1 < state.getWidth())
-      return soldier.moveTo(ottv2::Direction::N);
-  }
-  return {"", ""};
-}`,
     },
     types: [
       {
@@ -81,7 +71,7 @@ ottv2::Move choose_move(const ottv2::State& state) {
         kind: "struct",
         doc: "A piece in coordinate form.",
         members: [
-          member("teamType getTeamType() const", "A = white, B = black."),
+          member("teamType getTeamType() const", "A = your piece, B = enemy piece."),
           member("soldierType getSoldierType() const", "rock, paper or scissor."),
           member("int getId() const", "Index of this piece in getPieces()."),
           member("coordinate getPosition() const", "Current coordinate."),
@@ -114,6 +104,9 @@ ottv2::Move choose_move(const ottv2::State& state) {
           member("int getTotalTurns() const", "Turn limit for the match."),
           member("int getTimeTurnLimit() const", "Thinking time per move, in milliseconds."),
           member("const std::vector<soldier>& getSoldiers() const", "Every soldier, both sides."),
+          member("coordinate getFlag() const", "Your own flag; the enemy wins by reaching it."),
+          member("coordinate getEnemyFlag() const", "The enemy flag; you win by reaching it."),
+          member("int getTurnNumber() const", "Turns already played."),
         ],
       },
       {
@@ -134,8 +127,8 @@ ottv2::Move choose_move(const ottv2::State& state) {
         name: "teamType",
         alias: "TeamType",
         kind: "enum class",
-        doc: "Side in coordinate form.",
-        members: [member("A, B", "A = white, B = black.")],
+        doc: "Owner in coordinate form, relative to you.",
+        members: [member("A, B", "A = your pieces, B = enemy pieces.")],
       },
     ],
   },
@@ -149,22 +142,6 @@ ottv2::Move choose_move(const ottv2::State& state) {
     entry: {
       signature: "public static void run(RobotController rc) throws Exception",
       doc: "Called once in class RobotPlayer. Loop forever: choose a move with rc.move(...), then call rc.yieldTurn() to send it and wait for the next state.",
-      example: `import ottv2.sdk.*;
-
-public class RobotPlayer {
-  public static void run(RobotController rc) throws Exception {
-    while (true) {
-      for (Soldier soldier : rc.getTeam().getSoldiers()) {
-        Move move = soldier.moveTo(Direction.N);
-        if (rc.canMove(move.from(), move.to())) {
-          rc.submitMove(move);
-          break;
-        }
-      }
-      rc.yieldTurn();
-    }
-  }
-}`,
     },
     types: [
       {
@@ -279,6 +256,9 @@ public class RobotPlayer {
           member("int getTotalTurns()", "Turn limit for the match."),
           member("int getTimeTurnLimit()", "Thinking time per move, in milliseconds."),
           member("List<Soldier> getSoldiers()", "Every soldier, both sides."),
+          member("Coordinate getFlag()", "Your own flag; the enemy wins by reaching it."),
+          member("Coordinate getEnemyFlag()", "The enemy flag; you win by reaching it."),
+          member("int getTurnNumber()", "Turns already played."),
         ],
       },
       {
@@ -317,14 +297,6 @@ public class RobotPlayer {
     entry: {
       signature: "def choose_move(state: State) -> Move | tuple[str, str]",
       doc: "Called once per turn. Return a Move or a (from, to) tuple. The runner reads the state and prints your move.",
-      example: `from ottv2 import *
-
-def choose_move(state):
-    for soldier in state.getTeam().getSoldiers():
-        # Stay on the board; also avoid own pieces and same-type enemies.
-        if soldier.getPosition().getYCor() + 1 < state.getWidth():
-            return soldier.moveTo(N)
-    return ("", "")`,
     },
     types: [
       {
@@ -417,6 +389,9 @@ def choose_move(state):
           member("getTotalTurns() -> int", "Turn limit for the match."),
           member("getTimeTurnLimit() -> int", "Thinking time per move, in milliseconds."),
           member("getSoldiers() -> tuple[Soldier, ...]", "Every soldier, both sides."),
+          member("getFlag() -> Coordinate", "Your own flag; the enemy wins by reaching it."),
+          member("getEnemyFlag() -> Coordinate", "The enemy flag; you win by reaching it."),
+          member("getTurnNumber() -> int", "Turns already played."),
         ],
       },
       {

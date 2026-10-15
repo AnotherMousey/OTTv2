@@ -4,9 +4,10 @@ import {spawn} from 'node:child_process';
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {once} from 'node:events';
 import {examples} from '../frontend/src/games/ottv2/botExamples.js';
-const cwd=path.resolve(new URL('..',import.meta.url).pathname);
+const cwd=fileURLToPath(new URL('..',import.meta.url));
 async function start(data,extra={}){
  const child=spawn(process.execPath,['-e',`const {server}=require('./logic/server');server.listen(0,'127.0.0.1',()=>console.log(server.address().port));`],{cwd,env:{...process.env,DATA_DIR:data,SERVE_FRONTEND:'false',...extra},stdio:['ignore','pipe','pipe']});
  let stderr='';child.stderr.on('data',c=>stderr+=c);

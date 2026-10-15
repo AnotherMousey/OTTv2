@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createServer} from 'vite';
+import {fileURLToPath} from 'node:url';
 import {renderToStaticMarkup} from 'react-dom/server';
 import React from 'react';
 
@@ -10,7 +11,7 @@ test('My Bot handles missing entries, loading, roles and readiness without throw
   const virtual = '\0my-bot-test-accounts';
   const server = await createServer({
     configFile: false,
-    root: new URL('../', import.meta.url).pathname,
+    root: fileURLToPath(new URL('../', import.meta.url)),
     server: {middlewareMode: true},
     plugins: [{
       name: 'my-bot-account-fixture',
