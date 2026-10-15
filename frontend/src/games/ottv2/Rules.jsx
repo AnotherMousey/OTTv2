@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {Pixel} from "./Pixel.jsx";
 import {TYPES} from "./validate.js";
-import {API_LANGUAGES, API_NOTES} from "./apiReference.js";
+import {API_LANGUAGES} from "./apiReference.js";
 import "./apiReference.css";
 
 const RULES = [
@@ -18,8 +18,6 @@ function ApiTree({language}) {
     <div className="api-tree">
       <div className="api-meta">
         <span><b>{language.module}</b></span>
-        <span>File: <code>{language.file}</code></span>
-        <span>{language.toolchain}</span>
       </div>
       <section className="api-entry">
         <span className="eyebrow">ENTRY POINT</span>
@@ -84,14 +82,6 @@ export function OttRules() {
         {language ? (
           <>
             <h2>{language.label} SDK</h2>
-            <dl className="api-notes">
-              {API_NOTES.map(([term, text]) => (
-                <div key={term}>
-                  <dt>{term}</dt>
-                  <dd>{text}</dd>
-                </div>
-              ))}
-            </dl>
             <ApiTree language={language} />
           </>
         ) : (

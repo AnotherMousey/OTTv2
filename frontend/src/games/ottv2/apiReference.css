@@ -1,24 +1,3 @@
-.api-notes {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin: 24px 0;
-}
-.api-notes div {
-  border: 1px solid var(--border);
-  padding: 14px 16px;
-}
-.api-notes dt {
-  font-weight: 700;
-  font-size: 12px;
-  margin-bottom: 6px;
-}
-.api-notes dd {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--muted);
-}
 .api-meta {
   display: flex;
   flex-wrap: wrap;
@@ -116,9 +95,6 @@
   color: var(--muted);
 }
 @media (max-width: 720px) {
-  .api-notes {
-    grid-template-columns: 1fr;
-  }
   .api-doc {
     padding-left: 0;
   }

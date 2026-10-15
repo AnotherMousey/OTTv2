@@ -132,7 +132,7 @@ export function Home({ go, bot }) {
         </article>
         <article className="card match-card">
           <div className="card-title">
-            <h3>WATCH MATCHES</h3>
+            <h3>MATCHES</h3>
             <span>03</span>
           </div>
           <div className="preview-caption">

@@ -107,11 +107,11 @@ function App() {
         </button>
         <nav className={menu ? "open" : ""}>
           {(user?.role==='judge'?[
-            ['home','Overview'],['tournaments','Manage Tournaments'],['watch','Watch Matches'],['api','API']
+            ['home','Overview'],['tournaments','Manage Tournaments'],['watch','Matches'],['api','API']
           ]:user?[
-            ['home','Overview'],['tournaments','Tournaments'],['mybot','My Bot'],['watch','Watch Matches'],['api','API']
+            ['home','Overview'],['tournaments','Tournaments'],['mybot','My Bot'],['watch','Matches'],['api','API']
           ]:[
-            ['home','Overview'],['tournaments','Tournaments'],['watch','Watch Matches'],['api','API']
+            ['home','Overview'],['tournaments','Tournaments'],['watch','Matches'],['api','API']
           ]).map(([id, label]) => (
             <a
               key={id}

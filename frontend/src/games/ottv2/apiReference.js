@@ -6,32 +6,11 @@ export const API_LANGUAGES = [
     id: "cpp",
     label: "C++",
     module: "namespace ottv2",
-    include: '#include "ottv2.hpp"',
-    file: "player.cpp",
-    toolchain: "g++ -std=c++20 -O2",
     entry: {
       signature: "ottv2::Move choose_move(const ottv2::State& state)",
-      doc: "Called once per turn. Return the move to play. The runner reads the state and prints your move.",
+      doc: "Called once per turn. Read the game through state.getGameEngine() and return the move to play.",
     },
     types: [
-      {
-        name: "State",
-        kind: "struct",
-        doc: "Everything known about the current turn.",
-        members: [
-          member("const std::string& getColor() const", 'Your side: "white" or "black".'),
-          member("const std::string& getCurrentTurn() const", "Side to move."),
-          member("int getTurnNumber() const", "Turns already played."),
-          member("int getLength() const", "Number of files (columns)."),
-          member("int getWidth() const", "Number of ranks (rows)."),
-          member("int getBoardSize() const", "Legacy square-board size; equals getLength()."),
-          member("const std::vector<Piece>& getPieces() const", "Every piece on the board, both sides."),
-          member("const gameEngine& getGameEngine() const", "Board size, turn limit and per-move time limit."),
-          member("const team& getTeam() const", "Your soldiers and your own flag."),
-          member("const team& getEnemyTeam() const", "Enemy soldiers and the enemy flag, which is your target."),
-          member("bool hasMoves() const", "True when it is your turn. Alias: has_moves()."),
-        ],
-      },
       {
         name: "Piece",
         kind: "struct",
@@ -73,7 +52,7 @@ export const API_LANGUAGES = [
         members: [
           member("teamType getTeamType() const", "A = your piece, B = enemy piece."),
           member("soldierType getSoldierType() const", "rock, paper or scissor."),
-          member("int getId() const", "Index of this piece in getPieces()."),
+          member("int getId() const", "Piece index for this turn."),
           member("coordinate getPosition() const", "Current coordinate."),
           member("Move moveTo(direction next) const", "Move one step in a direction. Does not check board bounds."),
           member("void setPosition(coordinate value)", "Change the position (local copy only)."),
@@ -136,9 +115,6 @@ export const API_LANGUAGES = [
     id: "java",
     label: "Java",
     module: "package ottv2.sdk",
-    include: "import ottv2.sdk.*;",
-    file: "RobotPlayer.java",
-    toolchain: "Java 17",
     entry: {
       signature: "public static void run(RobotController rc) throws Exception",
       doc: "Called once in class RobotPlayer. Loop forever: choose a move with rc.move(...), then call rc.yieldTurn() to send it and wait for the next state.",
@@ -154,7 +130,6 @@ export const API_LANGUAGES = [
           member("int getTurnNumber()", "Turns already played."),
           member("boolean hasMoves()", "True when it is your turn."),
           member("List<Piece> sensePieces()", "Every piece on the board, both sides."),
-          member("GameState getState()", "Full state, including the board helper."),
           member("GameEngine getGameEngine()", "Board size, turn limit and per-move time limit."),
           member("Team getTeam()", "Your soldiers and your own flag."),
           member("Team getEnemyTeam()", "Enemy soldiers and the enemy flag, which is your target."),
@@ -162,20 +137,6 @@ export const API_LANGUAGES = [
           member("void move(String from, String to)", "Queue a move for this turn."),
           member("void submitMove(Move move)", "Queue a Move object for this turn."),
           member("void yieldTurn() throws InterruptedException", "Send the queued move (an empty move if none) and block until the next state."),
-        ],
-      },
-      {
-        name: "GameState",
-        kind: "class",
-        doc: "Snapshot of the current turn.",
-        members: [
-          member("String color()", "Your side."),
-          member("String currentTurn()", "Side to move."),
-          member("int turnNumber()", "Turns already played."),
-          member("Board board()", "Board helper."),
-          member("List<Piece> pieces()", "Every piece on the board."),
-          member("boolean hasMoves()", "True when it is your turn."),
-          member("boolean canMove(String from, String to)", "hasMoves() and board().canStep(from, to, color())."),
         ],
       },
       {
@@ -291,32 +252,11 @@ export const API_LANGUAGES = [
     id: "python",
     label: "Python",
     module: "module ottv2",
-    include: "from ottv2 import *",
-    file: "player.py",
-    toolchain: "Python 3",
     entry: {
       signature: "def choose_move(state: State) -> Move | tuple[str, str]",
-      doc: "Called once per turn. Return a Move or a (from, to) tuple. The runner reads the state and prints your move.",
+      doc: "Called once per turn. Read the game through state.getGameEngine() and return a Move or a (from, to) tuple.",
     },
     types: [
-      {
-        name: "State",
-        kind: "class",
-        doc: "Everything known about the current turn.",
-        members: [
-          member("getColor() -> str", 'Your side: "white" or "black". Property: color.'),
-          member("getCurrentTurn() -> str", "Side to move. Property: current_turn."),
-          member("getTurnNumber() -> int", "Turns already played. Property: turn_number."),
-          member("getLength() -> int", "Number of files. Property: length."),
-          member("getWidth() -> int", "Number of ranks. Property: width."),
-          member("getBoardSize() -> int", "Legacy square-board size. Property: board_size."),
-          member("getPieces() -> tuple[Piece, ...]", "Every piece on the board. Property: pieces."),
-          member("getGameEngine() -> GameEngine", "Board size, turn limit and per-move time limit."),
-          member("getTeam() -> Team", "Your soldiers and your own flag."),
-          member("getEnemyTeam() -> Team", "Enemy soldiers and the enemy flag, which is your target."),
-          member("hasMoves() -> bool", "True when it is your turn."),
-        ],
-      },
       {
         name: "Piece",
         kind: "class",
@@ -358,7 +298,7 @@ export const API_LANGUAGES = [
         members: [
           member("getTeamType() -> str", "A = white, B = black."),
           member("getSoldierType() -> str", '"rock", "paper" or "scissor".'),
-          member("getId() -> int", "Index of this piece in state.getPieces()."),
+          member("getId() -> int", "Piece index for this turn."),
           member("getPosition() -> Coordinate", "Current coordinate."),
           member("moveTo(direction) -> Move", "Move one step in a direction. Does not check board bounds."),
           member("setPosition(value)", "Change the position (local copy only)."),
@@ -414,11 +354,4 @@ export const API_LANGUAGES = [
       },
     ],
   },
-];
-
-export const API_NOTES = [
-  ["Squares", 'Files are letters from a, ranks are numbers from 1: "a1" is the bottom-left corner. Coordinate (x, y) is (file index, rank − 1).'],
-  ["Moves", "Move exactly one square in any of the eight directions, onto an empty square or an enemy piece of a different type."],
-  ["Targets", "White starts near a1 and wins by reaching the enemy flag (default i9). Black does the reverse. Read getEnemyTeam().getFlag() rather than hard-coding it."],
-  ["Time", "Answer within getTimeTurnLimit() milliseconds. Illegal moves are rejected and asked again within the same deadline; running out of time loses."],
 ];
