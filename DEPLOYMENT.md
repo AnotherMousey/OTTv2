@@ -22,7 +22,7 @@ There is no 4,000 concurrent-user or match throughput guarantee. Establish capac
 2. Copy the contents of `changed-files/` into the **root** of your original `OTTv2-main` folder, preserving all relative paths.
 3. Keep files not listed in `CHANGED_FILES.txt`. No deletions are required. Do not run the old JSON server for the production frontend.
 4. Commit the result to the Git repository you will connect to Render.
-5. Install Node.js 24 locally. Run `npm ci`, `npm run db:generate`, then `npm --prefix frontend ci`.
+5. Install Node.js 26 locally. Run `npm ci`, `npm run db:generate`, then `npm --prefix frontend ci`.
 
 New production entry points are `npm start`, `npm run worker` and `npm run runner`. The existing game engine and SDK stay in place. The API image intentionally does not install compilers or run uploaded code.
 
@@ -60,7 +60,7 @@ Generate a secret locally with `node -e "console.log(require('node:crypto').rand
 docker compose --env-file .env -f services/runner/compose.yaml up -d --build
 ```
 
-The runner listens only at host `127.0.0.1:8080`. Put an HTTPS reverse proxy in front of it. Use a real TLS certificate and preserve streaming responses. Disable buffering for `/run`, and allow a request timeout of at least `75 + maxTurns × (moveTimeLimitMs / 1000 + 0.25)` seconds for the configured maximum match duration. Restrict ingress to the worker's outbound network where possible. Set `RUNNER_URL` on Render to that HTTPS origin, and set the worker's `RUNNER_SECRET` to the exact same value.
+The runner listens only at host `127.0.0.1:3667` (container port `8080`). Put an HTTPS reverse proxy in front of it. Use a real TLS certificate and preserve streaming responses. Disable buffering for `/run`, and allow a request timeout of at least `75 + maxTurns × (moveTimeLimitMs / 1000 + 0.25)` seconds for the configured maximum match duration. Restrict ingress to the worker's outbound network where possible. Set `RUNNER_URL` on Render to that HTTPS origin, and set the worker's `RUNNER_SECRET` to the exact same value.
 
 Bot restrictions include no networking, read-only root filesystem, dropped Linux capabilities, no-new-privileges, an unprivileged UID, bounded temporary storage, CPU/memory/PID limits, compilation timeout and per-move timeout. Use gVisor (`runsc`) or a stronger isolation runtime for hostile public submissions; install it on the host and enable `DOCKER_RUNTIME: runsc` in the runner compose file. Docker alone is not a complete security boundary against kernel exploits. Harden, patch and dedicate this host before accepting untrusted uploads.
 
@@ -76,7 +76,7 @@ Set variables:
 | --- | --- |
 | API | `DATABASE_URL`, `MIGRATION_DATABASE_URL`, `ALLOWED_ORIGINS` |
 | Worker | `DATABASE_URL`, `RUNNER_URL`, `RUNNER_SECRET`; `WORKER_CONCURRENCY=2` initially |
-| Frontend | `VITE_API_BASE_URL=https://YOUR_API.onrender.com`; Node 24 |
+| Frontend | `VITE_API_BASE_URL=https://YOUR_API.onrender.com`; Node 26 |
 
 `ALLOWED_ORIGINS` contains exact frontend origins separated by commas, without paths or trailing slashes. Example: `https://YOUR_FRONTEND.onrender.com,https://your-domain.example`. Rebuild the frontend when changing `VITE_API_BASE_URL`, because Vite embeds it at build time. The frontend uses hash routes and needs no history-route rewrites.
 
@@ -94,7 +94,7 @@ npm run db:bootstrap
 
 This creates one judge account. Bootstrap never overwrites an existing account or resets its password. Remove the temporary password variable after use. The login is the username and password you selected.
 
-For organizer-issued players, use authenticated `POST /api/accounts` with `{ "username": "player01", "name": "Player One", "password": "YOUR_PRIVATE_PASSWORD" }`, or bulk-create from a private JSON array:
+For organizer-issued accounts, use authenticated `POST /api/accounts` with `{ "username": "player01", "name": "Player One", "password": "YOUR_PRIVATE_PASSWORD", "role": "player" }`. The optional `role` accepts `player` or `judge` and defaults to `player`. Bulk-create from a private JSON array:
 
 ```bash
 npm run db:accounts -- /private/path/players.json

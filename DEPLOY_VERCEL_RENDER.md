@@ -2,7 +2,7 @@
 
 1. Copy the contents of the extracted project folder into the existing Git repository root, retaining `.git`. Commit and push to your linked branch. Do not nest another project folder inside the repository.
 
-2. Render: create a Web Service from the repository using **Language: Docker**, root directory empty, Dockerfile `./Dockerfile`, health check `/health`, auto-deploy On Commit. Keep the default Docker start command (`node logic/main.js`). The image installs Node 24, Python 3, Java JDK 17 and g++. This is needed for actual bot matches, not just the Node API.
+2. Render: create a Web Service from the repository using **Language: Docker**, root directory empty, Dockerfile `./Dockerfile`, health check `/health`, auto-deploy On Commit. Keep the default Docker start command (`node logic/main.js`). The image installs Node 26, Python 3, Java JDK 17 and g++. This is needed for actual bot matches, not just the Node API.
 
    Environment:
 
@@ -20,7 +20,7 @@
 
    **Retaining submission history:** use a paid Render web service and attach a persistent disk at `/var/data`. Keep `DATA_DIR=/var/data/ottv2`. Only files on that disk survive replacement of the deployment. The free Blueprint is suitable for a temporary demo: it cannot attach a persistent disk and its history will be lost when the instance is replaced. The storage adapter in this version is file based; it does not connect to Postgres. Use one backend process/instance for this adapter.
 
-3. Vercel: import the same repository. If Vercel cannot import your teammate’s repository, deploy your local checkout using the CLI: from `frontend`, run `npx vercel`, link/create a project in your account, configure `VITE_API_BASE_URL` in its dashboard, then run `npx vercel --prod`. This does not require importing the repository in Vercel; future updates use the CLI too. Configure Vite, Root Directory `frontend`, install `npm ci`, build `npm run build`, output `dist`, Node 24.x.
+3. Vercel: import the same repository. If Vercel cannot import your teammate’s repository, deploy your local checkout using the CLI: from `frontend`, run `npx vercel`, link/create a project in your account, configure `VITE_API_BASE_URL` in its dashboard, then run `npx vercel --prod`. This does not require importing the repository in Vercel; future updates use the CLI too. Configure Vite, Root Directory `frontend`, install `npm ci`, build `npm run build`, output `dist`, Node 26.x.
 
    Set for Production and Preview:
 

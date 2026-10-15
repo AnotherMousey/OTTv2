@@ -1,30 +1,30 @@
-const {normalizeConfig} = require('./config');
-const { BOARD_SIZE, STARTING_TIME_MS } = require('./constants');
+const {buildConfig} = require('./config');
 
 const {
-  squareToIndex,
-  rotateBoard180,
-  isNeighbor,
-  resolveBattle,
+  parseSquare,
+  rotateBoard,
+  isAdjacent,
+  battleResult,
 } = require('./utils');
 
 class GameEngine {
   constructor(config = {}, mode = 'room') {
-    this.config = normalizeConfig(config, mode);
-    this.size = this.config.boardSize;
+    this.config = buildConfig(config, mode);
+    this.length = this.config.length;
+    this.width = this.config.width;
     this.reset();
   }
 
   reset() {
     this.board = Array.from(
-      { length: this.size },
-      () => Array(this.size).fill(null)
+      { length: this.width },
+      () => Array(this.length).fill(null)
     );
 
     this.currentTurn = this.config.firstSide;
 
-    this.whiteTimeMs = this.config.startingClockMs;
-    this.blackTimeMs = this.config.startingClockMs;
+    this.whiteTimeMs = this.config.timeTurnLimit;
+    this.blackTimeMs = this.config.timeTurnLimit;
 
     this.turnStartedAt = Date.now();
     this.clockStarted = false;
@@ -40,14 +40,14 @@ class GameEngine {
 
   initializeBoard() {
     for (const piece of this.config.initialPieces) {
-      const pos = squareToIndex(piece.square, this.size);
+      const pos = parseSquare(piece.square, this.length, this.width);
       this.board[pos.row][pos.col] = {...piece};
     }
   }
 
   placePieces(color, entries) {
     entries.forEach(({square,type}, index) => {
-      const pos = squareToIndex(square,this.size);
+      const pos = parseSquare(square,this.length,this.width);
       if (!pos) throw Error(`Invalid deployment square: ${square}`);
       this.board[pos.row][pos.col] = {id:`${color}-${type}-${index}`,color,type,square};
     });
@@ -92,7 +92,7 @@ class GameEngine {
   }
 
   getPiece(square) {
-    const pos = squareToIndex(square, this.size);
+    const pos = parseSquare(square, this.length, this.width);
 
     if (!pos) {
       return null;
@@ -108,8 +108,8 @@ class GameEngine {
       throw new Error('The game is already finished.');
     }
 
-    const fromPos = squareToIndex(fromSquare, this.size);
-    const toPos = squareToIndex(toSquare, this.size);
+    const fromPos = parseSquare(fromSquare, this.length, this.width);
+    const toPos = parseSquare(toSquare, this.length, this.width);
 
     if (!fromPos || !toPos) {
       throw new Error('Square is outside the board.');
@@ -126,7 +126,7 @@ class GameEngine {
       throw new Error(`It is ${this.currentTurn}'s turn.`);
     }
 
-    if (!isNeighbor(fromSquare, toSquare, this.size)) {
+    if (!isAdjacent(fromSquare, toSquare, this.length, this.width)) {
       throw new Error(
         'Pieces move exactly one step in any direction.'
       );
@@ -175,7 +175,7 @@ class GameEngine {
     }
 
     // Battle against enemy piece.
-    const outcome = resolveBattle(
+    const outcome = battleResult(
       piece.type,
       target.type
     );
@@ -261,14 +261,6 @@ class GameEngine {
       return true;
     }
 
-    if (this.config.elimination === 'one-type') {
-      for (const side of ['white','black']) {
-        if (['rock','paper','scissors'].some(type => this.countPiecesByType(side,type) === 0)) {
-          this.status = 'finished'; this.winner = side === 'white' ? 'black' : 'white';
-          this.endReason = 'type-eliminated'; return true;
-        }
-      }
-    }
     return false;
   }
 
@@ -320,11 +312,40 @@ class GameEngine {
   }
 
   finishAtLimit() {
-    if (this.status !== 'active' || this.config.maxTurns === null || this.turnsPlayed < this.config.maxTurns) return false;
+    if (this.status !== 'active' || this.turnsPlayed < this.config.maxTurns) return false;
     const white=this.countPieces('white'), black=this.countPieces('black');
     this.status='finished';
-    this.winner=this.config.limitPolicy === 'draw' || white===black ? null : (white>black ? 'white' : 'black');
-    this.endReason=white===black || this.config.limitPolicy==='draw' ? 'move-limit-draw' : 'move-limit-more-pieces';
+    if (white !== black) {
+      this.winner = white > black ? 'white' : 'black';
+      this.endReason = 'move-limit-more-pieces';
+      return true;
+    }
+    const nearest = side => {
+      const flag = this.config.flags[side === 'white' ? 'white' : 'black'];
+      return this.board.flat().filter(piece => piece && piece.color === side)
+        .map(piece => {
+          const from = parseSquare(piece.square, this.length, this.width);
+          const to = parseSquare(flag, this.length, this.width);
+          return Math.abs(from.col - to.col) + Math.abs(from.row - to.row);
+        });
+    };
+    const whiteNearest = Math.min(...nearest('white'));
+    const blackNearest = Math.min(...nearest('black'));
+    if (whiteNearest !== blackNearest) {
+      this.winner = whiteNearest < blackNearest ? 'white' : 'black';
+      this.endReason = 'move-limit-nearest-flag';
+      return true;
+    }
+    const totalDistance = side => nearest(side).reduce((sum, distance) => sum + distance, 0);
+    const whiteTotal = totalDistance('white');
+    const blackTotal = totalDistance('black');
+    if (whiteTotal !== blackTotal) {
+      this.winner = whiteTotal < blackTotal ? 'white' : 'black';
+      this.endReason = 'move-limit-total-distance';
+      return true;
+    }
+    this.winner = Math.random() < 0.5 ? 'white' : 'black';
+    this.endReason = 'move-limit-rock-paper-scissors';
     return true;
   }
 
@@ -351,15 +372,9 @@ class GameEngine {
     const elapsed = now - this.turnStartedAt;
 
     if (this.currentTurn === 'white') {
-      this.whiteTimeMs = Math.max(
-        0,
-        this.whiteTimeMs - elapsed
-      );
+      this.whiteTimeMs = Math.max(0, this.config.timeTurnLimit - elapsed);
     } else {
-      this.blackTimeMs = Math.max(
-        0,
-        this.blackTimeMs - elapsed
-      );
+      this.blackTimeMs = Math.max(0, this.config.timeTurnLimit - elapsed);
     }
 
     this.turnStartedAt = now;
@@ -380,7 +395,7 @@ class GameEngine {
 
   serializeBotState(color) {
     const state=this.getPublicState(color);
-    return [color,state.currentTurn,this.turnsPlayed,...state.board.flat().filter(Boolean).map(p=>[p.id,p.color,p.type,p.square].join(',')),`@boardSize=${this.size}`].join('|')+'\n';
+    return [color,state.currentTurn,this.turnsPlayed,...state.board.flat().filter(Boolean).map(p=>[p.id,p.color,p.type,p.square].join(',')),`@length=${this.length}`,`@width=${this.width}`,`@flag-white=${this.config.flags.white}`,`@flag-black=${this.config.flags.black}`].join('|')+'\n';
   }
 
   getBoardForPlayer(color) {
@@ -388,7 +403,7 @@ class GameEngine {
       return this.snapshotBoard();
     }
 
-    return rotateBoard180(
+    return rotateBoard(
       this.snapshotBoard()
     );
   }
@@ -455,13 +470,15 @@ class GameEngine {
       },
 
       ruleSet: {
-        boardSize: this.size,
-        startingClockMs: this.config.startingClockMs,
+        length: this.length,
+        width: this.width,
+        length: this.length,
+        width: this.width,
         maxTurns: this.config.maxTurns,
+        timeTurnLimit: this.config.timeTurnLimit,
         firstSide: this.config.firstSide,
         targets: this.config.targets,
-        elimination: this.config.elimination,
-        limitPolicy: this.config.limitPolicy,
+        flags: this.config.flags,
 
         pieces: [
           'rock',

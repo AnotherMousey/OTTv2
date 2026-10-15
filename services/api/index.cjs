@@ -18,7 +18,7 @@ app.use('/app',express.static(frontend));
 app.get('/app/{*path}',(req,res)=>res.sendFile(path.join(frontend,'index.html')));
 app.get('/',(_,res)=>res.json({service:'ottv2-api',health:'/health'}));
 app.post('/api/auth/login',login);app.post('/api/auth/logout',logout);app.get('/api/auth/me',auth,(req,res)=>res.json({account:publicUser(req.user)}));
-app.post('/api/accounts',auth,judge,async(req,res)=>{const user=await prisma.user.create({data:{username:username(req.body.username),name:text(req.body.name||req.body.username,2,80,'Name'),passwordHash:await passwordHash(req.body.password),role:'player'}});res.status(201).json({account:publicUser(user)});});
+app.post('/api/accounts',auth,judge,async(req,res)=>{const role=req.body.role||'player';if(!['player','judge'].includes(role))return res.status(400).json({error:'Role must be player or judge.'});const user=await prisma.user.create({data:{username:username(req.body.username),name:text(req.body.name||req.body.username,2,80,'Name'),passwordHash:await passwordHash(req.body.password),role}});res.status(201).json({account:publicUser(user)});});
 app.get('/api/games/current',(_,res)=>res.json(specification()));
 app.get('/api/tournaments/:id/export',auth,judge,sync.exportManifest);
 app.get('/api/tournaments/:id/export/:matchId',auth,judge,sync.exportPart);

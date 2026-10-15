@@ -20,7 +20,7 @@ function readAccounts() {
   const records = JSON.parse(json);
   if (Array.isArray(records)) return records;
   if (!records || typeof records !== 'object') throw new Error('account.json must contain date groups.');
-  return Object.values(records).flat();
+  return Object.values(records).flat(); 
 }
 
 function writeAccounts() {

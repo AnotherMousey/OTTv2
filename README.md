@@ -16,7 +16,7 @@ Open `frontend/preview.html`, navigate to Replay, and choose **Finished sample m
 
 ## Run the integrated application
 
-Requires Node 24.x. Bot matches additionally require Python 3, g++ with C++20 support, and Java JDK 17+ (including `javac`).
+Requires Node 26.x. Bot matches additionally require Python 3, g++ with C++20 support, and Java JDK 17+ (including `javac`).
 
 ```bash
 npm ci
@@ -60,7 +60,7 @@ See `docs/PROTOCOL.md`, `docs/INTEGRATION_CHANGES.md` and `logic/README.md`.
 
 ## Deploy
 
-Frontend: Vercel, Root Directory `frontend`, Vite, `npm ci`, `npm run build`, output `dist`, Node 24.x, `VITE_API_BASE_URL` set to the actual backend origin.
+Frontend: Vercel, Root Directory `frontend`, Vite, `npm ci`, `npm run build`, output `dist`, Node 26.x, `VITE_API_BASE_URL` set to the actual backend origin.
 
 Backend: Render Docker service using the included `Dockerfile` and `render.yaml`, with `ALLOWED_ORIGINS` set to the exact frontend origin. Docker includes Java/Python/C++ toolchains. Full steps: `DEPLOY_VERCEL_RENDER.md`.
 
