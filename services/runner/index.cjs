@@ -17,7 +17,7 @@ if (secret.length < 32) {
 }
 
 const capacity=Number(process.env.RUNNER_CONCURRENCY||2);
-if(!Number.isInteger(capacity)||capacity<1||capacity>8)throw Error('RUNNER_CONCURRENCY must be an integer from 1 to 8.');
+if(!Number.isInteger(capacity)||capacity<1||capacity>64)throw Error('RUNNER_CONCURRENCY must be an integer from 1 to 64.');
 let active = 0;
 
 function authorized(value) {

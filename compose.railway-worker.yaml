@@ -11,6 +11,7 @@ services:
       RUNNER_URL: http://runner:8080
       RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      RUNNER_CONCURRENCY: ${RUNNER_CONCURRENCY:-2}
     depends_on:
       runner:
         condition: service_healthy
@@ -21,7 +22,7 @@ services:
       dockerfile: services/runner/Runner.Dockerfile
     environment:
       RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
-      RUNNER_CONCURRENCY: "2"
+      RUNNER_CONCURRENCY: ${RUNNER_CONCURRENCY:-2}
       BOT_IMAGE: ottv2-bot:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock

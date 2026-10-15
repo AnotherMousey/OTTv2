@@ -9,7 +9,7 @@ services:
     environment:
       RUNNER_SECRET: ${RUNNER_SECRET:?Set a random secret of at least 32 characters}
       BOT_IMAGE: ottv2-bot:latest
-      RUNNER_CONCURRENCY: "2"
+      RUNNER_CONCURRENCY: ${RUNNER_CONCURRENCY:-2}
       # Optional after installing gVisor's runsc on the host:
       # DOCKER_RUNTIME: runsc
     volumes:
