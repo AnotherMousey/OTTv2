@@ -1,0 +1,4 @@
+/health 200 application/json; charset=utf-8
+/api/games/current 200 application/json; charset=utf-8
+/app/ 200 text/html; charset=utf-8
+/app/fonts/PixeloidSans.ttf 200 font/ttf

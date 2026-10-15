@@ -1,0 +1,14 @@
+ALTER TABLE Tournament ADD COLUMN gameId VARCHAR(64) NOT NULL DEFAULT 'ottv2', ADD COLUMN gameConfig JSON NULL;
+CREATE TABLE SyncReceipt (
+  tournamentId VARCHAR(64) NOT NULL,
+  digest CHAR(64) NOT NULL,
+  payload JSON NOT NULL,
+  createdAt DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (tournamentId)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE TABLE SyncPart (
+  tournamentId VARCHAR(64) NOT NULL,
+  matchId VARCHAR(48) NOT NULL,
+  digest CHAR(64) NOT NULL,
+  PRIMARY KEY (tournamentId, matchId)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

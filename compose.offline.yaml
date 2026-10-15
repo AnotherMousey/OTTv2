@@ -1,0 +1,67 @@
+# Dedicated local DB volume. Images must be prepared before Internet is removed.
+services:
+  mysql:
+    image: mysql:8.4
+    pull_policy: never
+    environment:
+      MYSQL_DATABASE: ottv2
+      MYSQL_USER: ott_app
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Set MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Set MYSQL_ROOT_PASSWORD}
+    volumes: ["offline-mysql:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost --silent"]
+      interval: 5s
+      retries: 30
+  api:
+    image: ottv2-api:offline
+    pull_policy: never
+    command: sh -c 'npm run db:migrate && node services/api/offline-bootstrap.cjs && node services/api/index.cjs'
+    ports: ["${OFFLINE_BIND:-127.0.0.1}:3000:10000"]
+    environment:
+      DATABASE_URL: mysql://ott_app:${MYSQL_PASSWORD}@mysql:3306/ottv2?connection_limit=5
+      ALLOWED_ORIGINS: ${OFFLINE_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
+      OPERATOR_USERNAME: ${OPERATOR_USERNAME:-tournament-judge}
+      OPERATOR_NAME: ${OPERATOR_NAME:-Tournament Judge}
+      OPERATOR_PASSWORD: ${OPERATOR_PASSWORD:?Set OPERATOR_PASSWORD}
+      GAME_PLUGIN_MODULE: ${GAME_PLUGIN_MODULE:-}
+      GAME_MAP_DIR: ${GAME_MAP_DIR:-}
+    volumes: ["./local-games:/app/local-games:ro", "./offline-input:/app/offline-input:ro"]
+    depends_on:
+      mysql: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:10000/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      retries: 30
+  runner:
+    image: ottv2-runner:offline
+    pull_policy: never
+    environment:
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
+      RUNNER_CONCURRENCY: ${RUNNER_CONCURRENCY:-2}
+      BOT_IMAGE: ottv2-bot:latest
+      GAME_PLUGIN_MODULE: ${GAME_PLUGIN_MODULE:-}
+      GAME_MAP_DIR: ${GAME_MAP_DIR:-}
+    volumes: ["/var/run/docker.sock:/var/run/docker.sock", "./local-games:/app/local-games:ro"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      retries: 30
+  worker:
+    image: ottv2-api:offline
+    pull_policy: never
+    command: node services/worker/index.cjs
+    environment:
+      DATABASE_URL: mysql://ott_app:${MYSQL_PASSWORD}@mysql:3306/ottv2?connection_limit=5
+      RUNNER_URL: http://runner:8080
+      RUNNER_SECRET: ${RUNNER_SECRET:?Set RUNNER_SECRET}
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      RUNNER_CONCURRENCY: ${RUNNER_CONCURRENCY:-2}
+      GAME_PLUGIN_MODULE: ${GAME_PLUGIN_MODULE:-}
+      GAME_MAP_DIR: ${GAME_MAP_DIR:-}
+    volumes: ["./local-games:/app/local-games:ro"]
+    depends_on:
+      api: {condition: service_healthy}
+      runner: {condition: service_healthy}
+volumes:
+  offline-mysql:

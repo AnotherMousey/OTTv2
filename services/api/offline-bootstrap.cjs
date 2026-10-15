@@ -1,0 +1,3 @@
+// Local-only idempotent bootstrap; never resets an existing operator password.
+const {prisma}=require('../shared/db.cjs');const {username,passwordHash,text}=require('../shared/domain.cjs');
+(async()=>{const name=username(process.env.OPERATOR_USERNAME);const existing=await prisma.user.findUnique({where:{username:name}});if(existing){if(existing.role!=='judge')throw Error('Operator username already belongs to a player.');return;}await prisma.user.create({data:{username:name,name:text(process.env.OPERATOR_NAME||'Tournament Judge',2,80,'Name'),passwordHash:await passwordHash(process.env.OPERATOR_PASSWORD),role:'judge'}});})().catch(e=>{console.error(e.message);process.exitCode=1;}).finally(()=>prisma.$disconnect());
