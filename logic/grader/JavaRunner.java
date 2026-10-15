@@ -67,7 +67,7 @@ public final class JavaRunner {
       }
       Coordinate myFlag = parseFlag(fields, "white".equals(fields[0]) ? "white" : "black", length, width);
       Coordinate enemyFlag = parseFlag(fields, "white".equals(fields[0]) ? "black" : "white", length, width);
-      engine = new GameEngine(new Coordinate(length, width), (totalTurns == 0 ? 20 * length * width : totalTurns),
+      engine = new GameEngine(new Coordinate(length, width), (totalTurns == 0 ? 4 * length * width : totalTurns),
           turnLimitMs, all, myFlag, enemyFlag, state.turnNumber());
       team = new Team(myFlag, mine);
       enemyTeam = new Team(enemyFlag, theirs);

@@ -17,7 +17,7 @@ function buildConfig(input = {}, mode = 'room') {
   if (!Number.isInteger(width) || width < MIN_SIZE || width > MAX_SIZE) throw Error('width must be an integer from 9 to 20.');
   const firstSide = input.firstSide ?? 'white';
   if (!['white','black'].includes(firstSide)) throw Error('Invalid firstSide.');
-  const maxTurns = 20 * length * width;
+  const maxTurns = 4 * length * width;
   const timeTurnLimit = input.timeTurnLimit ?? input.moveTimeLimitMs ?? 1000;
   if (!Number.isInteger(timeTurnLimit) || timeTurnLimit < 1 || timeTurnLimit > 10000) throw Error('timeTurnLimit must be an integer from 1 to 10000 ms.');
   const targets = input.targets ?? {white:`${String.fromCharCode(96+length)}${width}`, black:'a1'};

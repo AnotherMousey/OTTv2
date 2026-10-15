@@ -297,7 +297,7 @@ def read_state():
     own_team_id = A if fields[0] == "white" else B
     own = tuple(item for item in soldiers if item.getTeamType() == own_team_id)
     enemy = tuple(item for item in soldiers if item.getTeamType() != own_team_id)
-    total_turns = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@maxTurns=")), 20 * length * width)
+    total_turns = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@maxTurns=")), 4 * length * width)
     turn_ms = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@timeTurnLimit=")), 1000)
     own_flag = _parse_flag(fields[3:], fields[0], length, width)
     enemy_color = "black" if fields[0] == "white" else "white"

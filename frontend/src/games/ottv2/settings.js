@@ -8,5 +8,5 @@ export function supportedMaps(maps) {
 export function mapMoveLimit(maps,id) {
   const config=maps.find(map=>map.id===id)?.config;
   if(!config)return 0;
-  return config.maxTurns??20*(config.length??config.boardSize)*(config.width??config.boardSize);
+  return config.maxTurns??4*(config.length??config.boardSize)*(config.width??config.boardSize);
 }

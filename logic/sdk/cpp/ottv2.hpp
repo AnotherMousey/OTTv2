@@ -222,7 +222,7 @@ inline State read_state(std::istream& input) {
   const coordinate enemy_flag = state.getColor() == "white" ? black_flag : white_flag;
   state.setBoardSize(state.getLength());
   state.setGameEngine(gameEngine(coordinate(state.getLength(), state.getWidth()),
-    (state.total_turns ? state.total_turns : 20 * state.getLength() * state.getWidth()), state.turn_ms, std::move(all),
+    (state.total_turns ? state.total_turns : 4 * state.getLength() * state.getWidth()), state.turn_ms, std::move(all),
     own_flag, enemy_flag, state.getTurnNumber()));
   state.setTeam(team(own_flag, std::move(own)));
   state.setEnemyTeam(team(enemy_flag, std::move(enemy)));

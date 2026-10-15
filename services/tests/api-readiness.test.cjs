@@ -21,7 +21,7 @@ test('API reports full-schema drift, private error details and comparable deploy
  const logs=[],originalError=console.error;console.error=value=>logs.push(JSON.parse(value));
  const server=createApp().listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));const base='http://127.0.0.1:'+server.address().port;
  try{
-  const spec=await fetch(base+'/api/games/current');assert.equal(spec.status,200);assert.equal((await spec.json()).defaultBotConfig.maxTurns,1620);
+  const spec=await fetch(base+'/api/games/current');assert.equal(spec.status,200);assert.equal((await spec.json()).defaultBotConfig.maxTurns,324);
   prisma.$queryRaw=async()=>catalog().filter(row=>row.tableName!=='Tournament'||row.columnName!=='capacity');
   prisma.tournament.count=async()=>0;
   prisma.tournament.findMany=async()=>{throw Object.assign(Error('missing column'),{code:'P2022',meta:{modelName:'Tournament',column:'Tournament.capacity'}});};

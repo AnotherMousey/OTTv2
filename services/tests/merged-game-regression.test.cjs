@@ -7,9 +7,9 @@ const {metadata}=require('../../logic/protocol');
 function fakePlayer(answers){let i=0;const player={output:'',errors:'',child:{exitCode:null,killed:false,stdin:{write(){player.output+=answers[Math.min(i++,answers.length-1)]+'\n';}}}};return player;}
 test('published game config, frozen jobs and settings agree on current rules',()=>{
  const spec=specification();assert.equal(spec.rulesVersion,'ottv2-rules-v1');assert.ok(!spec.maps.some(m=>m.id==='small-5'));
- const config=resolveConfig('standard-9',{moveTimeLimitMs:250,maxTurns:31},'bot');assert.equal(config.maxTurns,1620);assert.equal(config.timeTurnLimit,250);assert.equal(config.moveTimeLimitMs,250);
- const frozen=freezeConfig({mapId:'standard-9',moveTimeLimitMs:250});assert.equal(executionDeadline(frozen),880000);
- const change=settingsUpdate({gameId:'ottv2',mapId:'standard-9',moveTimeLimitMs:1000},{mapId:'large-13',firstSide:'white',maxTurns:31,moveTimeLimitMs:250});assert.equal(change.data.maxTurns,3380);assert.equal(change.revalidate,true);
+ const config=resolveConfig('standard-9',{moveTimeLimitMs:250,maxTurns:31},'bot');assert.equal(config.maxTurns,324);assert.equal(config.timeTurnLimit,250);assert.equal(config.moveTimeLimitMs,250);
+ const frozen=freezeConfig({mapId:'standard-9',moveTimeLimitMs:250});assert.equal(executionDeadline(frozen),232000);
+ const change=settingsUpdate({gameId:'ottv2',mapId:'standard-9',moveTimeLimitMs:1000},{mapId:'large-13',firstSide:'white',maxTurns:31,moveTimeLimitMs:250});assert.equal(change.data.maxTurns,676);assert.equal(change.revalidate,true);
  assert.throws(()=>resolveConfig('small-5',{},'bot'),{status:400});
 });
 test('polling cannot extend a turn and the next player receives a fresh clock',()=>{
