@@ -1,20 +1,6 @@
+# The API runs on Railway beside MySQL (railway.json); see DEPLOYMENT.md.
+# Render API traffic to Railway's public MySQL proxy cost ~350 ms per query.
 services:
-  - type: web
-    name: ottv2-api
-    runtime: docker
-    plan: 1c-2g
-    dockerfilePath: ./Dockerfile
-    healthCheckPath: /ready
-    preDeployCommand: DATABASE_URL="$MIGRATION_DATABASE_URL" npm run db:migrate
-    envVars:
-      - key: DATABASE_URL
-        sync: false
-      - key: MIGRATION_DATABASE_URL
-        sync: false
-      - key: ALLOWED_ORIGINS
-        sync: false
-      - key: NODE_ENV
-        value: production
   - type: worker
     name: ottv2-worker
     runtime: docker

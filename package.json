@@ -13,6 +13,7 @@
     "build": "prisma generate && npm --prefix frontend ci && npm --prefix frontend run build",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
+    "db:migrate:deploy": "node scripts/migrate.cjs",
     "db:bootstrap": "node services/api/bootstrap.cjs",
     "db:import": "node services/api/import-json.cjs",
     "test": "node --test services/tests/*.test.cjs && npm --prefix frontend test",

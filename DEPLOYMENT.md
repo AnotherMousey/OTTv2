@@ -7,7 +7,7 @@ This is the implementation stage after approval of the A layout with B accents. 
 | Component | Host | Responsibility |
 | --- | --- | --- |
 | Frontend | Render Static Site | Approved React interface; no database secrets |
-| API | Render Web Service | Authentication, tournament ownership, enrollment, submissions, live/replay reads |
+| API | Railway service (same project as MySQL) | Authentication, tournament ownership, enrollment, submissions, live/replay reads |
 | Worker | Render Background Worker | Durable job claims, retries, streamed frames, authoritative result/Elo transactions |
 | MySQL 8+ | Railway | Accounts, hashed sessions, tournaments, entries, bot source/versions, jobs, recordings and audit events |
 | Execution runner | Dedicated Linux VM with Docker | One restricted container per bot; trusted game engine remains outside those containers |
@@ -28,17 +28,20 @@ New production entry points are `npm start`, `npm run worker` and `npm run runne
 
 ## Railway MySQL
 
-Create a MySQL service with a persistent volume and MySQL 8 or newer. Enable its public TCP proxy. Render is outside the Railway private network, so use the public hostname and port from Railway, not `mysql.railway.internal`.
+Create a MySQL service with a persistent volume and MySQL 8 or newer. The API runs in the same Railway project and connects over the private network (`mysql.railway.internal:3306`). Enable the public TCP proxy only for clients outside Railway: the Render worker, a local worker and operator scripts.
 
 Create a dedicated application account with SELECT, INSERT, UPDATE and DELETE permissions on the OTTv2 database. Give the separate migration account the schema permissions needed by Prisma migrations. Railway's generated credentials can bootstrap this setup; do not put the root password in frontend variables.
 
-Set both Render services' `DATABASE_URL` to the same application connection string:
+Use the same application account everywhere, with the host that matches where the client runs:
 
 ```text
+# Railway API (private network)
+mysql://APP_USER:URL_ENCODED_PASSWORD@mysql.railway.internal:3306/railway?connection_limit=5&pool_timeout=10&connect_timeout=10
+# Off-Railway clients (public proxy)
 mysql://APP_USER:URL_ENCODED_PASSWORD@PUBLIC_HOST:PUBLIC_PORT/railway?connection_limit=5&pool_timeout=10&connect_timeout=10
 ```
 
-Set the API's `MIGRATION_DATABASE_URL` to the migration account's public URL. The blueprint uses it only for the pre-deploy migration command. Credentials containing punctuation must be URL-encoded. Keep all credentials in host environment settings or a local ignored `.env`.
+Set the API's `MIGRATION_DATABASE_URL` to the migration account's private URL. `railway.json` uses it only for the pre-deploy migration command (`node scripts/migrate.cjs`). Credentials containing punctuation must be URL-encoded. Keep all credentials in host environment settings or a local ignored `.env`.
 
 Verify encryption for the external database connection in your actual Railway configuration. Where the server offers TLS, configure Prisma's MySQL TLS parameters with trusted certificates. Do not assume a TCP proxy encrypts traffic. If TLS is unavailable, use a secured tunnel or protected network path before admitting public users.
 
@@ -66,21 +69,31 @@ Bot restrictions include no networking, read-only root filesystem, dropped Linux
 
 The bot image includes Python 3, Java 17 and C++ tooling plus the original SDK. Build the bot image on every new runner host before sending jobs. There is no database connection in either the runner or bot image.
 
+## Railway API
+
+Every API request makes several sequential database queries, so the API must run next to MySQL. On Render it reached Railway's public proxy at roughly 350 ms per query; login took about 1.8 s.
+
+1. In the Railway project that holds MySQL, add a service from this GitHub repository. Railway reads `railway.json`: Dockerfile build, `node scripts/migrate.cjs` before each deploy, `/ready` health check.
+2. Set variables: `DATABASE_URL` and `MIGRATION_DATABASE_URL` (private URLs above), `ALLOWED_ORIGINS` (the frontend origin), `NODE_ENV=production`. The service region should match the MySQL service region.
+3. Under Networking, generate a public domain. Railway injects `PORT`; if asked for a target port, use the port shown in the deploy logs (`OTTv2 API listening`).
+4. Check `https://YOUR_API.up.railway.app/ready` returns `ok: true`.
+5. Set the frontend's `VITE_API_BASE_URL` to that domain and rebuild it.
+6. After logins work through the new API, delete the old Render API service. Removing it from `render.yaml` does not delete it.
+
 ## Render services and frontend
 
-Import the repository's `render.yaml` as a Blueprint. It defines a web API, background worker and static frontend. The initial API/worker plan is `1c-2g`; select appropriate paid capacity after staging measurements. Review the charge before creating services. No paid service was created by this delivery.
+Import the repository's `render.yaml` as a Blueprint. It defines a background worker and static frontend. The initial API/worker plan is `1c-2g`; select appropriate paid capacity after staging measurements. Review the charge before creating services. No paid service was created by this delivery.
 
 Set variables:
 
 | Service | Required variables |
 | --- | --- |
-| API | `DATABASE_URL`, `MIGRATION_DATABASE_URL`, `ALLOWED_ORIGINS` |
 | Worker | `DATABASE_URL`, `RUNNER_URL`, `RUNNER_SECRET`; `WORKER_CONCURRENCY=2` initially |
-| Frontend | `VITE_API_BASE_URL=https://YOUR_API.onrender.com`; Node 26 |
+| Frontend | `VITE_API_BASE_URL=https://YOUR_API.up.railway.app`; Node 26 |
 
 `ALLOWED_ORIGINS` contains exact frontend origins separated by commas, without paths or trailing slashes. Example: `https://YOUR_FRONTEND.onrender.com,https://your-domain.example`. Rebuild the frontend when changing `VITE_API_BASE_URL`, because Vite embeds it at build time. The frontend uses hash routes and needs no history-route rewrites.
 
-The API binds to Render's `PORT`. `/health` checks the process; `/ready` checks DB connectivity. The API pre-deploy command runs `prisma migrate deploy`. Never use `prisma migrate reset` or `db push` against production.
+The API binds to the host's `PORT`. `/health` checks the process; `/ready` checks DB connectivity. The API pre-deploy command runs `prisma migrate deploy`. Never use `prisma migrate reset` or `db push` against production.
 
 Start the worker only after the initial migration succeeds. Its queue recovers expired 45-second leases. Active jobs heartbeat every 10 seconds. Retries use a new run ID, which resets live-view cursors; stale attempts cannot write frames or change ratings. Jobs retry up to three attempts. Match scores and Elo are committed with the job completion marker in one transaction.
 
