@@ -308,7 +308,14 @@ class GameEngine {
         ? 'black'
         : 'white';
 
+    this.startTurnClock();
+  }
+
+  startTurnClock() {
+    this.clockStarted = true;
     this.turnStartedAt = Date.now();
+    if (this.currentTurn === 'white') this.whiteTimeMs = this.config.timeTurnLimit;
+    else this.blackTimeMs = this.config.timeTurnLimit;
   }
 
   finishAtLimit() {
@@ -321,7 +328,7 @@ class GameEngine {
       return true;
     }
     const nearest = side => {
-      const flag = this.config.flags[side === 'white' ? 'white' : 'black'];
+      const flag = this.config.flags[side === 'white' ? 'black' : 'white'];
       return this.board.flat().filter(piece => piece && piece.color === side)
         .map(piece => {
           const from = parseSquare(piece.square, this.length, this.width);
@@ -377,7 +384,7 @@ class GameEngine {
       this.blackTimeMs = Math.max(0, this.config.timeTurnLimit - elapsed);
     }
 
-    this.turnStartedAt = now;
+    // Keep the original turn start: polling must never extend a deadline.
 
     if (this.whiteTimeMs <= 0) {
       this.status = 'finished';
@@ -395,7 +402,7 @@ class GameEngine {
 
   serializeBotState(color) {
     const state=this.getPublicState(color);
-    return [color,state.currentTurn,this.turnsPlayed,...state.board.flat().filter(Boolean).map(p=>[p.id,p.color,p.type,p.square].join(',')),`@length=${this.length}`,`@width=${this.width}`,`@flag-white=${this.config.flags.white}`,`@flag-black=${this.config.flags.black}`].join('|')+'\n';
+    return [color,state.currentTurn,this.turnsPlayed,...state.board.flat().filter(Boolean).map(p=>[p.id,p.color,p.type,p.square].join(',')),`@length=${this.length}`,`@width=${this.width}`,`@timeTurnLimit=${this.config.timeTurnLimit}`,`@maxTurns=${this.config.maxTurns}`,`@flag-white=${this.config.flags.white}`,`@flag-black=${this.config.flags.black}`].join('|')+'\n';
   }
 
   getBoardForPlayer(color) {
@@ -470,8 +477,6 @@ class GameEngine {
       },
 
       ruleSet: {
-        length: this.length,
-        width: this.width,
         length: this.length,
         width: this.width,
         maxTurns: this.config.maxTurns,

@@ -83,13 +83,13 @@ function resolveGame(gameId = 'ottv2') {
 
 // Compatibility API retained for legacy room consumers.
 function resolveConfig(mapId, config, mode) {
-  return resolveGame().configure(
+  try { return resolveGame().configure(
     {
       ...config,
       ...(mapId ? { mapId } : {}),
     },
     mode,
-  );
+  ); } catch(error) { error.status=400; throw error; }
 }
 
 function specification(gameId = 'ottv2') {

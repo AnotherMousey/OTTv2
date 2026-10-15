@@ -24,7 +24,9 @@
     "offline": "node scripts/offline.cjs",
     "sync": "node scripts/tournament-sync.cjs",
     "benchmark:pairing": "node scripts/benchmark-pairing.cjs",
-    "test:sync:db": "node --test services/tests/sync.integration.cjs"
+    "test:sync:db": "node --test services/tests/sync.integration.cjs",
+    "deployment:check": "node scripts/check-deployment.cjs",
+    "db:status": "prisma migrate status"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

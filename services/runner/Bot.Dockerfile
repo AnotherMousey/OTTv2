@@ -1,4 +1,4 @@
-FROM node:26-bookworm-slim
+FROM node:24-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends openjdk-17-jdk-headless python3 g++ && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY logic ./logic

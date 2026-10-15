@@ -2,8 +2,8 @@
 const {resolveGame}=require('../../logic/games/registry');
 function freezeConfig(event,{validation=false,randomInt=require('node:crypto').randomInt}={}){
  const plugin=resolveGame(event.gameId||'ottv2');
- const input=plugin.identity.id==='ottv2'?{mapId:event.mapId,firstSide:validation?'white':event.firstSide==='random'?(randomInt(2)?'white':'black'):event.firstSide,maxTurns:validation?1:event.maxTurns,moveTimeLimitMs:event.moveTimeLimitMs}:event.gameConfig||{};
- const config=plugin.configure(input,'bot');return {...config,_game:{...plugin.identity}};
+ const input=plugin.identity.id==='ottv2'?{mapId:event.mapId,firstSide:validation?'white':event.firstSide==='random'?(randomInt(2)?'white':'black'):event.firstSide,timeTurnLimit:event.moveTimeLimitMs??1000}:event.gameConfig||{};
+ let config;try{config=plugin.configure(input,'bot');}catch(error){error.status=400;throw error;}return {...config,_game:{...plugin.identity}};
 }
 function resolveFrozen(config){
  const identity=config?._game;const plugin=resolveGame(identity?.id||'ottv2');
@@ -15,8 +15,8 @@ function executionDeadline(config){const resolved=resolveFrozen(config);const ms
 function settingsUpdate(event,body){
  const {int,text,fail}=require('../shared/domain.cjs');
  if(event.gameId!=='ottv2'){const data={gameConfig:body.gameConfig||{}};freezeConfig({...event,...data});return {data,revalidate:true,generic:true};}
- const data={mapId:text(body.mapId,3,32,'Map'),firstSide:body.firstSide,maxTurns:int(body.maxTurns,1,500,'Move limit'),moveTimeLimitMs:int(body.moveTimeLimitMs??event.moveTimeLimitMs,100,10000,'Thinking limit (ms)')};
+ const data={mapId:text(body.mapId,3,32,'Map'),firstSide:body.firstSide,moveTimeLimitMs:int(body.moveTimeLimitMs??event.moveTimeLimitMs,100,10000,'Thinking limit (ms)')};
  if(!['white','black','random'].includes(data.firstSide))fail(400,'First side must be white, black or random.');
- freezeConfig({...event,...data,firstSide:data.firstSide==='random'?'white':data.firstSide});return {data,revalidate:data.mapId!==event.mapId||data.moveTimeLimitMs!==event.moveTimeLimitMs,generic:false};
+ const config=freezeConfig({...event,...data,firstSide:data.firstSide==='random'?'white':data.firstSide});data.maxTurns=config.maxTurns;return {data,revalidate:data.mapId!==event.mapId||data.moveTimeLimitMs!==event.moveTimeLimitMs,generic:false};
 }
 module.exports={settingsUpdate,freezeConfig,resolveFrozen,normalizedResult,executionDeadline};

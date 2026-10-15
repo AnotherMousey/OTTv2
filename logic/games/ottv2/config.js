@@ -18,8 +18,8 @@ function buildConfig(input = {}, mode = 'room') {
   const firstSide = input.firstSide ?? 'white';
   if (!['white','black'].includes(firstSide)) throw Error('Invalid firstSide.');
   const maxTurns = 20 * length * width;
-  const timeTurnLimit = input.timeTurnLimit ?? 1000;
-  if (!Number.isInteger(timeTurnLimit) || timeTurnLimit < 1) throw Error('timeTurnLimit must be a positive integer.');
+  const timeTurnLimit = input.timeTurnLimit ?? input.moveTimeLimitMs ?? 1000;
+  if (!Number.isInteger(timeTurnLimit) || timeTurnLimit < 1 || timeTurnLimit > 10000) throw Error('timeTurnLimit must be an integer from 1 to 10000 ms.');
   const targets = input.targets ?? {white:`${String.fromCharCode(96+length)}${width}`, black:'a1'};
   const validSquare = s => { const m=/^([a-z]+)(\d{1,2})$/.exec(s || ''); return Boolean(m && m[1].charCodeAt(0)-97<length && +m[2]>=1 && +m[2]<=width); };
   if (!validSquare(targets.white) || !validSquare(targets.black) || targets.white === targets.black) throw Error('Invalid target squares.');
@@ -39,10 +39,11 @@ function buildConfig(input = {}, mode = 'room') {
     if (pieces.some(p=>p.color===side && p.square===targets[side])) throw Error('A piece cannot start on its own victory target.');
   }
   const flags = input.flags ?? {white: targets.black, black: targets.white};
+  if (!validSquare(flags.white) || !validSquare(flags.black) || flags.white === flags.black) throw Error('Invalid flag squares.');
   return {
     length, width, boardSize: length === width ? length : undefined,
-    firstSide, maxTurns, timeTurnLimit, targets:{...targets}, flags:{...flags},
+    firstSide, maxTurns, timeTurnLimit, moveTimeLimitMs:timeTurnLimit, targets:{...targets}, flags:{...flags},
     initialPieces:pieces, mapName:String(input.mapName || `OTTv2 ${length}×${width}`).slice(0,100),
   };
 }
-module.exports = {buildConfig,PIECE_TYPES,MIN_SIZE,MAX_SIZE,squareToPoint};
+module.exports = {buildConfig,normalizeConfig:buildConfig,PIECE_TYPES,MIN_SIZE,MAX_SIZE,squareToPoint};

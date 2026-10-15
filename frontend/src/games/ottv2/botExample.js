@@ -19,7 +19,7 @@ def choose_move(state):
                     continue
                 destination_file = file_index + file_step
                 destination_rank = rank + rank_step
-                if not (0 <= destination_file < state.board_size and 1 <= destination_rank <= state.board_size):
+                if not (0 <= destination_file < state.length and 1 <= destination_rank <= state.width):
                     continue
                 destination = chr(ord("a") + destination_file) + str(destination_rank)
                 target = occupied.get(destination)
