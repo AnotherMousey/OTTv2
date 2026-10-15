@@ -72,8 +72,8 @@ export function Home({ go, bot }) {
           </div>
           <div className="hero-actions">
             <Button onClick={() => go(user?.role==='judge'?"tournaments":user?"tournaments":"login")}>{user?.role==='judge'?"Manage tournaments":user?"Find a tournament":"Log in to compete"}</Button>
-            <Button secondary onClick={() => go("rules")}>
-              Explore the rules
+            <Button secondary onClick={() => go("api")}>
+              Explore the API
             </Button>
           </div>
         </div>
@@ -769,7 +769,7 @@ export function Submission({ bot, save, prepare }) {
               Use the SDK matching the current rules version. Test your bot
               against different maps and starting sides.
             </p>
-            <a href="#rules">Read game specification ↗</a>
+            <a href="#api">Read the bot API ↗</a>
           </article>
         </aside>
       </div>

@@ -1,0 +1,449 @@
+// Public bot API, mirrored from logic/sdk. Keep in sync when an SDK changes.
+const member = (signature, doc) => ({ signature, doc });
+
+export const API_LANGUAGES = [
+  {
+    id: "cpp",
+    label: "C++",
+    module: "namespace ottv2",
+    include: '#include "ottv2.hpp"',
+    file: "player.cpp",
+    toolchain: "g++ -std=c++20 -O2",
+    entry: {
+      signature: "ottv2::Move choose_move(const ottv2::State& state)",
+      doc: "Called once per turn. Return the move to play. The runner reads the state and prints your move.",
+      example: `#include "ottv2.hpp"
+
+ottv2::Move choose_move(const ottv2::State& state) {
+  for (const auto& soldier : state.getTeam().getSoldiers()) {
+    // Stay on the board; also avoid own pieces and same-type enemies.
+    if (soldier.getPosition().getYCor() + 1 < state.getWidth())
+      return soldier.moveTo(ottv2::Direction::N);
+  }
+  return {"", ""};
+}`,
+    },
+    types: [
+      {
+        name: "State",
+        kind: "struct",
+        doc: "Everything known about the current turn.",
+        members: [
+          member("const std::string& getColor() const", 'Your side: "white" or "black".'),
+          member("const std::string& getCurrentTurn() const", "Side to move."),
+          member("int getTurnNumber() const", "Turns already played."),
+          member("int getLength() const", "Number of files (columns)."),
+          member("int getWidth() const", "Number of ranks (rows)."),
+          member("int getBoardSize() const", "Legacy square-board size; equals getLength()."),
+          member("const std::vector<Piece>& getPieces() const", "Every piece on the board, both sides."),
+          member("const gameEngine& getGameEngine() const", "Board size, turn limit and per-move time limit."),
+          member("const team& getTeam() const", "Your soldiers and your own flag."),
+          member("const team& getEnemyTeam() const", "Enemy soldiers and the enemy flag, which is your target."),
+          member("bool hasMoves() const", "True when it is your turn. Alias: has_moves()."),
+        ],
+      },
+      {
+        name: "Piece",
+        kind: "struct",
+        doc: "A piece in square notation.",
+        members: [
+          member("const std::string& getId() const", 'Stable piece ID, e.g. "white-rock-0".'),
+          member("const std::string& getColor() const", '"white" or "black".'),
+          member("const std::string& getType() const", '"rock", "paper" or "scissors".'),
+          member("const std::string& getSquare() const", 'Square such as "c3". File a… is x, rank 1… is y.'),
+        ],
+      },
+      {
+        name: "Move",
+        kind: "struct",
+        doc: "A one-step move between two squares.",
+        members: [
+          member("Move(std::string from, std::string to)", 'Create a move, e.g. Move("c3", "d4").'),
+          member("const std::string& getFrom() const", "Source square. Alias: from()."),
+          member("const std::string& getTo() const", "Destination square. Alias: to()."),
+        ],
+      },
+      {
+        name: "team",
+        alias: "Team",
+        kind: "struct",
+        doc: "One side's soldiers and flag.",
+        members: [
+          member("coordinate getFlag() const", "Flag square of this side."),
+          member("const std::vector<soldier>& getSoldiers() const", "Soldiers of this side."),
+          member("void setFlag(coordinate value)", "Replace the flag (local copy only)."),
+          member("void setSoldiers(std::vector<soldier> value)", "Replace the soldier list (local copy only)."),
+        ],
+      },
+      {
+        name: "soldier",
+        alias: "Soldier",
+        kind: "struct",
+        doc: "A piece in coordinate form.",
+        members: [
+          member("teamType getTeamType() const", "A = white, B = black."),
+          member("soldierType getSoldierType() const", "rock, paper or scissor."),
+          member("int getId() const", "Index of this piece in getPieces()."),
+          member("coordinate getPosition() const", "Current coordinate."),
+          member("Move moveTo(direction next) const", "Move one step in a direction. Does not check board bounds."),
+          member("void setPosition(coordinate value)", "Change the position (local copy only)."),
+        ],
+      },
+      {
+        name: "coordinate",
+        alias: "Coordinate",
+        kind: "struct",
+        doc: "Zero-based board position: a1 is (0, 0).",
+        members: [
+          member("coordinate(int x, int y)", "x = file index, y = rank − 1."),
+          member("int getXCor() const", "File index. Alias: xCor()."),
+          member("int getYCor() const", "Rank − 1. Alias: yCor()."),
+          member("void setXCor(int value)", "Set the file index."),
+          member("void setYCor(int value)", "Set the rank index."),
+        ],
+      },
+      {
+        name: "gameEngine",
+        alias: "GameEngine",
+        kind: "struct",
+        doc: "Match configuration.",
+        members: [
+          member("int getLength() const", "Number of files."),
+          member("int getWidth() const", "Number of ranks."),
+          member("coordinate getSize() const", "(length, width)."),
+          member("int getTotalTurns() const", "Turn limit for the match."),
+          member("int getTimeTurnLimit() const", "Thinking time per move, in milliseconds."),
+          member("const std::vector<soldier>& getSoldiers() const", "Every soldier, both sides."),
+        ],
+      },
+      {
+        name: "direction",
+        alias: "Direction",
+        kind: "enum class",
+        doc: "N is towards higher ranks; E is towards higher files.",
+        members: [member("N, NE, E, SE, S, SW, W, NW", "Eight step directions.")],
+      },
+      {
+        name: "soldierType",
+        alias: "SoldierType",
+        kind: "enum class",
+        doc: "Piece type in coordinate form.",
+        members: [member("rock, paper, scissor", 'Note: Piece::getType() spells it "scissors".')],
+      },
+      {
+        name: "teamType",
+        alias: "TeamType",
+        kind: "enum class",
+        doc: "Side in coordinate form.",
+        members: [member("A, B", "A = white, B = black.")],
+      },
+    ],
+  },
+  {
+    id: "java",
+    label: "Java",
+    module: "package ottv2.sdk",
+    include: "import ottv2.sdk.*;",
+    file: "RobotPlayer.java",
+    toolchain: "Java 17",
+    entry: {
+      signature: "public static void run(RobotController rc) throws Exception",
+      doc: "Called once in class RobotPlayer. Loop forever: choose a move with rc.move(...), then call rc.yieldTurn() to send it and wait for the next state.",
+      example: `import ottv2.sdk.*;
+
+public class RobotPlayer {
+  public static void run(RobotController rc) throws Exception {
+    while (true) {
+      for (Soldier soldier : rc.getTeam().getSoldiers()) {
+        Move move = soldier.moveTo(Direction.N);
+        if (rc.canMove(move.from(), move.to())) {
+          rc.submitMove(move);
+          break;
+        }
+      }
+      rc.yieldTurn();
+    }
+  }
+}`,
+    },
+    types: [
+      {
+        name: "RobotController",
+        kind: "interface",
+        doc: "Your connection to the game. Passed to run().",
+        members: [
+          member("String getColor()", 'Your side: "white" or "black".'),
+          member("String getCurrentTurn()", "Side to move."),
+          member("int getTurnNumber()", "Turns already played."),
+          member("boolean hasMoves()", "True when it is your turn."),
+          member("List<Piece> sensePieces()", "Every piece on the board, both sides."),
+          member("GameState getState()", "Full state, including the board helper."),
+          member("GameEngine getGameEngine()", "Board size, turn limit and per-move time limit."),
+          member("Team getTeam()", "Your soldiers and your own flag."),
+          member("Team getEnemyTeam()", "Enemy soldiers and the enemy flag, which is your target."),
+          member("boolean canMove(String from, String to)", "Adjacent step from your piece that is not onto your own piece or a same-type enemy."),
+          member("void move(String from, String to)", "Queue a move for this turn."),
+          member("void submitMove(Move move)", "Queue a Move object for this turn."),
+          member("void yieldTurn() throws InterruptedException", "Send the queued move (an empty move if none) and block until the next state."),
+        ],
+      },
+      {
+        name: "GameState",
+        kind: "class",
+        doc: "Snapshot of the current turn.",
+        members: [
+          member("String color()", "Your side."),
+          member("String currentTurn()", "Side to move."),
+          member("int turnNumber()", "Turns already played."),
+          member("Board board()", "Board helper."),
+          member("List<Piece> pieces()", "Every piece on the board."),
+          member("boolean hasMoves()", "True when it is your turn."),
+          member("boolean canMove(String from, String to)", "hasMoves() and board().canStep(from, to, color())."),
+        ],
+      },
+      {
+        name: "Board",
+        kind: "class",
+        doc: "Board queries in square notation.",
+        members: [
+          member("int length()", "Number of files. Alias: size()."),
+          member("int width()", "Number of ranks."),
+          member("List<Piece> pieces()", "Every piece on the board."),
+          member("Piece pieceAt(String square)", "Piece on a square, or null."),
+          member("boolean containsOwnPiece(String square, String color)", "True if that side has a piece there."),
+          member("boolean canStep(String from, String to, String color)", "Legal-looking step. Does not check whether a capture wins."),
+          member("static final int SIZE = 9", "Default board size."),
+        ],
+      },
+      {
+        name: "Piece",
+        kind: "class",
+        doc: "A piece in square notation.",
+        members: [
+          member("String id()", 'Stable piece ID. Alias: getId().'),
+          member("String color()", '"white" or "black". Alias: getColor().'),
+          member("String type()", '"rock", "paper" or "scissors". Alias: getType().'),
+          member("String square()", 'Square such as "c3". Alias: getSquare().'),
+        ],
+      },
+      {
+        name: "Move",
+        kind: "class",
+        doc: "A one-step move between two squares.",
+        members: [
+          member("Move(String from, String to)", 'Create a move, e.g. new Move("c3", "d4").'),
+          member("String from()", "Source square."),
+          member("String to()", "Destination square."),
+          member("boolean isEmpty()", "True if either square is empty."),
+        ],
+      },
+      {
+        name: "Team",
+        kind: "class",
+        doc: "One side's soldiers and flag.",
+        members: [
+          member("Coordinate getFlag()", "Flag square of this side."),
+          member("List<Soldier> getSoldiers()", "Soldiers of this side."),
+        ],
+      },
+      {
+        name: "Soldier",
+        kind: "class",
+        doc: "A piece in coordinate form.",
+        members: [
+          member("TeamType getTeamType()", "A = white, B = black."),
+          member("SoldierType getSoldierType()", "rock, paper or scissor."),
+          member("int getId()", "Index of this piece in sensePieces()."),
+          member("Coordinate getPosition()", "Current coordinate."),
+          member("Move moveTo(Direction direction)", "Move one step in a direction. Does not check board bounds."),
+        ],
+      },
+      {
+        name: "Coordinate",
+        kind: "record",
+        doc: "Zero-based board position: a1 is (0, 0).",
+        members: [
+          member("Coordinate(int xCor, int yCor)", "x = file index, y = rank − 1."),
+          member("int xCor()", "File index. Alias: getXCor()."),
+          member("int yCor()", "Rank − 1. Alias: getYCor()."),
+        ],
+      },
+      {
+        name: "GameEngine",
+        kind: "class",
+        doc: "Match configuration.",
+        members: [
+          member("int getLength()", "Number of files."),
+          member("int getWidth()", "Number of ranks."),
+          member("Coordinate getSize()", "(length, width)."),
+          member("int getTotalTurns()", "Turn limit for the match."),
+          member("int getTimeTurnLimit()", "Thinking time per move, in milliseconds."),
+          member("List<Soldier> getSoldiers()", "Every soldier, both sides."),
+        ],
+      },
+      {
+        name: "Direction",
+        kind: "enum",
+        doc: "N is towards higher ranks; E is towards higher files.",
+        members: [member("N, NE, E, SE, S, SW, W, NW", "Eight step directions.")],
+      },
+      {
+        name: "SoldierType",
+        kind: "enum",
+        doc: "Piece type in coordinate form.",
+        members: [member("rock, paper, scissor", 'Note: Piece.type() spells it "scissors".')],
+      },
+      {
+        name: "TeamType",
+        kind: "enum",
+        doc: "Side in coordinate form.",
+        members: [member("A, B", "A = white, B = black.")],
+      },
+      {
+        name: "GameActionException",
+        kind: "class",
+        doc: "Checked exception for game actions.",
+        members: [member("GameActionException(String message)", "Create with a message.")],
+      },
+    ],
+  },
+  {
+    id: "python",
+    label: "Python",
+    module: "module ottv2",
+    include: "from ottv2 import *",
+    file: "player.py",
+    toolchain: "Python 3",
+    entry: {
+      signature: "def choose_move(state: State) -> Move | tuple[str, str]",
+      doc: "Called once per turn. Return a Move or a (from, to) tuple. The runner reads the state and prints your move.",
+      example: `from ottv2 import *
+
+def choose_move(state):
+    for soldier in state.getTeam().getSoldiers():
+        # Stay on the board; also avoid own pieces and same-type enemies.
+        if soldier.getPosition().getYCor() + 1 < state.getWidth():
+            return soldier.moveTo(N)
+    return ("", "")`,
+    },
+    types: [
+      {
+        name: "State",
+        kind: "class",
+        doc: "Everything known about the current turn.",
+        members: [
+          member("getColor() -> str", 'Your side: "white" or "black". Property: color.'),
+          member("getCurrentTurn() -> str", "Side to move. Property: current_turn."),
+          member("getTurnNumber() -> int", "Turns already played. Property: turn_number."),
+          member("getLength() -> int", "Number of files. Property: length."),
+          member("getWidth() -> int", "Number of ranks. Property: width."),
+          member("getBoardSize() -> int", "Legacy square-board size. Property: board_size."),
+          member("getPieces() -> tuple[Piece, ...]", "Every piece on the board. Property: pieces."),
+          member("getGameEngine() -> GameEngine", "Board size, turn limit and per-move time limit."),
+          member("getTeam() -> Team", "Your soldiers and your own flag."),
+          member("getEnemyTeam() -> Team", "Enemy soldiers and the enemy flag, which is your target."),
+          member("hasMoves() -> bool", "True when it is your turn."),
+        ],
+      },
+      {
+        name: "Piece",
+        kind: "class",
+        doc: "A piece in square notation. Read-only.",
+        members: [
+          member("getId() -> str", "Stable piece ID. Property: id."),
+          member("getColor() -> str", '"white" or "black". Property: color.'),
+          member("getType() -> str", '"rock", "paper" or "scissors". Property: type.'),
+          member("getSquare() -> str", 'Square such as "c3". Property: square.'),
+        ],
+      },
+      {
+        name: "Move",
+        kind: "class",
+        doc: "A one-step move between two squares. Unpacks as (from, to).",
+        members: [
+          member("Move(from_square: str, to_square: str)", 'Create a move, e.g. Move("c3", "d4").'),
+          member("getFrom() -> str", "Source square. Alias: from_()."),
+          member("getTo() -> str", "Destination square. Alias: to()."),
+        ],
+      },
+      {
+        name: "Team",
+        alias: "team",
+        kind: "class",
+        doc: "One side's soldiers and flag.",
+        members: [
+          member("getFlag() -> Coordinate", "Flag square of this side."),
+          member("getSoldiers() -> tuple[Soldier, ...]", "Soldiers of this side."),
+          member("setFlag(value)", "Replace the flag (local copy only)."),
+          member("setSoldiers(value)", "Replace the soldier list (local copy only)."),
+        ],
+      },
+      {
+        name: "Soldier",
+        alias: "soldier",
+        kind: "class",
+        doc: "A piece in coordinate form.",
+        members: [
+          member("getTeamType() -> str", "A = white, B = black."),
+          member("getSoldierType() -> str", '"rock", "paper" or "scissor".'),
+          member("getId() -> int", "Index of this piece in state.getPieces()."),
+          member("getPosition() -> Coordinate", "Current coordinate."),
+          member("moveTo(direction) -> Move", "Move one step in a direction. Does not check board bounds."),
+          member("setPosition(value)", "Change the position (local copy only)."),
+        ],
+      },
+      {
+        name: "Coordinate",
+        alias: "coordinate",
+        kind: "class",
+        doc: "Zero-based board position: a1 is (0, 0). Supports ==.",
+        members: [
+          member("Coordinate(xCor: int, yCor: int)", "x = file index, y = rank − 1."),
+          member("getXCor() -> int", "File index. Alias: xCor()."),
+          member("getYCor() -> int", "Rank − 1. Alias: yCor()."),
+          member("setXCor(value)", "Set the file index."),
+          member("setYCor(value)", "Set the rank index."),
+        ],
+      },
+      {
+        name: "GameEngine",
+        alias: "gameEngine",
+        kind: "class",
+        doc: "Match configuration.",
+        members: [
+          member("getLength() -> int", "Number of files."),
+          member("getWidth() -> int", "Number of ranks."),
+          member("getSize() -> Coordinate", "(length, width)."),
+          member("getTotalTurns() -> int", "Turn limit for the match."),
+          member("getTimeTurnLimit() -> int", "Thinking time per move, in milliseconds."),
+          member("getSoldiers() -> tuple[Soldier, ...]", "Every soldier, both sides."),
+        ],
+      },
+      {
+        name: "Direction",
+        kind: "constants",
+        doc: "Also importable directly: N, NE, E, SE, S, SW, W, NW.",
+        members: [member("Direction.N … Direction.NW", "N is towards higher ranks; E is towards higher files.")],
+      },
+      {
+        name: "SoldierType",
+        kind: "constants",
+        doc: "Also importable directly: rock, paper, scissor (scissors is an alias).",
+        members: [member("SoldierType.rock, .paper, .scissor", 'Note: Piece.getType() spells it "scissors".')],
+      },
+      {
+        name: "TeamType",
+        kind: "constants",
+        doc: "Also importable directly: A, B.",
+        members: [member("TeamType.A, TeamType.B", "A = white, B = black.")],
+      },
+    ],
+  },
+];
+
+export const API_NOTES = [
+  ["Squares", 'Files are letters from a, ranks are numbers from 1: "a1" is the bottom-left corner. Coordinate (x, y) is (file index, rank − 1).'],
+  ["Moves", "Move exactly one square in any of the eight directions, onto an empty square or an enemy piece of a different type."],
+  ["Targets", "White starts near a1 and wins by reaching the enemy flag (default i9). Black does the reverse. Read getEnemyTeam().getFlag() rather than hard-coding it."],
+  ["Time", "Answer within getTimeTurnLimit() milliseconds. Illegal moves are rejected and asked again within the same deadline; running out of time loses."],
+];

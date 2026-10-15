@@ -107,17 +107,17 @@ function App() {
         </button>
         <nav className={menu ? "open" : ""}>
           {(user?.role==='judge'?[
-            ['home','Overview'],['tournaments','Manage Tournaments'],['watch','Watch Matches'],['rules','Rules & SDK']
+            ['home','Overview'],['tournaments','Manage Tournaments'],['watch','Watch Matches'],['api','API']
           ]:user?[
-            ['home','Overview'],['tournaments','Tournaments'],['mybot','My Bot'],['watch','Watch Matches'],['rules','Rules & SDK']
+            ['home','Overview'],['tournaments','Tournaments'],['mybot','My Bot'],['watch','Watch Matches'],['api','API']
           ]:[
-            ['home','Overview'],['tournaments','Tournaments'],['watch','Watch Matches'],['rules','Rules & SDK']
+            ['home','Overview'],['tournaments','Tournaments'],['watch','Watch Matches'],['api','API']
           ]).map(([id, label]) => (
             <a
               key={id}
               href={`#${id}`}
               onClick={id === "match" ? e=>{e.preventDefault();go(id);} : undefined}
-              aria-current={(page === id || (id === "watch" && (page.startsWith("watch") || page==='match'&&new URLSearchParams(location.search).has('match'))) || (id === "tournaments" && ["tournament","rankings"].includes(page)) || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
+              aria-current={(page === id || (id === "watch" && (page.startsWith("watch") || page==='match'&&new URLSearchParams(location.search).has('match'))) || (id === "tournaments" && ["tournament","rankings"].includes(page)) || (id === "api" && page === "rules") || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
             >
               {label}
             </a>
@@ -165,7 +165,7 @@ function App() {
           <TournamentAccountPage go={go} />
         ) : page === "login" ? (
           <LoginPage go={go}/>
-        ) : page === "rules" ? (
+        ) : page === "api" || page === "rules" ? (
           <Rules />
         ) : (
           <Home go={go} bot={bot} />
@@ -177,7 +177,7 @@ function App() {
           OTTv2
         </a>
         <span>CODE. COMPETE. REPEAT.</span>
-        <a href="#rules">Rules & SDK ↗</a>
+        <a href="#api">API ↗</a>
       </footer>
       {toast && (
         <div className="toast" role="status">
