@@ -5,6 +5,7 @@ COPY logic ./logic
 COPY samples ./samples
 COPY services/runner ./services/runner
 COPY services/shared/domain.cjs ./services/shared/domain.cjs
+COPY services/platform ./services/platform
 ENV PORT=8080
 EXPOSE 8080
 CMD ["node","services/runner/index.cjs"]

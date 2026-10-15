@@ -3,7 +3,7 @@ const {test}=require('node:test');const assert=require('node:assert/strict');
 const {prisma}=require('../shared/db.cjs');const queue=require('../worker/queue.cjs');const {passwordHash}=require('../shared/domain.cjs');const {createApp}=require('../api/index.cjs');
 test('MySQL auth, tournament workflow, leases and exactly-once ratings',async()=>{
 assert.match(new URL(process.env.DATABASE_URL).pathname,/_test$/,'Only a disposable _test database is allowed.');
-for(const table of ['frame','job','entry','submission','match','tournament','session','audit','rateBucket','user'])await prisma[table].deleteMany();
+for(const table of ['syncPart','syncReceipt','frame','job','entry','submission','match','tournament','session','audit','rateBucket','user'])await prisma[table].deleteMany();
 const hash=await passwordHash('integration-password-123');const users={};for(const [username,role] of [['judge','judge'],['otherjudge','judge'],['alice','player'],['bob','player']])users[username]=await prisma.user.create({data:{username,name:username,passwordHash:hash,role}});
 const server=await new Promise(resolve=>{const s=createApp().listen(0,'127.0.0.1',()=>resolve(s));});const base='http://127.0.0.1:'+server.address().port;const tokens={};
 const call=async(path,user,body,method=body===undefined?'GET':'POST')=>{const response=await fetch(base+path,{method,headers:{'Content-Type':'application/json',...(user?{Authorization:'Bearer '+tokens[user]}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});return {status:response.status,data:await response.json()};};

@@ -81,3 +81,12 @@ The accepted v5 frontend is now the live application in `frontend/`. It retains 
 Server source, match metadata, terminal replays, account records and tournament records are atomically stored under `DATA_DIR` (default `./data`). Keep that directory private and outside source control. A stable browser client ID still associates legacy submission history with the browser. Live rooms remain in memory. Run one backend process with this file adapter; use a database adapter before horizontal scaling.
 
 See [DEPLOY_VERCEL_RENDER.md](DEPLOY_VERCEL_RENDER.md) for exact deployment settings, persistence requirements and CLI deployment when a teammate owns the repository. `frontend/` replaces the old `/ottv2` build folder; do not keep using the old Render frontend build command. With `SERVE_FRONTEND=false`, Render serves the API without requiring a frontend build.
+
+## Reusable tournament refactor and offline operation
+
+See [architecture audit and operating guide](docs/REFACTOR_AUDIT_VI.md) and
+[verification record](docs/VERIFICATION_REFACTOR.md). Prepare images while online
+with `npm run offline:prepare`; use `npm run offline` after disconnecting. The
+unchanged frontend is served at `http://127.0.0.1:3000/app/`. Sync completed events
+through `npm run sync`, with an explicitly reviewed account mapping. Imports
+preserve tournament-specific rating snapshots and never apply global Elo again.

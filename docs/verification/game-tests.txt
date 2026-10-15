@@ -1,0 +1,18 @@
+✔ python SDK and grader finish a real 13×13 bot match (127.122668ms)
+✔ cpp SDK and grader finish a real 13×13 bot match (1478.880769ms)
+﹣ java SDK and grader finish a real 13×13 bot match (0.240873ms) # Compiler/runtime unavailable in this environment
+✔ HTTP submission → queued match → grader → replay completes using two Python bots (95.569922ms)
+✔ invalid bot actions consume turns, count decision and terminal result remain authoritative (40.613941ms)
+✔ all saved samples reproduce their terminal result through the engine (20.003374ms)
+✔ invalid config fails, default setup/reset remains legacy-compatible and multi-digit coordinates round-trip (1.498124ms)
+✔ configured room API, specification, cursor replay and reset work without breaking full replay (82.739829ms)
+✔ canonical coordinates are independent of backend array rotation (9.470002ms)
+✔ room API records real transitions, captures, resets, forfeit and timeout (99.326074ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 1844.368216
