@@ -4,7 +4,18 @@ const crypto=require('node:crypto');
 async function auth(req,res,next){try{const token=req.headers.authorization?.replace(/^Bearer /i,'');if(!token)fail(401,'Log in to continue.');const session=await prisma.session.findUnique({where:{tokenHash:digest(token)},include:{user:true}});if(!session||session.expiresAt<=new Date()||!session.user.active)fail(401,'Your session expired. Log in again.');req.user=session.user;next();}catch(e){next(e);}}
 function judge(req,res,next){if(req.user.role!=='judge')return next(Object.assign(Error('Judge access required.'),{status:403}));next();}
 async function rate(key,max,seconds){const slot=Math.floor(Date.now()/(seconds*1000));const id=digest(key).slice(0,40)+':'+slot;const bucket=await prisma.rateBucket.upsert({where:{key:id},create:{key:id,expiresAt:new Date((slot+1)*seconds*1000)},update:{count:{increment:1}}});if(bucket.count>max)fail(429,'Too many requests. Wait and try again.');}
-async function login(req,res){const input=req.body;if(typeof input.username!=='string'||typeof input.password!=='string')fail(400,'Username and password are required.');await rate('login-ip:'+req.ip,30,60);await rate('login-name:'+input.username.toLowerCase(),10,60);const user=await prisma.user.findUnique({where:{username:input.username.trim().toLowerCase()}});const fallback='0123456789abcdef0123456789abcdef:'+('0'.repeat(128));const valid=await verifyPassword(input.password,user?.passwordHash||fallback);if(!user?.active||!valid)fail(401,'Invalid username or password.');const token=crypto.randomBytes(32).toString('base64url');await prisma.session.create({data:{tokenHash:digest(token),userId:user.id,expiresAt:new Date(Date.now()+86400000)}});res.json({token,account:publicUser(user)});}
+async function login(req,res){
+  const input=req.body;
+  if(typeof input.username!=='string'||typeof input.password!=='string')fail(400,'Username and password are required.');
+  const username=input.username.trim().toLowerCase();
+  const user=await prisma.user.findUnique({where:{username}});
+  const fallback='0123456789abcdef0123456789abcdef:'+('0'.repeat(128));
+  const valid=await verifyPassword(input.password,user?.passwordHash||fallback);
+  if(!user?.active||!valid)fail(401,'Invalid username or password.');
+  const token=crypto.randomBytes(32).toString('base64url');
+  await prisma.session.create({data:{tokenHash:digest(token),userId:user.id,expiresAt:new Date(Date.now()+86400000)}});
+  res.json({token,account:publicUser(user)});
+}
 async function logout(req,res){const token=req.headers.authorization?.replace(/^Bearer /i,'');if(token)await prisma.session.deleteMany({where:{tokenHash:digest(token)}});res.json({ok:true});}
 async function eventOwner(tx,id,user){await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${id} FOR UPDATE`;const event=await tx.tournament.findUnique({where:{id}});if(!event)fail(404,'Tournament not found.');if(user.role!=='judge'||event.ownerId!==user.id)fail(403,'Only the organizing judge can change this tournament.');return event;}
 module.exports={auth,judge,rate,login,logout,eventOwner};
