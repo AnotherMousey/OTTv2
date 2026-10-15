@@ -31,3 +31,12 @@ test('rectangular board metadata contains finite dimensions and canonical goals'
 test('piece-distance tie breaker measures distance to the enemy flag',()=>{
  const game=new Engine({initialPieces:[{color:'white',type:'rock',square:'b1'},{color:'black',type:'rock',square:'i7'}]});game.turnsPlayed=game.config.maxTurns;game.finishAtLimit();assert.equal(game.winner,'black');assert.equal(game.endReason,'move-limit-nearest-flag');
 });
+
+test('config rejects multi-letter and aliased squares before engine construction',()=>{
+ const {buildConfig}=require('../../logic/games/ottv2/config');
+ for(const square of ['aa1','b01',{},'b0','z1']){
+  assert.throws(()=>buildConfig({initialPieces:[{color:'white',type:'rock',square},{color:'black',type:'paper',square:'h8'}]}),/Invalid or overlapping initial piece/);
+ }
+ assert.throws(()=>buildConfig({flags:{white:'aa1',black:'i9'}}),/Invalid flag/);
+ assert.throws(()=>buildConfig({targets:{white:'i09',black:'a1'}}),/Invalid target/);
+});

@@ -16,6 +16,8 @@ if (secret.length < 32) {
   throw Error('RUNNER_SECRET must contain at least 32 characters.');
 }
 
+const capacity=Number(process.env.RUNNER_CONCURRENCY||2);
+if(!Number.isInteger(capacity)||capacity<1||capacity>8)throw Error('RUNNER_CONCURRENCY must be an integer from 1 to 8.');
 let active = 0;
 
 function authorized(value) {
@@ -33,7 +35,7 @@ const server = http.createServer(async (req, res) => {
       'Content-Type': 'application/json',
     });
 
-    res.end(JSON.stringify({ ok: true, active }));
+    res.end(JSON.stringify({ ok: true, active, capacity }));
     return;
   }
 
@@ -47,7 +49,7 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  if (active >= Number(process.env.RUNNER_CONCURRENCY || 2)) {
+  if (active >= capacity) {
     res.writeHead(429);
     res.end();
     return;

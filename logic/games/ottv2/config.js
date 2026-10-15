@@ -21,7 +21,7 @@ function buildConfig(input = {}, mode = 'room') {
   const timeTurnLimit = input.timeTurnLimit ?? input.moveTimeLimitMs ?? 1000;
   if (!Number.isInteger(timeTurnLimit) || timeTurnLimit < 1 || timeTurnLimit > 10000) throw Error('timeTurnLimit must be an integer from 1 to 10000 ms.');
   const targets = input.targets ?? {white:`${String.fromCharCode(96+length)}${width}`, black:'a1'};
-  const validSquare = s => { const m=/^([a-z]+)(\d{1,2})$/.exec(s || ''); return Boolean(m && m[1].charCodeAt(0)-97<length && +m[2]>=1 && +m[2]<=width); };
+  const validSquare = s => { const m=typeof s==='string' && /^([a-z])([1-9]\d?)$/.exec(s); return Boolean(m && m[1].charCodeAt(0)-97<length && +m[2]<=width); };
   if (!validSquare(targets.white) || !validSquare(targets.black) || targets.white === targets.black) throw Error('Invalid target squares.');
   let pieces = input.initialPieces;
   if (pieces === undefined && length === 9 && width === 9) pieces = [...LEGACY_WHITE.map(([square,type])=>({color:'white',square,type})),...LEGACY_BLACK.map(([square,type])=>({color:'black',square,type}))];
