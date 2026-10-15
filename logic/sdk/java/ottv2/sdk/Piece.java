@@ -15,6 +15,11 @@ public final class Piece {
     this.square = Objects.requireNonNull(square);
   }
 
+  public String id() { return id; }
+  public String color() { return color; }
+  public String type() { return type; }
+  public String square() { return square; }
+
   public String getId() { return id; }
   public String getColor() { return color; }
   public String getType() { return type; }

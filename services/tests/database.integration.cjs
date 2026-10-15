@@ -23,7 +23,7 @@ for(const name of ['alice','bob'])assert.equal((await call(path+'/bot',name,{fil
 assert.equal((await call(path+'/advance','judge',{})).status,409);
 const claimed=(await Promise.all([queue.claim(),queue.claim(),queue.claim()])).filter(Boolean);while(claimed.length<2){const next=await queue.claim();assert.ok(next);claimed.push(next);}assert.equal(claimed.length,2);assert.equal(new Set(claimed.filter(Boolean).map(j=>j.id)).size,2);
 for(const j of claimed.filter(Boolean))assert.equal(await queue.finish(j,{type:'validated'}),true);
-assert.equal((await call(path+'/settings','judge',{mapId:'small-5',firstSide:'white',maxTurns:31,moveTimeLimitMs:250})).status,200);assert.equal((await call(path+'/advance','judge',{})).status,409);let validation;while((validation=await queue.claim()))await queue.finish(validation,{type:'validated'});
+assert.equal((await call(path+'/settings','judge',{mapId:'standard-9',firstSide:'white',maxTurns:31,moveTimeLimitMs:250})).status,200);assert.equal((await call(path+'/advance','judge',{})).status,409);let validation;while((validation=await queue.claim()))await queue.finish(validation,{type:'validated'});
 const directory=await call('/api/tournaments?phase=preparation');assert.equal(directory.data.total,1);assert.deepEqual(directory.data.events[0].counts,{accepted:2,pending:0,botsReady:2});
 assert.equal((await call(path+'/advance','judge',{})).status,200);
 assert.equal((await call(path+'/bot','alice',{filename:'bot.py',language:'python',source:'print(1)'})).status,409);
@@ -58,7 +58,7 @@ assert.equal((await call('/api/matches/'+aliceJob.matchId,'alice')).status,404);
 await queue.finish(bobJob,{result:{winner:null,reason:'fixture'},metadata:{format:'ottv2-log-v1'}});
 // Delete all covers records beyond the displayed latest 100 and cancels queued jobs.
 const next=await call('/api/practice','alice',{white:{source:'print(1)',language:'python'},black:{source:'print(1)',language:'python'},maxTurns:1});assert.equal(next.status,202);
-await prisma.match.createMany({data:Array.from({length:105},(_,i)=>({id:'HISTORY-'+i,ownerId:users.alice.id,whiteId:users.alice.id,status:'finished',config:{mapId:'small-5'}}))});
+await prisma.match.createMany({data:Array.from({length:105},(_,i)=>({id:'HISTORY-'+i,ownerId:users.alice.id,whiteId:users.alice.id,status:'finished',config:{mapId:'standard-9'}}))});
 let history=await call('/api/practice/history','alice');assert.equal(history.data.records.length,100);assert.equal(history.data.total,106);assert.ok(!('snapshot' in history.data.records[0]));
 const ratingBefore=await prisma.user.findUnique({where:{id:users.alice.id}});
 const all=await call('/api/practice/history/delete','alice',{});assert.equal(all.status,200);assert.equal(all.data.deleted,106);

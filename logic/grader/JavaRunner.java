@@ -22,6 +22,7 @@ public final class JavaRunner {
     private Team enemyTeam;
     private Soldier soldier;
     private Move pendingMove;
+    private ottv2.sdk.GameState state;
 
     Controller(BufferedReader input, String firstState) {
       this.input = input;
@@ -33,6 +34,8 @@ public final class JavaRunner {
       ArrayList<Piece> next = new ArrayList<>();
       int length = 9;
       int width = 9;
+      int totalTurns = 0;
+      int turnLimitMs = 1000;
       for (int i = 3; i < fields.length; i++) {
         if (fields[i].startsWith("@boardSize=")) {
           length = Integer.parseInt(fields[i].substring(11));
@@ -41,25 +44,28 @@ public final class JavaRunner {
         }
         if (fields[i].startsWith("@length=")) { length=Integer.parseInt(fields[i].substring(8)); continue; }
         if (fields[i].startsWith("@width=")) { width=Integer.parseInt(fields[i].substring(7)); continue; }
+        if (fields[i].startsWith("@maxTurns=")) { totalTurns=Integer.parseInt(fields[i].substring(10)); continue; }
+        if (fields[i].startsWith("@timeTurnLimit=")) { turnLimitMs=Integer.parseInt(fields[i].substring(15)); continue; }
         String[] piece = fields[i].split(",", -1);
         if (piece.length == 4) next.add(new Piece(piece[0], piece[1], piece[2], piece[3]));
       }
       color = fields[0];
       currentTurn = fields[1];
+      state = new ottv2.sdk.GameState(color, currentTurn, Integer.parseInt(fields[2]), next, length, width);
       ArrayList<Soldier> all = new ArrayList<>();
       ArrayList<Soldier> mine = new ArrayList<>();
       ArrayList<Soldier> theirs = new ArrayList<>();
       TeamType myType = "white".equals(fields[0]) ? TeamType.A : TeamType.B;
       for (int i = 0; i < next.size(); i++) {
         Piece piece = next.get(i);
-        String[] square = piece.getSquare().split("(?=\\d)");
+        String square = piece.getSquare();
         Coordinate position = new Coordinate(
-            square[0].charAt(0) - 'a', Integer.parseInt(square[1]) - 1);
+            square.charAt(0) - 'a', Integer.parseInt(square.substring(1)) - 1);
         Soldier current = new Soldier(myTypeFor(piece.getColor()), soldierTypeFor(piece.getType()), i, position);
         all.add(current);
         if (piece.getColor().equals(fields[0])) mine.add(current); else theirs.add(current);
       }
-      engine = new GameEngine(length, width, 20 * length * width, 1000, all);
+      engine = new GameEngine(length, width, (totalTurns == 0 ? 20 * length * width : totalTurns), turnLimitMs, all);
       Coordinate myFlag = parseFlag(fields, "white".equals(fields[0]) ? "white" : "black", length, width);
       Coordinate enemyFlag = parseFlag(fields, "white".equals(fields[0]) ? "black" : "white", length, width);
       team = new Team(myFlag, mine);
@@ -73,12 +79,21 @@ public final class JavaRunner {
     }
     private static Coordinate parseFlag(String[] fields, String color, int length, int width) {
       for (String field : fields) if (field.startsWith("@flag-" + color + "=")) {
-        String[] parts = field.substring(field.indexOf('=') + 1).split(",");
+        String value = field.substring(field.indexOf('=') + 1);
+        if (!value.contains(",")) return new Coordinate(value.charAt(0) - 'a', Integer.parseInt(value.substring(1)) - 1);
+        String[] parts = value.split(",");
         return new Coordinate(Integer.parseInt(parts[0]), Integer.parseInt(parts[1]));
       }
-      return new Coordinate(color.equals("white") ? length - 1 : 0, color.equals("white") ? width - 1 : 0);
+      return new Coordinate(color.equals("white") ? 0 : length - 1, color.equals("white") ? 0 : width - 1);
     }
 
+    @Override public String getColor() { return color; }
+    @Override public String getCurrentTurn() { return currentTurn; }
+    @Override public int getTurnNumber() { return state.turnNumber(); }
+    @Override public ottv2.sdk.GameState getState() { return state; }
+    @Override public java.util.List<Piece> sensePieces() { return state.pieces(); }
+    @Override public boolean canMove(String from, String to) { return state.canMove(from, to); }
+    @Override public void move(String from, String to) { submitMove(new Move(from, to)); }
     @Override public GameEngine getGameEngine() { return engine; }
     @Override public Team getTeam() { return team; }
     @Override public Team getEnemyTeam() { return enemyTeam; }

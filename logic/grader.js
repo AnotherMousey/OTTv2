@@ -127,7 +127,7 @@ async function requestMove(player, state, timeoutMs = TURN_TIMEOUT_MS) {
       const line = player.output.slice(0, newline).trim();
       player.output = player.output.slice(newline + 1);
       const [from, to] = line.split(/\s+/);
-      if (!from || !to) throw new Error('Player returned an invalid move.');
+      if (!from || !to) throw Object.assign(new Error('Player returned an invalid move.'),{code:'BOT_INVALID_MOVE'});
       return { from, to };
     }
     // Wake on output instead of imposing a 5 ms polling delay on every move.
@@ -154,6 +154,35 @@ async function stopPlayer(player) {
   await fs.rm(player.directory, { recursive: true, force: true });
 }
 
+// Illegal actions retry within one absolute thinking deadline. Only a legal move
+// consumes a turn; repeated invalid output cannot accumulate unbounded replay frames.
+async function playTurn(player, game, signal) {
+  const limit = game.config.timeTurnLimit ?? game.config.moveTimeLimitMs ?? TURN_TIMEOUT_MS;
+  game.startTurnClock?.();
+  const deadline = performance.now() + limit;
+  let invalidAttempts = 0;
+  while (true) {
+    if(signal?.aborted)throw Error('Execution cancelled.');
+    const state = game.serializeBotState(game.currentTurn);
+    const remaining = Math.ceil(deadline - performance.now());
+    if(remaining <= 0)throw Object.assign(Error(`Bot exceeded ${limit} ms thinking limit and loses.`),{code:'BOT_MOVE_TIMEOUT'});
+    let move;
+    try { move = await requestMove(player, state, remaining); }
+    catch(error) {
+      if(error.code==='BOT_INVALID_MOVE'){invalidAttempts++;continue;}
+      if(error.code==='BOT_MOVE_TIMEOUT')error.message=`Bot exceeded ${limit} ms thinking limit and loses. ${player.errors||''}`.trim();
+      throw error;
+    }
+    try {
+      game.movePiece(move.from,move.to);
+      return {move,invalidAttempts};
+    } catch (error) {
+      if(game.status !== 'active'){if(game.endReason==='timeout')throw Object.assign(Error(`Bot exceeded ${limit} ms thinking limit and loses.`),{code:'BOT_MOVE_TIMEOUT'});throw error;}
+      invalidAttempts++;
+    }
+  }
+}
+
 async function runMatch({
   matchId, whiteSource, blackSource, whiteLanguage = 'java', blackLanguage = 'java', game,
   playerFactory = compilePlayer, playerStop = stopPlayer, onFrame = async () => {}, signal,
@@ -177,34 +206,26 @@ async function runMatch({
     }
     const failure = compiled.find(outcome => outcome.status === 'rejected');
     if (failure) throw failure.reason;
-    for (let turn = 0; turn < game.config.maxTurns && game.status === 'active'; turn += 1) {
+    while (game.turnsPlayed < game.config.maxTurns && game.status === 'active') {
       if(signal?.aborted)throw Error('Execution cancelled.');
       const color = game.currentTurn;
       try {
-        const move = await requestMove(players[color], game.serializeBotState(color), game.config.moveTimeLimitMs ?? TURN_TIMEOUT_MS);
-        try {
-          game.movePiece(move.from, move.to);
-          replay.frames.push(capture(game, `${color}-move`, game.history.at(-1)));
-        } catch (error) {
-          if (game.status !== 'active') throw error;
-          game.skipTurn();
-          replay.frames.push(capture(
-            game,
-            `${color}-invalid-move: ${move.from} → ${move.to}; turn forfeited: ${error.message}`,
-            { player: color, from: move.from, to: move.to, result: 'invalid' },
-          ));
-        }
+        const attempt = await playTurn(players[color], game, signal);
+        replay.frames.push(capture(game, `${color}-move`, {
+          ...game.history.at(-1),
+          ...(attempt.invalidAttempts ? {invalidAttempts:attempt.invalidAttempts} : {}),
+        }));
       } catch (error) {
+        if(signal?.aborted)throw Error('Execution cancelled.');
         game.forfeit(color, error.code === 'BOT_MOVE_TIMEOUT' ? 'move-timeout' : 'bot-error');
+        if(error.code === 'BOT_MOVE_TIMEOUT' && game.endReason === 'timeout') game.endReason = 'move-timeout';
         replay.frames.push(capture(game, `${color}-forfeit: ${error.message}`));
         await onFrame(replay.frames.at(-1));
         break;
       }
       await onFrame(replay.frames.at(-1));
     }
-    if (game.status === 'active') {
-      game.finishAtLimit();
-    }
+    if (game.status === 'active') game.finishAtLimit();
     replay.result = result(game);
     replay.frames.push(capture(game, `Match finished: ${game.endReason || 'finished'}. Winner: ${game.winner || 'draw'}.`));
     await onFrame(replay.frames.at(-1));
@@ -214,4 +235,4 @@ async function runMatch({
   }
 }
 
-module.exports = { runMatch, compilePlayer, requestMove, stopPlayer, makePlayer };
+module.exports = { runMatch, playTurn, compilePlayer, requestMove, stopPlayer, makePlayer };
