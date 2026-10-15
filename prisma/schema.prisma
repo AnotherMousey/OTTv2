@@ -42,6 +42,8 @@ model Tournament {
   round Int @default(1)
   totalRounds Int @default(3)
   capacity Int @default(4000)
+  gameId String @default("ottv2") @db.VarChar(64)
+  gameConfig Json?
   mapId String @default("standard-9") @db.VarChar(32)
   firstSide String @default("white") @db.VarChar(8)
   maxTurns Int @default(31)
@@ -157,4 +159,18 @@ model Audit {
   metadata Json?
   createdAt DateTime @default(now())
   @@index([tournamentId,createdAt])
+}
+
+// Immutable finished-event imports. Never apply global rating deltas on import.
+model SyncReceipt {
+  tournamentId String @id @db.VarChar(64)
+  digest String @db.Char(64)
+  payload Json
+  createdAt DateTime @default(now())
+}
+model SyncPart {
+  tournamentId String @db.VarChar(64)
+  matchId String @db.VarChar(48)
+  digest String @db.Char(64)
+  @@id([tournamentId,matchId])
 }

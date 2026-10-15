@@ -1,9 +1,10 @@
 // Destructive integration checks. Use an EMPTY disposable database ending in _test.
 const {test}=require('node:test');const assert=require('node:assert/strict');
+test('MySQL auth, tournament workflow, leases and exactly-once ratings',{skip:!process.env.TEST_DATABASE_URL},async()=>{
+assert.match(new URL(process.env.TEST_DATABASE_URL).pathname,/_test$/,'Only a disposable _test database is allowed.');
+process.env.DATABASE_URL=process.env.TEST_DATABASE_URL;
 const {prisma}=require('../shared/db.cjs');const queue=require('../worker/queue.cjs');const {passwordHash}=require('../shared/domain.cjs');const {createApp}=require('../api/index.cjs');
-test('MySQL auth, tournament workflow, leases and exactly-once ratings',async()=>{
-assert.match(new URL(process.env.DATABASE_URL).pathname,/_test$/,'Only a disposable _test database is allowed.');
-for(const table of ['frame','job','entry','submission','match','tournament','session','audit','rateBucket','user'])await prisma[table].deleteMany();
+for(const table of ['syncPart','syncReceipt','frame','job','entry','submission','match','tournament','session','audit','rateBucket','user'])await prisma[table].deleteMany();
 const hash=await passwordHash('integration-password-123');const users={};for(const [username,role] of [['judge','judge'],['otherjudge','judge'],['alice','player'],['bob','player']])users[username]=await prisma.user.create({data:{username,name:username,passwordHash:hash,role}});
 const server=await new Promise(resolve=>{const s=createApp().listen(0,'127.0.0.1',()=>resolve(s));});const base='http://127.0.0.1:'+server.address().port;const tokens={};
 const call=async(path,user,body,method=body===undefined?'GET':'POST')=>{const response=await fetch(base+path,{method,headers:{'Content-Type':'application/json',...(user?{Authorization:'Bearer '+tokens[user]}:{})},...(body===undefined?{}:{body:JSON.stringify(body)})});return {status:response.status,data:await response.json()};};
@@ -22,8 +23,11 @@ assert.equal((await call(path+'/join','alice',{})).status,409);
 for(const name of ['alice','bob'])assert.equal((await call(path+'/bot',name,{filename:'bot.py',language:'python',source:'print("fixture")'})).status,202);
 assert.equal((await call(path+'/advance','judge',{})).status,409);
 const claimed=(await Promise.all([queue.claim(),queue.claim(),queue.claim()])).filter(Boolean);while(claimed.length<2){const next=await queue.claim();assert.ok(next);claimed.push(next);}assert.equal(claimed.length,2);assert.equal(new Set(claimed.filter(Boolean).map(j=>j.id)).size,2);
+const busy=claimed.shift();assert.equal(await queue.defer(busy),true);assert.equal(await queue.defer(busy),false);
+const deferred=await prisma.job.findUnique({where:{id:busy.id}});assert.equal(deferred.attempts,0);assert.equal(deferred.status,'queued');
+await prisma.job.update({where:{id:busy.id},data:{availableAt:new Date(0)}});const resumed=await queue.claim();assert.equal(resumed.id,busy.id);assert.notEqual(resumed.claim,busy.claim);claimed.push(resumed);
 for(const j of claimed.filter(Boolean))assert.equal(await queue.finish(j,{type:'validated'}),true);
-assert.equal((await call(path+'/settings','judge',{mapId:'small-5',firstSide:'white',maxTurns:31,moveTimeLimitMs:250})).status,200);assert.equal((await call(path+'/advance','judge',{})).status,409);let validation;while((validation=await queue.claim()))await queue.finish(validation,{type:'validated'});
+assert.equal((await call(path+'/settings','judge',{mapId:'standard-9',firstSide:'white',maxTurns:31,moveTimeLimitMs:250})).status,200);assert.equal((await call(path+'/advance','judge',{})).status,409);let validation;while((validation=await queue.claim()))await queue.finish(validation,{type:'validated'});
 const directory=await call('/api/tournaments?phase=preparation');assert.equal(directory.data.total,1);assert.deepEqual(directory.data.events[0].counts,{accepted:2,pending:0,botsReady:2});
 assert.equal((await call(path+'/advance','judge',{})).status,200);
 assert.equal((await call(path+'/bot','alice',{filename:'bot.py',language:'python',source:'print(1)'})).status,409);
@@ -38,7 +42,7 @@ const finished=await Promise.all([queue.finish(retry,event),queue.finish(retry,e
 const match=await prisma.match.findUnique({where:{id:job.matchId}});const winner=await prisma.user.findUnique({where:{id:match.whiteId}}),loser=await prisma.user.findUnique({where:{id:match.blackId}});assert.equal(winner.rating,1016);assert.equal(loser.rating,984);assert.equal(winner.games,1);assert.equal(loser.games,1);
 r=await call('/api/matches/'+job.matchId+'/live?runId='+job.claim+'&after=10');assert.equal(r.data.reset,true);assert.equal(r.data.frames.length,21);
 assert.equal((await call(path+'/advance','judge',{})).status,200);assert.equal((await call(path)).data.phase,'finished');assert.equal((await call('/api/matches?status=completed')).data.total,1);
-const practice=await call('/api/practice','alice',{white:{filename:'w.py',language:'python',source:'print(1)'},black:{filename:'b.py',language:'python',source:'print(1)'},maxTurns:1});assert.equal(practice.status,202);assert.equal((await call('/api/matches/'+practice.data.id,'bob')).status,403);assert.equal((await call('/api/matches/'+practice.data.id,'alice')).status,200);
+const practice=await call('/api/practice','alice',{white:{filename:'w.py',language:'python',source:'print(1)'},black:{filename:'b.py',language:'python',source:'print(1)'},maxTurns:1});assert.equal(practice.status,202);assert.equal((await prisma.match.findUnique({where:{id:practice.data.id}})).config._game.id,'ottv2');assert.equal((await call('/api/matches/'+practice.data.id,'bob')).status,403);assert.equal((await call('/api/matches/'+practice.data.id,'alice')).status,200);
 // Two match publishers run concurrently, including duplicate/out-of-order delivery.
 const bobPractice=await call('/api/practice','bob',{white:{source:'print(1)',language:'python'},black:{source:'print(1)',language:'python'},maxTurns:1});assert.equal(bobPractice.status,202);
 const activeJobs=[await queue.claim(),await queue.claim()];const aliceJob=activeJobs.find(j=>j.matchId===practice.data.id),bobJob=activeJobs.find(j=>j.matchId===bobPractice.data.id);assert.ok(aliceJob&&bobJob);
@@ -58,7 +62,7 @@ assert.equal((await call('/api/matches/'+aliceJob.matchId,'alice')).status,404);
 await queue.finish(bobJob,{result:{winner:null,reason:'fixture'},metadata:{format:'ottv2-log-v1'}});
 // Delete all covers records beyond the displayed latest 100 and cancels queued jobs.
 const next=await call('/api/practice','alice',{white:{source:'print(1)',language:'python'},black:{source:'print(1)',language:'python'},maxTurns:1});assert.equal(next.status,202);
-await prisma.match.createMany({data:Array.from({length:105},(_,i)=>({id:'HISTORY-'+i,ownerId:users.alice.id,whiteId:users.alice.id,status:'finished',config:{mapId:'small-5'}}))});
+await prisma.match.createMany({data:Array.from({length:105},(_,i)=>({id:'HISTORY-'+i,ownerId:users.alice.id,whiteId:users.alice.id,status:'finished',config:{mapId:'standard-9'}}))});
 let history=await call('/api/practice/history','alice');assert.equal(history.data.records.length,100);assert.equal(history.data.total,106);assert.ok(!('snapshot' in history.data.records[0]));
 const ratingBefore=await prisma.user.findUnique({where:{id:users.alice.id}});
 const all=await call('/api/practice/history/delete','alice',{});assert.equal(all.status,200);assert.equal(all.data.deleted,106);

@@ -160,6 +160,11 @@ class _piece:
         self._type = type
         self._square = square
 
+    id = property(lambda self: self._id)
+    color = property(lambda self: self._color)
+    type = property(lambda self: self._type)
+    square = property(lambda self: self._square)
+
     def getId(self):
         return self._id
 
@@ -190,6 +195,15 @@ class State:
         self._engine = engine
         self._team = own_team
         self._enemy_team = enemy_team
+
+    # Read-only legacy fields coexist with the current getter API.
+    color = property(lambda self: self._color)
+    current_turn = property(lambda self: self._current_turn)
+    turn_number = property(lambda self: self._turn_number)
+    board_size = property(lambda self: self._board_size)
+    length = property(lambda self: self._length)
+    width = property(lambda self: self._width)
+    pieces = property(lambda self: self._pieces)
 
     def getColor(self):
         return self._color
@@ -268,18 +282,23 @@ def read_state():
     own_team_id = A if fields[0] == "white" else B
     own = tuple(item for item in soldiers if item.getTeamType() == own_team_id)
     enemy = tuple(item for item in soldiers if item.getTeamType() != own_team_id)
-    engine = gameEngine(coordinate(length, width), 20 * length * width, 1000, soldiers)
+    total_turns = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@maxTurns=")), 20 * length * width)
+    turn_ms = next((int(f.split("=", 1)[1]) for f in fields[3:] if f.startswith("@timeTurnLimit=")), 1000)
+    engine = gameEngine(coordinate(length, width), total_turns, turn_ms, soldiers)
     own_flag = _parse_flag(fields[3:], fields[0], length, width)
     enemy_color = "black" if fields[0] == "white" else "white"
     enemy_flag = _parse_flag(fields[3:], enemy_color, length, width)
     return State(
-        fields[0], fields[1], int(fields[2]), pieces, size, length, width,
+        fields[0], fields[1], int(fields[2]), pieces, length, length, width,
         engine, team(own_flag, own), team(enemy_flag, enemy),
     )
 
 
 def yield_turn(next_move):
-    print(next_move.getFrom(), next_move.getTo(), flush=True)
+    if isinstance(next_move, (tuple, list)) and len(next_move) == 2:
+        print(next_move[0], next_move[1], flush=True)
+    else:
+        print(next_move.getFrom(), next_move.getTo(), flush=True)
 
 
 # Java-compatible names. The legacy lowercase names remain available.

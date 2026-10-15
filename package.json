@@ -19,7 +19,16 @@
     "test:db": "node --test services/tests/database.integration.cjs",
     "db:accounts": "node services/api/accounts.cjs",
     "worker:docker": "node scripts/start-railway-worker.cjs",
-    "queue:check": "node scripts/check-queue.cjs"
+    "queue:check": "node scripts/check-queue.cjs",
+    "offline:prepare": "node scripts/prepare-offline.cjs",
+    "offline": "node scripts/offline.cjs",
+    "sync": "node scripts/tournament-sync.cjs",
+    "benchmark:pairing": "node scripts/benchmark-pairing.cjs",
+    "test:sync:db": "node --test services/tests/sync.integration.cjs",
+    "deployment:check": "node scripts/check-deployment.cjs",
+    "db:status": "prisma migrate status",
+    "test:deployment:db": "node --test services/tests/schema-drift.integration.cjs",
+    "db:diff": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

@@ -1,22 +1,104 @@
-const Engine = require('./ottv2/engine');
-const {buildConfig} = require('./ottv2/config');
-const fs = require('fs');
-const path = require('path');
-function resolveGame(gameId='ottv2') {
-  if (gameId !== 'ottv2') throw Error(`Unsupported judge game: ${gameId}`);
-  return {create:(config={},mode='room')=>new Engine(config,mode)};
+// Only operator-installed code can become a game plugin. Requests never load paths.
+const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const plugins = new Map();
+
+function registerGame(plugin, files = []) {
+  const requiredMethods = [
+    'configure',
+    'score',
+    'validate',
+    'run',
+    'specification',
+    'deadlineMs',
+  ];
+
+  if (
+    !plugin?.identity ||
+    typeof plugin.identity.id !== 'string' ||
+    !requiredMethods.every(method => typeof plugin[method] === 'function')
+  ) {
+    throw Error('Invalid game plugin contract.');
+  }
+
+  if (plugins.has(plugin.identity.id)) {
+    throw Error('Duplicate game plugin.');
+  }
+
+  const hash = crypto.createHash('sha256');
+
+  for (const file of [...files, ...(plugin.artifacts || [])]) {
+    const bytes = fs.readFileSync(file);
+
+    hash.update(String(bytes.length) + ':');
+    hash.update(bytes);
+  }
+
+  if (!files.length && !plugin.artifacts?.length) {
+    for (const method of requiredMethods) {
+      hash.update(plugin[method].toString());
+    }
+  }
+
+  plugins.set(plugin.identity.id, {
+    ...plugin,
+    identity: {
+      ...plugin.identity,
+      libraryDigest: hash.digest('hex'),
+    },
+  });
 }
-function maps() {
-  const dir=path.resolve(__dirname,'../../samples/maps');
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter(f=>f.endsWith('.json')).sort().map(file=>({id:file.replace(/\.json$/,''),config:JSON.parse(fs.readFileSync(path.join(dir,file),'utf8'))}));
+
+registerGame(
+  require('./ottv2/plugin.cjs'),
+  [
+    './ottv2/plugin.cjs',
+    './ottv2/engine.js',
+    './ottv2/config.js',
+    './ottv2/utils.js',
+    './ottv2/constants.js',
+    '../grader.js',
+    '../protocol.js',
+    '../replay-log.js',
+  ].map(file => path.resolve(__dirname, file)),
+);
+
+if (process.env.GAME_PLUGIN_MODULE) {
+  const file = path.resolve(process.env.GAME_PLUGIN_MODULE);
+
+  registerGame(require(file), [file]);
 }
-function resolveConfig(mapId,config,mode) {
-  let base={};
-  if (mapId) {const map=maps().find(m=>m.id===mapId);if(!map)throw Error('Map not found.');base=map.config;}
-  return buildConfig({...base,...(config || {})},mode);
+
+function resolveGame(gameId = 'ottv2') {
+  const plugin = plugins.get(gameId);
+
+  if (!plugin) {
+    throw Error(`Unsupported judge game: ${gameId}`);
+  }
+
+  return plugin;
 }
-function specification() {
-  return {protocolVersion:2,gameId:'ottv2',rendererVersion:'1',rulesVersion:'ottv2-rules-v1',title:'OTTv2',board:{kind:'grid',minLength:9,maxLength:20,minWidth:9,maxWidth:20},pieceTypes:['rock','paper','scissors'],players:['white','black'],languages:['java','cpp','python'],defaultBotConfig:buildConfig({},'bot'),maps:maps(),rules:{movement:'one-square-eight-directions',capture:'rock > scissors > paper > rock; same type blocks',victory:'Reach the enemy flag or eliminate all enemy soldiers',limit:'count, nearest Manhattan distance, total Manhattan distance, then rock-paper-scissors',turn:'one second; invalid moves do not end the turn'}};
+
+// Compatibility API retained for legacy room consumers.
+function resolveConfig(mapId, config, mode) {
+  try { return resolveGame().configure(
+    {
+      ...config,
+      ...(mapId ? { mapId } : {}),
+    },
+    mode,
+  ); } catch(error) { error.status=400; throw error; }
 }
-module.exports={resolveGame,resolveConfig,specification};
+
+function specification(gameId = 'ottv2') {
+  return resolveGame(gameId).specification();
+}
+
+module.exports = {
+  resolveGame,
+  resolveConfig,
+  specification,
+  registerGame,
+};

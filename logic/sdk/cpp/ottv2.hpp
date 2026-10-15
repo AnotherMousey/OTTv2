@@ -97,7 +97,7 @@ public:
   void setSoldiers(std::vector<soldier> value) { soldiers = std::move(value); }
 };
 struct Piece {
-private:
+public: // Legacy data fields remain available alongside getters.
   std::string id, color, type, square;
 public:
   Piece() = default;
@@ -110,11 +110,12 @@ public:
   const std::string& getSquare() const { return square; }
 };
 struct State {
-private:
+public: // Legacy data fields remain available alongside getters.
   std::string color, current_turn;
   int turn_number{};
   int board_size{9};
   int length{9}, width{9};
+  int total_turns{}, turn_ms{1000};
   std::vector<Piece> pieces;
   gameEngine engine;
   team own_team, enemy_team;
@@ -157,6 +158,8 @@ inline State read_state(std::istream& input) {
   state.setTurnNumber(std::stoi(values[2]));
   for (size_t i = 3; i < values.size(); ++i) {
     if (values[i].rfind("@boardSize=",0)==0) {state.setBoardSize(std::stoi(values[i].substr(11)));continue;}
+    if (values[i].rfind("@maxTurns=",0)==0) {state.total_turns=std::stoi(values[i].substr(10));continue;}
+    if (values[i].rfind("@timeTurnLimit=",0)==0) {state.turn_ms=std::stoi(values[i].substr(15));continue;}
     if (values[i].rfind("@length=",0)==0) {state.setLength(std::stoi(values[i].substr(8)));continue;}
     if (values[i].rfind("@width=",0)==0) {state.setWidth(std::stoi(values[i].substr(7)));continue;}
     if (values[i].rfind("@flag-white=",0)==0) {
@@ -198,8 +201,9 @@ inline State read_state(std::istream& input) {
     if (piece.getColor() == state.getColor()) own.push_back(current);
     else enemy.push_back(current);
   }
+  state.setBoardSize(state.getLength());
   state.setGameEngine(gameEngine(coordinate(state.getLength(), state.getWidth()),
-    20 * state.getLength() * state.getWidth(), 1000, std::move(all)));
+    (state.total_turns ? state.total_turns : 20 * state.getLength() * state.getWidth()), state.turn_ms, std::move(all)));
   state.setTeam(team(state.getColor() == "white" ? white_flag : black_flag, std::move(own)));
   state.setEnemyTeam(team(state.getColor() == "white" ? black_flag : white_flag, std::move(enemy)));
   return state;

@@ -1,3 +1,4 @@
+import {supportedMaps,mapMoveLimit} from './games/ottv2/settings.js';
 import {describeMove} from './moveLog.js';
 import {useAccounts} from './PreviewAccounts.jsx';
 import {MatchLoading} from './MatchLoading.jsx';
@@ -646,14 +647,15 @@ export function Submission({ bot, save, prepare }) {
     [matchId, setMatchId] = useState(""),
     [busy, setBusy] = useState(false);
   const handedOff=useRef(false);
-  const [spec,setSpec] = useState(null), [mapId,setMapId] = useState('standard-9'), [maxTurns,setMaxTurns] = useState(31), [thinkingSeconds,setThinkingSeconds] = useState(2), [firstSide,setFirstSide] = useState('white');
+  const [spec,setSpec] = useState(null), [mapId,setMapId] = useState('standard-9'), [thinkingSeconds,setThinkingSeconds] = useState(1), [firstSide,setFirstSide] = useState('white');
   useEffect(()=>{
     if(window.__OFFLINE_PREVIEW__) return;
     const controller=new AbortController();
     getGameSpecification(controller.signal).then(setSpec).catch(()=>{});
     return ()=>controller.abort();
   },[]);
-  const maps=spec?.maps || bundledMaps;
+  const maps=supportedMaps(spec?.maps || bundledMaps);
+  const maxTurns=mapMoveLimit(maps,mapId);
   const submit = async (e) => {
     e.preventDefault();
     if (!white.trim() || !black.trim()) {
@@ -704,7 +706,7 @@ export function Submission({ bot, save, prepare }) {
           <p>{window.__OFFLINE_PREVIEW__?'Set up a practice match. This does not submit a tournament bot.':'Choose a language and map. The backend validates moves and records the result.'}</p>
           <label>Map<select value={mapId} onChange={e=>setMapId(e.target.value)}>{maps.map(m=><option key={m.id} value={m.id}>{m.config.mapName}</option>)}</select></label>
           <label>Thinking seconds / move<input type="number" min="0.1" max="10" step="0.1" required value={thinkingSeconds} onChange={e=>setThinkingSeconds(e.target.value)}/></label>
-          <label>Turn limit<input type="number" min="1" max="500" value={maxTurns} onChange={e=>setMaxTurns(e.target.value)} required /></label>
+          <label>Turn limit<input type="number" min="1" max="8000" value={maxTurns} readOnly title="Determined by the selected game and map" required /></label>
           <label>First side<select value={firstSide} onChange={e=>setFirstSide(e.target.value)}><option value="white">White</option><option value="black">Black</option></select></label>
           <label>
             White language
