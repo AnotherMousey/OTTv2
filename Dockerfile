@@ -36,4 +36,4 @@ USER node
 
 EXPOSE 10000
 
-CMD ["node", "services/api/index.cjs"]
+CMD ["sh", "-c", "node scripts/migrate.cjs && node services/api/index.cjs"]
