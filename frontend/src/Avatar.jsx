@@ -6,10 +6,10 @@ export const eyes=[['bright','Bright'],['sparkle','Sparkling'],['happy','Happy']
 export const mouths=[['smile','Smile'],['grin','Grin'],['neutral','Neutral'],['wow','Wow'],['tongue','Playful'],['smirk','Smirk'],['teeth','Teeth'],['sad','Sad']];
 export const cheeks=[['none','None'],['blush','Blush'],['freckles','Freckles']];
 export const accessories=[['none','None'],['glasses','Glasses'],['shades','Shades'],['mustache','Mustache'],['bow','Bow tie'],['bandage','Bandage'],['monocle','Monocle'],['flower','Flower']];
-export function Avatar({look=defaults,emotion,pose='idle',className=''}){
+export function Avatar({look=defaults,emotion,pose='idle',className='',portrait=false}){
  const a={...defaults,...look};const e=emotion==='win'?'happy':emotion==='lose'?'cry':emotion==='draw'?'wow':a.eyes;
  const m=emotion==='win'?'grin':emotion==='lose'?'sad':emotion==='draw'?'wow':a.mouth;
- return <svg viewBox="0 0 48 64" className={`avatar ${className}`} shapeRendering="crispEdges" aria-hidden="true" data-emotion={emotion||'custom'} data-pose={pose}>
+ return <svg viewBox={portrait?"6 0 36 38":"0 0 48 64"} className={`avatar ${className}`} shapeRendering="crispEdges" aria-hidden="true" data-emotion={emotion||'custom'} data-pose={pose}>
  <ellipse cx="24" cy="61" rx="14" ry="2" fill="currentColor" opacity=".12"/>
  <g className="avatar-person" fill="#171725">
  <g className="avatar-leg left"><path d="M17 46h5v12h-2v3h-7v-3h4z"/></g><g className="avatar-leg right"><path d="M27 46h5v12h4v3h-9z"/></g>

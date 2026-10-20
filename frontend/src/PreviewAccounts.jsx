@@ -15,6 +15,7 @@ export function PreviewAccounts({children}){
  return()=>{active=false;clearInterval(timer);window.removeEventListener('ott-session-expired',expired);};},[]);
  async function login(username,password){setError('');return loginWithRefresh({authenticate,username,password,onAuthenticated:setUser,refresh:async()=>{await loadDirectory();await refresh();},onRefreshError:e=>setError('Logged in. Tournament data could not load: '+e.message)});}
  async function logout(){setUser(null);try{await signOut();}catch(e){setError(e.message);}}
+ async function saveAppearance(appearance){const data=await post('/api/auth/appearance',{appearance});setUser(data.account);setRankings(current=>current.map(p=>p.id===data.account.id?{...p,appearance:data.account.appearance}:p));setTournament(current=>({...current,players:current.players.map(p=>p.id===data.account.id?{...p,appearance:data.account.appearance}:p)}));return data.account;}
  async function selectEvent(id){selected.current=id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};try{await refresh();return true;}catch(e){setError(e.message);return false;}}
  async function mutate(path,body){if(busy)return false;setBusy(true);setError('');try{await post(`/api/tournaments/${selected.current}/${path}`,body);await Promise.all([refresh(),loadDirectory()]);return true;}catch(e){setError(e.message);throw e;}finally{setBusy(false);}}
  const action=(path,body)=>()=>mutate(path,body).catch(()=>{});
@@ -22,6 +23,6 @@ export function PreviewAccounts({children}){
  const create=async values=>{setBusy(true);try{const data=await post('/api/tournaments',values);selected.current=data.id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};await loadDirectory();await refresh();return true;}catch(e){setError(e.message);return false;}finally{setBusy(false);}};
  const saveBot=bot=>mutate('bot',{filename:bot.name,language:({Python:'python',Java:'java','C++':'cpp'}[bot.language]||bot.language),source:bot.source});
  const paginate=async(type,offset)=>{pages.current={...pages.current,[type]:offset};setBusy(true);try{await refresh();}catch(e){setError(e.message);}finally{setBusy(false);}};
- return <Context.Provider value={{user,login,logout,events,eventTotal,tournament,rankings,rankPage,error,busy,loading,selectEvent,create,saveBot,join:action('join'),review,approveAll:action('review',{all:true,accept:true}),advance:action('advance'),configure:values=>mutate('settings',values).catch(()=>{}),paginate,loadMore:()=>loadDirectory(events.length).catch(e=>setError(e.message)),refresh}}>{children}</Context.Provider>;
+ return <Context.Provider value={{user,login,logout,saveAppearance,events,eventTotal,tournament,rankings,rankPage,error,busy,loading,selectEvent,create,saveBot,join:action('join'),review,approveAll:action('review',{all:true,accept:true}),advance:action('advance'),configure:values=>mutate('settings',values).catch(()=>{}),paginate,loadMore:()=>loadDirectory(events.length).catch(e=>setError(e.message)),refresh}}>{children}</Context.Provider>;
 }
 export function useAccounts(){return useContext(Context);}

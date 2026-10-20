@@ -11,6 +11,7 @@ model User {
   name         String @db.VarChar(80)
   passwordHash String @db.VarChar(200)
   role         String @default("player") @db.VarChar(12)
+  appearance   Json?
   active       Boolean @default(true)
   rating       Int @default(1000)
   games        Int @default(0)

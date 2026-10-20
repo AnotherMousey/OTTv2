@@ -1,6 +1,6 @@
 import {CharacterStudio} from './CharacterStudio.jsx';
 import {StudioTournaments} from './StudioTournaments.jsx';
-import {MotionControl,useDecorativeVisibility} from './MotionPreferences.jsx';
+import {MotionEnvironment,useDecorativeVisibility} from './MotionPreferences.jsx';
 import {MyBot} from './BotSubmission.jsx';
 import {WatchLive} from './WatchLive.jsx';
 import './tournamentExtensions.css';
@@ -95,6 +95,7 @@ function App() {
   };
   return (
     <>
+      <MotionEnvironment/>
       {preparation&&createPortal(<div className="submission-loading-overlay"><MatchLoading stage={preparation.stage} matchId={preparation.matchId} preview={Boolean(window.__OFFLINE_PREVIEW__)}/></div>,document.body)}
       <header className="header">
         <a className="brand" href="#home">
@@ -146,7 +147,7 @@ function App() {
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        OTT ARENA{" "}<span>{user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span><MotionControl/>
+        OTT ARENA{" "}<span>{user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span>
       </div>
       <main className="page" key={page}>
         {page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (

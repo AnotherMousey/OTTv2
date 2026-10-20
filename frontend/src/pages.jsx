@@ -1,3 +1,4 @@
+import {ParticipantAvatar} from './ParticipantAvatar.jsx';
 import {supportedMaps,mapMoveLimit} from './games/ottv2/settings.js';
 import {describeMove} from './moveLog.js';
 import {useAccounts} from './PreviewAccounts.jsx';
@@ -20,7 +21,7 @@ import { createBotMatch, submitBot, getGameSpecification, startPractice } from "
 import { Button, Landscape, ranks } from "./ui";
 export function Home({ go, bot }) {
   const {user,rankings,tournament}=useAccounts();
-  const ranks=rankings.map(p=>[p.name,p.rating]);
+  const ranks=rankings.map(p=>[p.name,p.rating,p.id,p.appearance]);
   return (
     <>
       <section className="hero">
@@ -118,10 +119,10 @@ export function Home({ go, bot }) {
             <h3>TOP OF THE TABLE</h3>
             <span>02</span>
           </div>
-          {ranks.slice(0, 3).map(([name, elo], i) => (
-            <div className="rank-row" key={name}>
+          {ranks.slice(0, 3).map(([name, elo, id, appearance], i) => (
+            <div className="rank-row" key={id||name}>
               <b className="rank-number">0{i + 1}</b>
-              <Pixel side={i % 2 ? "black" : "white"} />
+              <ParticipantAvatar participant={{id,name,appearance}}/>
               <span>{name}</span>
               <b>{elo}</b>
             </div>
