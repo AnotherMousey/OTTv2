@@ -7,6 +7,7 @@ const tournaments=require('./tournaments.cjs'),bots=require('./bots.cjs'),matche
 const sync=require('../sync/service.cjs');
 const practiceHistory=require('./practice-history.cjs');
 const appearance=require('./appearance.cjs');
+const tournamentRounds=require('./tournament-rounds.cjs');
 const {specification}=require('../../logic/games/registry');
 function createApp(){const app=express();app.disable('x-powered-by');app.set('trust proxy',1);const origins=(process.env.ALLOWED_ORIGINS||'http://localhost:5173,http://127.0.0.1:5173').split(',').map(v=>v.trim());
 app.use((req,res,next)=>{res.set({'X-Content-Type-Options':'nosniff','Cache-Control':'no-store'});const origin=req.headers.origin;if(origin){if(!origins.includes(origin))return res.status(403).json({error:'Frontend origin is not allowed.'});res.set({'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Headers':'Content-Type, Authorization, If-None-Match','Access-Control-Expose-Headers':'ETag','Access-Control-Allow-Methods':'GET, POST, PATCH, DELETE, OPTIONS','Access-Control-Max-Age':'600'});}if(req.method==='OPTIONS')return res.status(204).end();next();});
@@ -33,6 +34,7 @@ app.get('/api/tournaments',tournaments.list);app.post('/api/tournaments',auth,ju
 // A supplied session is checked even on an otherwise public tournament read.
 const optionalAuth=(req,res,next)=>req.headers.authorization?auth(req,res,next):next();
 app.get('/api/tournaments/:id',optionalAuth,tournaments.state);app.get('/api/tournaments/:id/rankings',tournaments.rankings);
+app.get('/api/tournaments/:id/rounds',tournamentRounds.list);
 app.post('/api/tournaments/:id/join',auth,tournaments.join);app.post('/api/tournaments/:id/review',auth,judge,tournaments.review);app.post('/api/tournaments/:id/settings',auth,judge,tournaments.settings);app.post('/api/tournaments/:id/advance',auth,judge,tournaments.advance);app.post('/api/tournaments/:id/bot',auth,bots.submit);app.get('/api/tournaments/:id/bots',auth,bots.history);
 // POST actions also work with previously cached CORS method allowlists.
 app.post('/api/practice/history/delete',auth,practiceHistory.remove);app.post('/api/practice/history/:id/delete',auth,practiceHistory.remove);
