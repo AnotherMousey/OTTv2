@@ -1,5 +1,7 @@
+import {CharacterStudio} from './CharacterStudio.jsx';
+import {StudioTournaments} from './StudioTournaments.jsx';
+import {MotionControl,useDecorativeVisibility} from './MotionPreferences.jsx';
 import {MyBot} from './BotSubmission.jsx';
-import {TournamentDirectory} from './TournamentWorkspace.jsx';
 import {WatchLive} from './WatchLive.jsx';
 import './tournamentExtensions.css';
 import {PreviewAccounts,useAccounts} from './PreviewAccounts.jsx';
@@ -12,6 +14,7 @@ import { createRoot } from "react-dom/client";
 import "./style.css";
 import "./refinements.css";
 import "./approvedDesign.css";
+import "./studio.css";
 import { Pixel } from "./Pixel";
 import { Button } from "./ui";
 import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
@@ -61,6 +64,7 @@ function App() {
         };
       }
     });
+  useDecorativeVisibility(page);
   const go = (p) => {
     if (p === 'match') {
       const url = new URL(location.href); url.searchParams.delete('match');url.searchParams.delete('room');url.hash='match';
@@ -142,15 +146,15 @@ function App() {
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        OTT ARENA{" "}<span>{user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span>
+        OTT ARENA{" "}<span>{user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span><MotionControl/>
       </div>
       <main className="page" key={page}>
-        {page === "home" ? (
+        {page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
           <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
         ) : page === "tournaments" ? (
-          <TournamentDirectory go={go}/>
+          <StudioTournaments go={go}/>
         ) : page.startsWith("watch") ? (
           <WatchLive go={go} route={page}/>
         ) : page === "rankings" ? (
@@ -160,7 +164,7 @@ function App() {
         ) : page === "submissions" ? (
           user?.role==='player'||(user&&user.role!=='judge') ? <SubmissionHistory go={go}/> : <LoginGate go={go}/>
         ) : page === "practice" ? (
-          user&&user.role!=='judge' ? <Submission bot={bot} save={saveBot} prepare={prepare}/> : <TournamentDirectory go={go}/>
+          user&&user.role!=='judge' ? <Submission bot={bot} save={saveBot} prepare={prepare}/> : <StudioTournaments go={go}/>
         ) : page === "tournament" ? (
           <TournamentAccountPage go={go} />
         ) : page === "login" ? (

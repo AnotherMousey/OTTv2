@@ -15,7 +15,7 @@ export function PreviewAccounts({children}){
  return()=>{active=false;clearInterval(timer);window.removeEventListener('ott-session-expired',expired);};},[]);
  async function login(username,password){setError('');return loginWithRefresh({authenticate,username,password,onAuthenticated:setUser,refresh:async()=>{await loadDirectory();await refresh();},onRefreshError:e=>setError('Logged in. Tournament data could not load: '+e.message)});}
  async function logout(){setUser(null);try{await signOut();}catch(e){setError(e.message);}}
- async function selectEvent(id){selected.current=id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};try{await refresh();}catch(e){setError(e.message);}}
+ async function selectEvent(id){selected.current=id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};try{await refresh();return true;}catch(e){setError(e.message);return false;}}
  async function mutate(path,body){if(busy)return false;setBusy(true);setError('');try{await post(`/api/tournaments/${selected.current}/${path}`,body);await Promise.all([refresh(),loadDirectory()]);return true;}catch(e){setError(e.message);throw e;}finally{setBusy(false);}}
  const action=(path,body)=>()=>mutate(path,body).catch(()=>{});
  const review=(id,accept)=>mutate('review',{userId:id,accept}).catch(()=>{});
