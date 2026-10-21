@@ -9,14 +9,17 @@ import {TournamentWorkspace,EventPicker} from './TournamentWorkspace.jsx';
 const signed=n=>n>0?`+${n}`:String(n);
 export function LoginGate({go}){return <section className="card account-gate"><Pixel className="heading-sprite"/><span className="eyebrow">ORGANIZER ACCOUNT</span><h1>LOG IN TO CONTINUE</h1><p>Use the account provided by your tournament organizer.</p><Button onClick={()=>go('login')}>Log in ↗</Button></section>;}
 export function LoginPage({go}){
- const {login}=useAccounts(),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const {login,user,authChecking}=useAccounts(),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ useEffect(()=>{if(user&&!authChecking)go(user.role==='judge'?'tournaments':'tournament');},[user,authChecking]);
  async function submit(e){e.preventDefault();setError('');setBusy(true);try{const account=await login(username,password);go(account.role==='judge'?'tournaments':'tournament');}catch(e){setError(e.message);}finally{setBusy(false);}}
+ if(user)return <section className="card account-gate" role="status" aria-busy="true"><h1>OPENING WORKSPACE</h1><p>You are logged in.</p></section>;
  return <div className="account-login-layout"><section className="login-intro"><span className="eyebrow">OTTv2 / TOURNAMENT ACCOUNTS</span><h1>YOUR ACCOUNT<br/>YOUR NEXT MOVE<span className="yellow-dot">.</span></h1><p>Your organizer gives you an account. Log in, join the tournament, and let the judge assign your opponent.</p><LoginDuel/><span className="account-note">Accounts are issued by the organizer.</span></section><form className="card account-login-form" onSubmit={submit}><span className="eyebrow">WELCOME BACK</span><h2>LOG IN</h2><label>Username<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} required disabled={busy}/></label><label>Password<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required disabled={busy}/></label>{error&&<p className="error" role="alert">{error}</p>}<Button type="submit" disabled={busy}>{busy?'Checking account…':<>Log in <span className="pixel-arrow" aria-hidden="true"/></>}</Button><p className="account-note">Need account help? Contact your organizer.</p></form></div>;
 }
 export function AccountControl({go}){
- const {user,logout}=useAccounts(),[open,setOpen]=useState(false);
+ const {user,logout,authChecking}=useAccounts(),[open,setOpen]=useState(false);
  const trigger=useRef(null);
  useEffect(()=>{if(!open)return;const close=e=>{if(e.key==='Escape'){setOpen(false);trigger.current?.focus();}};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[open]);
+ if(authChecking)return <span role="status">Checking session…</span>;
  if(!user)return <Button onClick={()=>go('login')}>Log in</Button>;
  return <div className="account-control"><button ref={trigger} className="account-chip" aria-expanded={open} aria-label="Open account menu" onClick={()=>setOpen(!open)}><PlayerAvatar/><span>{user.name}<small>{user.role==='judge'?'JUDGE ACCOUNT':`${user.rating} ELO / PLAYER`}</small></span><span className="pixel-chevron" aria-hidden="true"/></button>{open&&<div className="account-menu"><span className="account-menu-role">{user.role==='judge'?'Judge workspace':'Player workspace'}</span>{user.role!=='judge'&&<button onClick={()=>{go('practice');setOpen(false);}}>Practice match</button>}{user.role!=='judge'&&<button onClick={()=>{go('submissions');setOpen(false);}}>Practice history</button>}<button onClick={()=>{go('customize');setOpen(false);}}>Customize character</button><button onClick={()=>{logout();setOpen(false);go('login');}}>Sign out</button></div>}</div>;
 }

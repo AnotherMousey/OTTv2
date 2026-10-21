@@ -21,7 +21,7 @@ import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
 import { initialTheme, persistTheme } from "./theme";
 
 function App() {
-  const {user}=useAccounts();
+  const {user,authChecking,loading}=useAccounts();
   const [preparation,setPreparation]=useState(null);
   const prepare=useCallback((stage,matchId)=>setPreparation(current=>stage?{stage,matchId:matchId||current?.matchId}:null),[]);
   const [theme, setTheme] = useState(() => {
@@ -147,10 +147,14 @@ function App() {
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        OTT ARENA{" "}<span>{user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span>
+        OTT ARENA{" "}<span>{authChecking?'Checking session':user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span>
       </div>
       <main className="page" key={page}>
-        {page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (
+        {authChecking ? (
+          <section className="card account-gate" role="status" aria-live="polite" aria-busy="true"><h1>CHECKING SESSION</h1><p>Verifying your saved login…</p></section>
+        ) : loading&&['tournament','tournaments','mybot','rankings','submissions'].includes(page) ? (
+          <section className="card account-gate" role="status" aria-live="polite" aria-busy="true"><h1>LOADING TOURNAMENTS</h1><p>{user?'You are logged in. Fetching your tournament workspace…':'Fetching tournament data…'}</p></section>
+        ) : page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
           <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>
