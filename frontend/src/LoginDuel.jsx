@@ -13,10 +13,11 @@ export function LoginDuel(){
  const running=active&&onscreen;
  useEffect(()=>{if(!running)return;const timer=setTimeout(()=>{if(phase===phases.length-1){setRound(r=>r+1);setPhase(0);}else setPhase(p=>p+1);},duration[phase]);return()=>clearTimeout(timer);},[running,phase,round]);
  const [left,right]=rounds[round%rounds.length],winner=duelResult(left,right),revealed=phase>=2||reduce,resolved=phase>=3||reduce;
- let gold=0,blue=0;for(let i=0;i<round%rounds.length;i++){const result=duelResult(...rounds[i]);gold+=result==='gold';blue+=result==='blue';}if(resolved){gold+=winner==='gold';blue+=winner==='blue';}
+ // Repeat the choreography, but retain wins from every completed cycle.
+ let gold=Math.floor(round/rounds.length)*2,blue=Math.floor(round/rounds.length)*2;for(let i=0;i<round%rounds.length;i++){const result=duelResult(...rounds[i]);gold+=result==='gold';blue+=result==='blue';}if(resolved){gold+=winner==='gold';blue+=winner==='blue';}
  const emotion=side=>resolved?(winner==='draw'?'draw':winner===side?'win':'lose'):undefined;
  return <section className="duel-scene" ref={ref} data-phase={phases[phase]} data-running={running} data-onscreen={onscreen} data-reduced={reduce} data-winner={resolved?winner:'none'} aria-label="Decorative rock paper scissors duel">
- <div className="duel-heading"><span className="eyebrow">A FRIENDLY RIVALRY</span><span className="duel-round">ROUND {String(round%rounds.length+1).padStart(2,'0')}</span></div>
+ <div className="duel-heading"><span className="eyebrow">A FRIENDLY RIVALRY</span><span className="duel-round">ROUND {String(round+1).padStart(2,'0')}</span></div>
  <div className="duel-stage"><span className="duel-star one"/><span className="duel-star two"/><div className="duel-floor"/>
  {['gold','blue'].map((side,i)=><div className={`duel-contender ${side}`} key={side} data-emotion={emotion(side)||'ready'}>
  <div className={`duel-bubble ${revealed?'revealed':''}`} aria-hidden="true">{revealed?<Pixel kind={i?right:left} side={i?'black':'white'}/>:<span className="duel-ellipsis">· · ·</span>}</div>

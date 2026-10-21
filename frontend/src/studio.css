@@ -174,3 +174,13 @@ input[type=file]::file-selector-button{font:inherit;color:var(--ink);background:
 .account-rankings .participant-avatar{margin-right:12px}
 .account-avatar{display:inline-flex;align-items:center;justify-content:center;flex:none}
 @media(max-width:600px){.rank-row>.participant-avatar{width:32px;height:36px;flex-basis:32px}.account-chip .account-avatar .avatar{width:30px;height:40px}}
+
+/* Keep password visibility beside its input, using the existing pixel palette. */
+.account-login-form .login-password-field{margin-bottom:20px}
+.account-login-form .login-password-field label{margin-bottom:8px}
+.account-login-form .login-password-control{display:flex;align-items:stretch;border:1px solid var(--border);background:var(--paper)}
+.account-login-form .login-password-control input{min-width:0;flex:1;border:0}
+.account-login-form .login-password-toggle{min-width:64px;min-height:44px;padding:8px 12px;border:0;border-left:1px solid var(--border);background:var(--surface);color:var(--ink);font:inherit;font-size:12px;cursor:pointer}
+.account-login-form .login-password-toggle:hover:not(:disabled){background:var(--paper)}
+.account-login-form .login-password-toggle:focus-visible{outline:2px solid var(--studio-accent);outline-offset:2px;z-index:1}
+.account-login-form .login-password-toggle:disabled{opacity:.6;cursor:wait}
