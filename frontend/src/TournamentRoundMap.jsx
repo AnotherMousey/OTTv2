@@ -1,48 +1,150 @@
-import React,{useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
-import {useAccounts} from './PreviewAccounts.jsx';
-import {request,post} from './api/platformApi.js';
-import {ParticipantAvatar} from './ParticipantAvatar.jsx';
-import {outcome,statusLabel,columnState,visibleMatches} from './roundMapModel.js';
-import './tournamentRoundMap.css';
-export function TournamentRoundMap({go,defaultStatus='all',defaultView='map'}){
- const {tournament,user}=useAccounts();
- return <RoundMap key={tournament.id+defaultStatus} tournament={tournament} user={user} go={go} defaultStatus={defaultStatus} defaultView={defaultView}/>;
+import React, {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { useAccounts } from "./PreviewAccounts.jsx";
+import { post } from "./api/platformApi.js";
+import { useRoundMapData } from "./hooks/useRoundMapData.js";
+import { useRoundMapPaths } from "./hooks/useRoundMapPaths.js";
+import { ParticipantAvatar } from "./ParticipantAvatar.jsx";
+import {
+  outcome,
+  statusLabel,
+  columnState,
+  visibleMatches,
+} from "./roundMapModel.js";
+import "./tournamentRoundMap.css";
+export function TournamentRoundMap({
+  go,
+  defaultStatus = "all",
+  defaultView = "map",
+}) {
+  const { tournament, user } = useAccounts();
+  return (
+    <RoundMap
+      key={tournament.id + defaultStatus}
+      tournament={tournament}
+      user={user}
+      go={go}
+      defaultStatus={defaultStatus}
+      defaultView={defaultView}
+    />
+  );
 }
-function RoundMap({tournament,user,go,defaultStatus,defaultView}){
- const id=useId(),[round,setRound]=useState(tournament.round||1),[offsets,setOffsets]=useState({}),[status,setStatus]=useState(defaultStatus),[view,setView]=useState(defaultView),[search,setSearch]=useState(''),[query,setQuery]=useState(''),[selected,setSelected]=useState(user?.role==='player'?user.id:null),[selectedPerson,setSelectedPerson]=useState(user?.role==='player'?user:null),[data,setData]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(''),[revision,setRevision]=useState(0),[detail,setDetail]=useState(null),[retrying,setRetrying]=useState(false);
- const map=useRef(null),scroll=useRef(null),dialog=useRef(null),trigger=useRef(null),requestGeneration=useRef(0),[paths,setPaths]=useState([]),alive=useRef(true);
- const owner=user?.role==='judge'&&user.id===tournament.ownerId;
- useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
- useEffect(()=>{const timer=setTimeout(()=>{setQuery(search.trim());setOffsets({});},250);return()=>clearTimeout(timer);},[search]);
- useEffect(()=>{
-  const controller=new AbortController(),generation=++requestGeneration.current;let pending=false,timer;
-  const load=async()=>{if(pending||document.hidden)return;pending=true;setLoading(true);try{
-   const params=new URLSearchParams({round:String(round),limit:'12',status,q:query,...(selected?{focus:selected}:{})});for(const [n,offset]of Object.entries(offsets))params.set('offset'+n,String(offset));
-   const next=await request(`/api/tournaments/${encodeURIComponent(tournament.id)}/rounds?${params}`,{signal:controller.signal});
-   if(generation!==requestGeneration.current||controller.signal.aborted)return;setData(next);setError('');
-  }catch(e){if(!controller.signal.aborted&&generation===requestGeneration.current)setError(e.message);}finally{pending=false;if(!controller.signal.aborted&&generation===requestGeneration.current)setLoading(false);}};
-  const visible=()=>{if(!document.hidden)load();};load();timer=setInterval(load,10000);document.addEventListener('visibilitychange',visible);
-  return()=>{controller.abort();clearInterval(timer);document.removeEventListener('visibilitychange',visible);};
- },[tournament.id,tournament.round,tournament.phase,round,offsets,status,query,selected,revision]);
- useLayoutEffect(()=>{
-  if(view!=='map'||!map.current){setPaths([]);return;}let raf;
-  const draw=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{const root=map.current;if(!root||!selected){setPaths([]);return;}const bounds=root.getBoundingClientRect();const anchors=[...root.querySelectorAll('[data-path-player]')].filter(e=>e.dataset.pathPlayer===selected);setPaths(anchors.slice(1).flatMap((to,i)=>{const from=anchors[i];if(Number(to.dataset.pathRound)!==Number(from.dataset.pathRound)+1)return [];const a=from.getBoundingClientRect(),b=to.getBoundingClientRect(),x=a.right-bounds.left,y=a.top+a.height/2-bounds.top,u=b.left-bounds.left,v=b.top+b.height/2-bounds.top,mid=(x+u)/2;return [{d:`M${x},${y} H${mid} V${v} H${u}`,x,y,u,v}];}));});};
-  const observer=new ResizeObserver(draw);observer.observe(map.current);draw();let cancelled=false;document.fonts?.ready.then(()=>{if(!cancelled)draw();});window.addEventListener('resize',draw);
-  return()=>{cancelled=true;observer.disconnect();cancelAnimationFrame(raf);window.removeEventListener('resize',draw);};
- },[data,selected,view]);
- useLayoutEffect(()=>{if(view!=='map')return;const column=map.current?.querySelector(`[data-column="${round}"]`);if(column&&scroll.current)scroll.current.scrollTo({left:column.offsetLeft,behavior:'instant'});},[round,view,data?.columns.map(c=>c.round).join(',')]);
- useEffect(()=>{if(detail)dialog.current?.showModal();},[detail]);
- function close(){dialog.current?.close();setDetail(null);trigger.current?.focus();}
- function follow(person){setSelected(person.id);setSelectedPerson(person);}
- function chooseRound(n){setRound(n);if(scroll.current){const column=map.current?.querySelector(`[data-column="${n}"]`);if(column)scroll.current.scrollTo({left:column.offsetLeft,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}}
- function reset(){setSearch('');setQuery('');setStatus('all');setOffsets({});}
- async function retry(){if(retrying)return;setRetrying(true);try{await post(`/api/matches/${encodeURIComponent(detail.id)}/retry`);if(alive.current){close();setRevision(v=>v+1);}}catch(e){if(alive.current){close();setError(e.message);}}finally{if(alive.current)setRetrying(false);}}
- function participant(m,person,before,interactive=true){if(!person)return <div className="participant bye-row"><span className="bye-icon" aria-hidden="true">—</span><span className="name">No opponent<small>Automatic bye · no Elo change</small></span></div>;const Tag=interactive?'button':'div',result=outcome(m,person.id);return <Tag type={interactive?'button':undefined} className={`participant ${result==='WIN'?'winner':''}`} data-path-player={person.id} data-path-round={m.round} {...(interactive?{'aria-label':`Follow ${person.name}`,'aria-pressed':selected===person.id,onClick:()=>follow(person)}:{})}><ParticipantAvatar participant={person}/><span className="name">{person.name}{person.id===user?.id&&<small className="you-indicator">YOU</small>}<small>{before??person.rating??'—'} Elo · {person.id===m.whiteId?'White':'Black'}</small></span><span className="result">{result||'—'}</span></Tag>;}
- function card(m){return <article key={m.id} className={`match ${[m.whiteId,m.blackId].includes(selected)?'traced':''}`}><header className="match-top"><b title={m.id}>MATCH {m.id.slice(-8).toUpperCase()}</b><span className={`match-status ${m.status==='running'?'live':''}`}>{statusLabel(m.status)}</span></header>{m.pinned&&<p className="pinned-note">Selected player · outside this page</p>}{participant(m,m.whitePlayer,m.whiteBefore)}{participant(m,m.blackPlayer,m.blackBefore)}<div className="match-footer"><span>{m.status==='finished'?(m.score===.5?'Draw · result confirmed':'Result confirmed'):m.status==='bye'?'No Elo change':m.status==='failed'?'Execution needs attention':m.status==='running'?'Match in progress':'Pairing published'}</span><button onClick={e=>{trigger.current=e.currentTarget;setDetail(m);}}>{m.status==='finished'?'Match summary':m.status==='running'?'Live match details':'Pairing details'} <span className="out-arrow" aria-hidden="true"/></button></div></article>;}
- function waiting(c){return <div className="upcoming"><div className="upcoming-icon" aria-hidden="true"><span/><span/></div><h3>{c.round>(data?.tournament.round||tournament.round)?'Pairings not published':'No pairings yet'}</h3><p>The organizing judge publishes pairings for this round.</p><p className="small">Losing does not eliminate a player. Future opponents remain unassigned.</p></div>;}
- function columnContent(c){const list=visibleMatches(c);return <>{!c.total?waiting(c):list.length?list.map(card):<div className="empty"><h3>No matches fit these filters.</h3><p>Try another player or status.</p><button onClick={reset}>Clear filters</button></div>}{c.filteredTotal>0&&<div className="round-pagination"><span>{Math.min(c.offset+1,c.filteredTotal)}–{Math.min(c.offset+c.matches.length,c.filteredTotal)} of {c.filteredTotal} matches</span><div><button aria-label={`Previous page, round ${c.round}`} disabled={loading||c.offset===0} onClick={()=>setOffsets(o=>({...o,[c.round]:Math.max(0,c.offset-c.limit)}))}>Previous</button><button aria-label={`Next page, round ${c.round}`} disabled={loading||c.offset+c.limit>=c.filteredTotal} onClick={()=>setOffsets(o=>({...o,[c.round]:c.offset+c.limit}))}>Next</button></div></div>}</>;}
- const summary=data?.summary||[],columns=data?.columns||[],active=columns.find(c=>c.round===round),confirmed=summary.reduce((n,c)=>n+c.completed,0),published=summary.reduce((n,c)=>n+c.total,0);
- return <section className="trm" aria-labelledby={`${id}-title`}><header className="heading"><div><span className="eyebrow">FOLLOW THE PLAYERS. READ THE ROUND.</span><h2 id={`${id}-title`} className="map-title">TOURNAMENT ROUND MAP<span className="accent">.</span></h2><p>Published pairings and each player's confirmed journey.</p></div></header><div className="overview"><div><div className="overview-title"><h3>{tournament.name}</h3><span className="badge">ROUND {tournament.round}</span></div><p>Elo-based pairings · accepted players remain eligible after a loss.</p></div><div className="numbers"><div><b>{data?.accepted??'—'}</b><span>PLAYERS</span></div><div><b>{tournament.totalRounds}</b><span>ROUNDS</span></div><div><b>{confirmed} / {published}</b><span>RESULTS CONFIRMED</span></div></div></div>
+function RoundMap({ tournament, user, go, defaultStatus, defaultView }) {
+  const id = useId(),
+    [round, setRound] = useState(tournament.round || 1),
+    [offsets, setOffsets] = useState({}),
+    [status, setStatus] = useState(defaultStatus),
+    [view, setView] = useState(defaultView),
+    [search, setSearch] = useState(""),
+    [query, setQuery] = useState(""),
+    [selected, setSelected] = useState(
+      user?.role === "player" ? user.id : null,
+    ),
+    [selectedPerson, setSelectedPerson] = useState(
+      user?.role === "player" ? user : null,
+    ),
+    [revision, setRevision] = useState(0),
+    [detail, setDetail] = useState(null),
+    [retrying, setRetrying] = useState(false);
+  const map = useRef(null),
+    scroll = useRef(null),
+    dialog = useRef(null),
+    trigger = useRef(null),
+    alive = useRef(true);
+  const owner = user?.role === "judge" && user.id === tournament.ownerId;
+  useEffect(() => {
+    alive.current = true;
+    return () => {
+      alive.current = false;
+    };
+  }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setQuery(search.trim());
+      setOffsets({});
+    }, 250);
+    return () => clearTimeout(timer);
+  }, [search]);
+  const { data, loading, error, setError } = useRoundMapData({
+    tournament,
+    round,
+    offsets,
+    status,
+    query,
+    selected,
+    revision,
+  });
+  const paths = useRoundMapPaths(map, data, selected, view);
+  useLayoutEffect(() => {
+    if (view !== "map") return;
+    const column = map.current?.querySelector(`[data-column="${round}"]`);
+    if (column && scroll.current)
+      scroll.current.scrollTo({ left: column.offsetLeft, behavior: "instant" });
+  }, [round, view, data?.columns.map((c) => c.round).join(",")]);
+  useEffect(() => {
+    if (detail) dialog.current?.showModal();
+  }, [detail]);
+  function close() {
+    dialog.current?.close();
+    setDetail(null);
+    trigger.current?.focus();
+  }
+  function follow(person) {
+    setSelected(person.id);
+    setSelectedPerson(person);
+  }
+  function chooseRound(n) {
+    setRound(n);
+    if (scroll.current) {
+      const column = map.current?.querySelector(`[data-column="${n}"]`);
+      if (column)
+        scroll.current.scrollTo({
+          left: column.offsetLeft,
+          behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth",
+        });
+    }
+  }
+  function reset() {
+    setSearch("");
+    setQuery("");
+    setStatus("all");
+    setOffsets({});
+  }
+  async function retry() {
+    if (retrying) return;
+    setRetrying(true);
+    try {
+      await post(`/api/matches/${encodeURIComponent(detail.id)}/retry`);
+      if (alive.current) {
+        close();
+        setRevision((v) => v + 1);
+      }
+    } catch (e) {
+      if (alive.current) {
+        close();
+        setError(e.message);
+      }
+    } finally {
+      if (alive.current) setRetrying(false);
+    }
+  }
+  function participant(m,person,before,interactive=true){if(!person)return <div className="participant bye-row"><span className="bye-icon" aria-hidden="true">—</span><span className="name">No opponent<small>Automatic bye · no Elo change</small></span></div>;const Tag=interactive?'button':'div',result=outcome(m,person.id);return <Tag type={interactive?'button':undefined} className={`participant ${result==='WIN'?'winner':''}`} data-path-player={person.id} data-path-round={m.round} {...(interactive?{'aria-label':`Follow ${person.name}`,'aria-pressed':selected===person.id,onClick:()=>follow(person)}:{})}><ParticipantAvatar participant={person}/><span className="name">{person.name}{person.id===user?.id&&<small className="you-indicator">YOU</small>}<small>{before??person.rating??'—'} Elo · {person.id===m.whiteId?'White':'Black'}</small></span><span className="result">{result||'—'}</span></Tag>;}
+  function card(m){return <article key={m.id} className={`match ${[m.whiteId,m.blackId].includes(selected)?'traced':''}`}><header className="match-top"><b title={m.id}>MATCH {m.id.slice(-8).toUpperCase()}</b><span className={`match-status ${m.status==='running'?'live':''}`}>{statusLabel(m.status)}</span></header>{m.pinned&&<p className="pinned-note">Selected player · outside this page</p>}{participant(m,m.whitePlayer,m.whiteBefore)}{participant(m,m.blackPlayer,m.blackBefore)}<div className="match-footer"><span>{m.status==='finished'?(m.score===.5?'Draw · result confirmed':'Result confirmed'):m.status==='bye'?'No Elo change':m.status==='failed'?'Execution needs attention':m.status==='running'?'Match in progress':'Pairing published'}</span><button onClick={e=>{trigger.current=e.currentTarget;setDetail(m);}}>{m.status==='finished'?'Match summary':m.status==='running'?'Live match details':'Pairing details'} <span className="out-arrow" aria-hidden="true"/></button></div></article>;}
+  function waiting(c){return <div className="upcoming"><div className="upcoming-icon" aria-hidden="true"><span/><span/></div><h3>{c.round>(data?.tournament.round||tournament.round)?'Pairings not published':'No pairings yet'}</h3><p>The organizing judge publishes pairings for this round.</p><p className="small">Losing does not eliminate a player. Future opponents remain unassigned.</p></div>;}
+  function columnContent(c){const list=visibleMatches(c);return <>{!c.total?waiting(c):list.length?list.map(card):<div className="empty"><h3>No matches fit these filters.</h3><p>Try another player or status.</p><button onClick={reset}>Clear filters</button></div>}{c.filteredTotal>0&&<div className="round-pagination"><span>{Math.min(c.offset+1,c.filteredTotal)}–{Math.min(c.offset+c.matches.length,c.filteredTotal)} of {c.filteredTotal} matches</span><div><button aria-label={`Previous page, round ${c.round}`} disabled={loading||c.offset===0} onClick={()=>setOffsets(o=>({...o,[c.round]:Math.max(0,c.offset-c.limit)}))}>Previous</button><button aria-label={`Next page, round ${c.round}`} disabled={loading||c.offset+c.limit>=c.filteredTotal} onClick={()=>setOffsets(o=>({...o,[c.round]:c.offset+c.limit}))}>Next</button></div></div>}</>;}
+  const summary = data?.summary || [],
+    columns = data?.columns || [],
+    active = columns.find((c) => c.round === round),
+    confirmed = summary.reduce((n, c) => n + c.completed, 0),
+    published = summary.reduce((n, c) => n + c.total, 0);
+  return <section className="trm" aria-labelledby={`${id}-title`}><header className="heading"><div><span className="eyebrow">FOLLOW THE PLAYERS. READ THE ROUND.</span><h2 id={`${id}-title`} className="map-title">TOURNAMENT ROUND MAP<span className="accent">.</span></h2><p>Published pairings and each player's confirmed journey.</p></div></header><div className="overview"><div><div className="overview-title"><h3>{tournament.name}</h3><span className="badge">ROUND {tournament.round}</span></div><p>Elo-based pairings · accepted players remain eligible after a loss.</p></div><div className="numbers"><div><b>{data?.accepted??'—'}</b><span>PLAYERS</span></div><div><b>{tournament.totalRounds}</b><span>ROUNDS</span></div><div><b>{confirmed} / {published}</b><span>RESULTS CONFIRMED</span></div></div></div>
  <div className="toolbar"><label className="search" htmlFor={`${id}-search`}>Find a player<input id={`${id}-search`} type="search" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search all tournament players…"/></label><label>Match status<select aria-label="Round map match status" value={status} onChange={e=>{setStatus(e.target.value);setOffsets({});}}><option value="all">All matches</option><option value="live">Live</option><option value="queued">Assigned / queued</option><option value="completed">Completed / byes</option><option value="failed">Failed</option></select></label><div className="view-switch" aria-label="Pairings view"><button aria-pressed={view==='map'} onClick={()=>setView('map')}>Round map</button><button aria-pressed={view==='cards'} onClick={()=>setView('cards')}>Match cards</button></div></div>
  <nav className="round-tabs" aria-label="Published and upcoming rounds">{summary.map(c=><button key={c.round} aria-pressed={round===c.round} onClick={()=>chooseRound(c.round)}>Round {String(c.round).padStart(2,'0')}<small>{columnState(c,tournament.round)}</small></button>)}</nav>
  <div className="selection"><div>{selected&&selectedPerson?<div className="selected-person"><span className="path-mark" aria-hidden="true"/><ParticipantAvatar participant={selectedPerson}/><div><strong>Following {selectedPerson.name}</strong><small>Confirmed appearances in the visible rounds</small></div></div>:<p className="small muted">Select a player to trace their published matches.</p>}</div><div className="map-actions"><button disabled={!selected} onClick={()=>{setSelected(null);setSelectedPerson(null);}}>Clear player path</button>{view==='map'&&<><button aria-label="Scroll round map left" onClick={()=>scroll.current?.scrollBy({left:-344,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}>←</button><button aria-label="Scroll round map right" onClick={()=>scroll.current?.scrollBy({left:344,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})}>→</button></>}</div></div>

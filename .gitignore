@@ -50,9 +50,7 @@ DEPLOY_VERCEL_RENDER.md
 logic/README.md
 schema-drift.sql
 VISUAL_BASELINE.json
-tests/
-services/tests/
-frontend/src/*.test.js
+/tests/
 logic/server.js
 logic/main.js
 logic/accounts.js
