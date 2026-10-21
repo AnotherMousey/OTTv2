@@ -6,6 +6,7 @@ import {
   session,
   authenticate,
   signOut,
+  storeSession,
 } from "../api/platformApi.js";
 import {
   emptyTournament as empty,
@@ -25,7 +26,8 @@ export function useTournamentAccounts() {
     [eventTotal, setEventTotal] = useState(0),
     [rankPage, setRankPage] = useState({ offset: 0, total: 0 });
   const authVersion = useRef(0),
-    authPending = useRef(false);
+    authPending = useRef(false),
+    profileVersion = useRef(0);
   const selected = useRef(""),
     generation = useRef(0),
     pages = useRef({ offset: 0, matchOffset: 0, rankOffset: 0 });
@@ -48,7 +50,8 @@ export function useTournamentAccounts() {
       return;
     }
     const version = generation.current,
-      identity = authVersion.current;
+      identity = authVersion.current,
+      profile = profileVersion.current;
     const p = pages.current;
     const [event, standings] = await Promise.all([
       request(
@@ -58,7 +61,11 @@ export function useTournamentAccounts() {
         ? request(`/api/tournaments/${id}/rankings?offset=${p.rankOffset}`)
         : Promise.resolve(null),
     ]);
-    if (version !== generation.current || identity !== authVersion.current)
+    if (
+      version !== generation.current ||
+      identity !== authVersion.current ||
+      profile !== profileVersion.current
+    )
       return;
     const value = tournamentWorkspace(event);
     setTournament(value);
@@ -111,13 +118,19 @@ export function useTournamentAccounts() {
       const page = location.hash.slice(1);
       if (!["tournament", "mybot", "rankings"].includes(page)) return;
       polling = true;
-      const identity = authVersion.current;
+      const identity = authVersion.current,
+        profile = profileVersion.current;
       try {
         if (!selected.current) await loadDirectory();
         await refresh({ includeRankings: page !== "mybot" });
         if (session()) {
           const data = await request("/api/auth/me");
-          if (active && identity === authVersion.current) setUser(data.account);
+          if (
+            active &&
+            identity === authVersion.current &&
+            profile === profileVersion.current
+          )
+            setUser(data.account);
         }
       } catch (e) {
         if (active && identity === authVersion.current) setError(e.message);
@@ -184,6 +197,29 @@ export function useTournamentAccounts() {
     }
   }
 
+  async function saveProfile(name) {
+    const identity = authVersion.current;
+    const data = await post("/api/auth/profile", { name });
+    if (identity !== authVersion.current) return data.account;
+    profileVersion.current++;
+    setUser((current) =>
+      current ? { ...current, name: data.account.name } : current,
+    );
+    const saved = session();
+    if (saved?.account?.id === data.account.id)
+      storeSession({
+        ...saved,
+        account: { ...saved.account, name: data.account.name },
+      });
+    const rename = (row) =>
+      row.id === data.account.id ? { ...row, name: data.account.name } : row;
+    setRankings((current) => current.map(rename));
+    setTournament((current) => ({
+      ...current,
+      players: current.players.map(rename),
+    }));
+    return data.account;
+  }
   async function saveAppearance(appearance) {
     const data = await post("/api/auth/appearance", { appearance });
     setUser(data.account);
@@ -276,6 +312,7 @@ export function useTournamentAccounts() {
     login,
     logout,
     saveAppearance,
+    saveProfile,
     events,
     eventTotal,
     tournament,

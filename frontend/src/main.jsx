@@ -6,6 +6,8 @@ import {WatchLive} from './WatchLive.jsx';
 import './tournamentExtensions.css';
 import {PreviewAccounts,useAccounts} from './PreviewAccounts.jsx';
 import {LoginPage,LoginGate,AccountControl,TournamentAccountPage,AccountRankings} from './AccountPages.jsx';
+import {AccountSettings} from './AccountSettings.jsx';
+import {JudgeAccounts,RegisterPage} from './JudgeAccounts.jsx';
 import {SubmissionHistory} from "./SubmissionHistory.jsx";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import {MatchLoading} from './MatchLoading.jsx';
@@ -15,6 +17,7 @@ import "./style.css";
 import "./refinements.css";
 import "./approvedDesign.css";
 import "./studio.css";
+import "./accountFeatures.css";
 import { Pixel } from "./Pixel";
 import { Button } from "./ui";
 import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
@@ -154,7 +157,7 @@ function App() {
           <section className="card account-gate" role="status" aria-live="polite" aria-busy="true"><h1>CHECKING SESSION</h1><p>Verifying your saved login…</p></section>
         ) : loading&&['tournament','tournaments','mybot','rankings','submissions'].includes(page) ? (
           <section className="card account-gate" role="status" aria-live="polite" aria-busy="true"><h1>LOADING TOURNAMENTS</h1><p>{user?'You are logged in. Fetching your tournament workspace…':'Fetching tournament data…'}</p></section>
-        ) : page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (
+        ) : page === "settings" ? (user ? <AccountSettings key={user.id}/> : <LoginGate go={go}/>) : page === "accounts" ? (user?.role==='judge' ? <JudgeAccounts key={user.id} go={go}/> : user ? <section className="card"><h1>JUDGE ACCESS REQUIRED</h1><p>Your account cannot manage player accounts.</p></section> : <LoginGate go={go}/>) : page === "register" ? <RegisterPage go={go}/> : page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (
           <Home go={go} bot={bot} />
         ) : page === "match" ? (
           <Match notify={setToast} prepare={prepare} preparing={Boolean(preparation)}/>

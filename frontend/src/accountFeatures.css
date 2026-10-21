@@ -1,0 +1,1947 @@
+.account-features {
+  max-width: 1220px;
+  min-height: calc(100vh - 266px);
+  padding-top: 30px;
+  padding-bottom: 55px;
+}
+.account-features .account-login-layout {
+  margin-top: 25px;
+  margin-bottom: 30px;
+  max-width: 1120px;
+  gap: 72px;
+}
+.account-features .login-intro h1 {
+  font-size: clamp(25px, 2.6vw, 37px);
+  line-height: 1.65;
+}
+.account-features .login-intro > p {
+  max-width: 465px;
+  line-height: 1.8;
+}
+.account-features .account-login-form {
+  align-self: center;
+  padding: 34px;
+  box-shadow: 6px 6px 0 var(--surface);
+}
+.account-features .account-login-form h2 {
+  margin-bottom: 32px;
+}
+.account-features .account-login-form > label {
+  font-size: 14px;
+  font-weight: bold;
+}
+.account-features .account-login-form > label input {
+  font-weight: normal;
+  height: 56px;
+  font-size: 14px;
+}
+.account-features .account-login-form > .account-note {
+  font-size: 11px;
+  margin-top: 16px;
+  line-height: 1.9;
+}
+.account-features .password-field {
+  margin-bottom: 22px;
+  min-width: 0;
+}
+.account-features .password-field > label {
+  display: block !important;
+  gap: 0 !important;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 9px !important;
+  line-height: 1.6;
+}
+.account-features .password-shell {
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  position: relative;
+  gap: 8px;
+  background: var(--paper);
+  border: 1px solid #79836c;
+  padding: 5px 7px 5px 0;
+  transition: border-color 150ms ease;
+}
+.account-features .password-shell:focus-within {
+  outline: 2px solid var(--studio-accent);
+  outline-offset: 2px;
+  border-color: var(--ink);
+}
+.account-features .password-shell input {
+  width: 100%;
+  flex: 1;
+  min-width: 0;
+  border: 0 !important;
+  background: none;
+  padding: 12px 14px;
+  min-height: 44px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: normal;
+  margin: 0;
+}
+.account-features .password-shell input::placeholder {
+  color: var(--muted);
+  opacity: 0.75;
+  font-size: 12px;
+}
+.account-features .password-shell input:focus-visible {
+  outline: 0;
+}
+.account-features .password-shell.invalid {
+  border-color: var(--error-text);
+}
+.account-features .lookout {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  box-shadow: 2px 2px 0 var(--border);
+  padding: 8px;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease;
+}
+.account-features .lookout:hover {
+  border-color: var(--ink);
+  box-shadow: 2px 2px 0 var(--studio-accent);
+}
+.account-features .lookout:active {
+  box-shadow: none;
+}
+.account-features .lookout.revealed {
+  background: var(--studio-accent);
+  color: var(--studio-accent-ink);
+  border-color: var(--studio-accent-ink);
+  box-shadow: 2px 2px 0 var(--studio-accent-ink);
+}
+.account-features .lookout-eye {
+  display: block;
+  width: 26px;
+  height: 23px;
+  overflow: visible;
+  fill: currentColor;
+}
+.account-features .eye-shape,
+.account-features .eye-interior,
+.account-features .eye-iris {
+  transform-origin: center;
+  transition:
+    opacity 150ms ease,
+    transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transform: scaleY(0.2);
+}
+.account-features .eye-interior {
+  fill: var(--surface);
+}
+.account-features .eye-lid {
+  transition: opacity 100ms ease;
+  opacity: 1;
+  transform-origin: center;
+}
+.account-features .revealed .eye-shape,
+.account-features .revealed .eye-interior,
+.account-features .revealed .eye-iris {
+  opacity: 1;
+  transform: scaleY(1);
+}
+.account-features .revealed .eye-interior {
+  fill: var(--studio-accent);
+}
+.account-features .revealed .eye-lid {
+  opacity: 0;
+}
+.account-features .lookout:hover .eye-iris {
+  translate: -1px 0;
+}
+.account-features .lookout-tip {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: -1px;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 8px 10px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(3px);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+  z-index: 20;
+  border: 1px solid var(--ink);
+}
+.account-features .lookout-tip:after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  right: 17px;
+  bottom: -4px;
+  background: var(--ink);
+  transform: rotate(45deg);
+}
+.account-features .lookout:hover .lookout-tip,
+.account-features .lookout:focus-visible .lookout-tip {
+  opacity: 1;
+  transform: translateY(0);
+}
+.account-features .settings-page {
+  padding-top: 48px;
+}
+.account-features .settings-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 36px;
+}
+.account-features .settings-heading h1 {
+  font-family: ArcadeDisplay, Pixeloid, monospace;
+  font-size: clamp(26px, 3vw, 38px);
+  line-height: 1.5;
+  margin: 13px 0 15px;
+  font-weight: normal;
+}
+.account-features .settings-heading > div > p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 0;
+}
+.account-features .identity-stamp {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-left: 1px solid var(--border);
+  padding-left: 26px;
+  min-width: 200px;
+  max-width: 350px;
+}
+.account-features .identity-stamp > .avatar {
+  width: 43px;
+  height: 50px;
+}
+.account-features .identity-stamp > div {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.account-features .identity-stamp strong {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+.account-features .identity-stamp span {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+.account-features .settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.06fr;
+  gap: 28px;
+  align-items: start;
+}
+.account-features .identity-panel,
+.account-features .security-panel {
+  min-width: 0;
+  padding: 30px 30px 14px;
+  border: 1px solid var(--border);
+  background: var(--paper);
+}
+.account-features .identity-panel {
+  border-top: 3px solid var(--studio-accent);
+}
+.account-features .security-panel {
+  border-top: 3px solid var(--border-strong);
+}
+.account-features .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.account-features .section-number {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--muted);
+}
+.account-features .panel-title .eyebrow {
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.account-features .panel-title h2 {
+  font-family: Pixeloid, monospace;
+  font-size: 22px;
+  line-height: 1.3;
+  margin: 5px 0 0;
+  letter-spacing: 0.2px;
+}
+.account-features .panel-title > svg {
+  height: 25px;
+  width: 25px;
+  margin-left: auto;
+  color: var(--muted);
+}
+.account-features .panel-description {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin: 20px 0 25px;
+}
+.account-features .team-ticket {
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  margin: 0 0 29px;
+  box-shadow: 4px 4px 0 var(--studio-glow);
+  position: relative;
+}
+.account-features .team-ticket:before {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  top: -1px;
+  left: -1px;
+  background: var(--studio-accent);
+}
+.account-features .ticket-top {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.account-features .ticket-live {
+  font-size: 8px;
+  letter-spacing: 0.5px;
+}
+.account-features .ticket-person {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  padding: 22px 20px 25px;
+}
+.account-features .portrait-plinth {
+  display: grid;
+  place-items: center;
+  position: relative;
+  min-width: 72px;
+  height: 98px;
+  background: var(--paper);
+  border-bottom: 3px solid var(--studio-accent);
+}
+.account-features .portrait-plinth:after,
+.account-features .portrait-plinth:before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  position: absolute;
+  top: 0;
+  background: var(--border);
+  right: 0;
+}
+.account-features .portrait-plinth:after {
+  right: auto;
+  left: 0;
+}
+.account-features .portrait-plinth > .avatar {
+  width: 57px;
+  height: 76px;
+}
+.account-features .ticket-person > div:last-child {
+  min-width: 0;
+  display: grid;
+  gap: 9px;
+}
+.account-features .ticket-person strong {
+  font-size: 22px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.account-features .ticket-person span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.account-features .ticket-person .rating-line {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+}
+.account-features .rating-line b {
+  color: var(--ink);
+  font-size: 14px;
+  margin-right: 3px;
+}
+.account-features .rating-line span {
+  margin: 0 6px;
+}
+.account-features .ticket-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-top: 1px dashed var(--border);
+  font-size: 9px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.account-features .ticket-bottom i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--studio-accent);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.account-features .ticket-bottom > span:last-child {
+  font-size: 19px;
+  line-height: 1;
+  color: var(--border-strong);
+}
+.account-features .label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+.account-features .label-row label {
+  font-size: 14px;
+  font-weight: bold;
+}
+.account-features .label-row > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.account-features #team-name {
+  width: 100%;
+  min-height: 56px;
+  padding: 12px 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+}
+.account-features .field-note {
+  font-size: 12px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin: 13px 0 24px;
+}
+.account-features .field-note b {
+  color: var(--ink);
+  font-weight: normal;
+}
+.account-features .save-line {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.account-features .save-line .button {
+  background: var(--studio-accent);
+  color: var(--studio-accent-ink);
+  border-color: var(--studio-accent);
+  min-height: 49px;
+  font-size: 13px;
+  padding: 12px 17px;
+}
+.account-features .save-line .button:disabled {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--muted);
+  opacity: 1;
+  box-shadow: none;
+}
+.account-features .button > svg {
+  height: 17px;
+  width: 17px;
+}
+.account-features .quiet-button {
+  font-size: 12px;
+  background: none;
+  color: var(--muted);
+  padding: 10px 0;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  min-height: 44px;
+}
+.account-features .inline-status {
+  display: flex;
+  align-items: start;
+  gap: 8px;
+  min-height: 24px;
+  margin: 13px 0 0;
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+.account-features .inline-status > svg {
+  height: 14px;
+  width: 14px;
+  margin-top: 2px;
+  color: var(--muted);
+}
+.account-features .identity-foot {
+  display: flex;
+  align-items: start;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding: 18px 0 3px;
+  margin-top: 11px;
+}
+.account-features .identity-foot > svg {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.account-features .identity-foot > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.9;
+}
+.account-features .security-panel .password-field {
+  margin-bottom: 23px;
+}
+.account-features .security-panel .new-password-group .password-field {
+  margin-bottom: 9px;
+}
+.account-features .password-rules {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 16px;
+  row-gap: 5px;
+  font-size: 10px;
+  color: var(--muted);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.account-features .password-rules > span {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.account-features .password-rules [data-met="true"] {
+  color: var(--ink);
+}
+.account-features .security-submit {
+  font-size: 13px;
+  min-height: 49px;
+  padding: 12px 18px;
+}
+.account-features .demo-password-note {
+  margin-top: 15px;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.account-features .demo-password-note b {
+  font-weight: normal;
+}
+.account-features .demo-password-note .demo-tag {
+  font-size: 8px !important;
+}
+.account-features .inline-error {
+  font-size: 12px;
+  line-height: 1.8;
+  padding: 10px 12px;
+  background: var(--error-bg);
+  color: var(--error-text);
+  border-left: 3px solid var(--error-text);
+  margin: 0 0 16px;
+}
+.account-features .settings-bottom {
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  margin-top: 31px;
+  padding-top: 21px;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.8;
+}
+.account-features .settings-bottom > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.account-features .settings-bottom svg {
+  width: 14px;
+  height: 14px;
+}
+.account-features .settings-bottom > span:last-child {
+  font-size: 8px;
+  letter-spacing: 0.6px;
+  text-align: right;
+}
+:root[data-theme="dark"] .account-features .password-shell {
+  border-color: var(--border-strong);
+}
+:root[data-theme="dark"] .account-features .password-shell:focus-within {
+  border-color: var(--studio-accent);
+}
+@media (max-width: 1000px) {
+  .account-features .header-controls {
+    gap: 12px;
+  }
+  .account-features .account-login-layout {
+    gap: 30px;
+  }
+  .account-features .account-login-form {
+    padding: 25px;
+  }
+  .account-features .settings-grid {
+    gap: 22px;
+  }
+  .account-features .identity-panel,
+  .account-features .security-panel {
+    padding: 24px 22px 12px;
+  }
+  .account-features .settings-heading {
+    gap: 25px;
+  }
+  .account-features .ticket-person {
+    gap: 17px;
+  }
+  .account-features .ticket-person strong {
+    font-size: 19px;
+  }
+  .account-features .settings-heading h1 {
+    font-size: 30px;
+  }
+  .account-features .identity-stamp {
+    max-width: 240px;
+  }
+}
+@media (max-width: 800px) {
+  .account-features .header-controls {
+    margin-left: auto;
+  }
+  .account-features .ribbon-scope {
+    display: none;
+  }
+  .account-features {
+    padding-inline: 24px;
+    padding-top: 25px;
+  }
+  .account-features .account-login-layout {
+    grid-template-columns: 1fr;
+    gap: 34px;
+    max-width: 570px;
+  }
+  .account-features .login-intro h1 {
+    font-size: 30px;
+  }
+  .account-features .login-intro > p {
+    max-width: 100%;
+  }
+  .account-features .duel-scene {
+    max-width: 570px;
+  }
+  .account-features .settings-heading {
+    align-items: flex-start;
+  }
+  .account-features .identity-stamp {
+    display: none;
+  }
+  .account-features .settings-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  :where(.account-features).account-settings {
+    max-width: 640px;
+    margin: auto;
+  }
+  .account-features .settings-heading h1 {
+    font-size: 31px;
+  }
+  .account-features .settings-bottom {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .account-features .settings-bottom > span:last-child {
+    text-align: left;
+  }
+  .account-features .identity-panel,
+  .account-features .security-panel {
+    padding: 27px 26px 13px;
+  }
+}
+@media (max-width: 480px) {
+  .account-features .ribbon-mark {
+    font-size: 8px;
+    letter-spacing: 0.6px;
+  }
+  .account-features {
+    padding-inline: 18px;
+    padding-top: 22px;
+    padding-bottom: 38px;
+  }
+  .account-features .account-login-layout {
+    margin: 12px auto 20px;
+    gap: 28px;
+  }
+  .account-features .login-intro h1 {
+    font-size: 24px;
+    line-height: 1.65;
+  }
+  .account-features .login-intro > p {
+    font-size: 13px;
+  }
+  .account-features .account-login-form {
+    padding: 25px 20px;
+    box-shadow: 4px 4px 0 var(--surface);
+  }
+  .account-features .account-login-form h2 {
+    font-size: 23px;
+  }
+  .account-features .duel-heading .eyebrow {
+    font-size: 8px;
+  }
+  .account-features .settings-heading {
+    margin-bottom: 26px;
+  }
+  .account-features .settings-heading h1 {
+    font-size: 25px;
+    letter-spacing: -0.7px;
+  }
+  .account-features .settings-heading > div > p {
+    font-size: 12px;
+  }
+  .account-features .identity-panel,
+  .account-features .security-panel {
+    padding: 22px 18px 12px;
+  }
+  .account-features .panel-title {
+    gap: 12px;
+  }
+  .account-features .panel-title h2 {
+    font-size: 20px;
+  }
+  .account-features .panel-title .eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.5px;
+  }
+  .account-features .panel-title > svg {
+    width: 22px;
+    height: 22px;
+  }
+  .account-features .section-number {
+    flex-basis: 35px;
+    height: 39px;
+    font-size: 12px;
+  }
+  .account-features .ticket-person {
+    padding: 20px 15px;
+    gap: 18px;
+  }
+  .account-features .ticket-person strong {
+    font-size: 20px;
+  }
+  .account-features .ticket-top,
+  .account-features .ticket-bottom {
+    padding-inline: 13px;
+  }
+  .account-features .ticket-bottom {
+    font-size: 8px;
+  }
+  .account-features .field-note {
+    font-size: 11px;
+  }
+  .account-features .password-shell input {
+    font-size: 16px;
+    padding-left: 12px;
+  }
+  .account-features .password-shell input::placeholder {
+    font-size: 11px;
+  }
+  .account-features .password-shell {
+    gap: 0;
+  }
+  .account-features .password-rules {
+    font-size: 9px;
+    column-gap: 12px;
+  }
+  .account-features .save-line {
+    gap: 14px;
+  }
+  .account-features .save-line .button,
+  .account-features .security-submit {
+    font-size: 12px;
+  }
+  .account-features .demo-entry p {
+    font-size: 10px;
+  }
+  .account-features .settings-bottom {
+    font-size: 10px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-features .lookout,
+  .account-features .lookout *,
+  .account-features .password-shell {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.account-features .identity-stamp > .avatar {
+  overflow: hidden;
+}
+:root[data-theme="dark"] .account-features .save-line .button:disabled {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--muted);
+  opacity: 1;
+  box-shadow: none;
+}
+
+:where(.account-features).judge-accounts {
+  max-width: 1160px;
+  margin: 0 auto;
+}
+.account-features .judge-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin: 0 0 30px;
+}
+.account-features .judge-heading h1 {
+  font-size: clamp(25px, 2.9vw, 38px);
+  font-weight: normal;
+  margin: 13px 0 16px;
+  line-height: 1.5;
+}
+.account-features .judge-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.account-features .judge-permission {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.account-features .judge-permission svg {
+  width: 14px;
+  height: 14px;
+}
+.account-features .registration-control {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 21px 24px;
+  margin-bottom: 26px;
+  transition: border-color 160ms ease;
+}
+.account-features .registration-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.account-features .registration-indicator {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  background: var(--border);
+  margin-top: 6px;
+  box-shadow: 3px 3px 0 var(--paper);
+}
+.account-features .registration-control.is-open {
+  border-color: var(--border-strong);
+}
+.account-features .registration-control.is-open .registration-indicator {
+  background: var(--studio-accent);
+}
+.account-features .registration-copy h2 {
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  margin: 0 0 7px;
+  line-height: 1.7;
+}
+.account-features .registration-copy p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 0;
+}
+.account-features .registration-checkbox {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 7px 0;
+  min-height: 48px;
+  font-size: 13px;
+}
+.account-features .registration-checkbox input {
+  appearance: none;
+  width: 23px;
+  height: 23px;
+  border: 1px solid var(--border-strong);
+  background: var(--paper);
+  margin: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+}
+.account-features .registration-checkbox input:checked {
+  background: var(--studio-accent);
+  border-color: var(--studio-accent-ink);
+}
+.account-features .registration-checkbox input:checked:after {
+  content: "";
+  width: 11px;
+  height: 6px;
+  border-left: 3px solid var(--studio-accent-ink);
+  border-bottom: 3px solid var(--studio-accent-ink);
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  transform: rotate(-45deg);
+}
+.account-features .registration-checkbox small {
+  display: block;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 0.6px;
+  margin-top: 7px;
+}
+.account-features .route-link {
+  font-family: PixelMono, monospace;
+  font-size: 12px;
+  padding: 0 0 2px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border-strong);
+  color: var(--ink);
+}
+.account-features .create-account-card {
+  border: 1px solid var(--border-strong);
+  border-top: 3px solid var(--studio-accent);
+  background: var(--paper);
+  padding: 27px 28px 0;
+}
+.account-features .create-heading {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 26px;
+}
+.account-features .create-heading > div {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.account-features .create-heading .section-number {
+  width: 37px;
+  height: 37px;
+  flex-basis: 37px;
+  font-size: 12px;
+}
+.account-features .create-heading h2 {
+  font-size: 20px;
+  margin: 0;
+}
+.account-features .small-caption {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.6px;
+}
+.account-features .create-account-form {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(180px, 1.2fr) minmax(
+      175px,
+      1.16fr
+    ) minmax(104px, 0.7fr) auto;
+  gap: 16px;
+  align-items: end;
+}
+.account-features .create-field {
+  min-width: 0;
+}
+.account-features .create-field > label {
+  display: block;
+  margin: 0 0 9px;
+  font-size: 13px;
+  font-weight: bold;
+  line-height: 1.6;
+}
+.account-features .create-field > label > span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: normal;
+}
+.account-features .create-field > input,
+.account-features .create-field > select {
+  width: 100%;
+  height: 56px;
+  padding: 12px 13px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  font-size: 14px;
+}
+.account-features .create-field > input::placeholder {
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+.account-features .create-account-form .password-field {
+  margin: 0;
+}
+.account-features .create-account-form .password-field > label {
+  font-size: 13px;
+}
+.account-features .create-account-form .password-shell {
+  height: 56px;
+  min-height: 56px;
+  border-color: var(--border-strong);
+  padding-block: 4px;
+}
+.account-features .create-account-form .password-shell input {
+  padding-left: 12px;
+  padding-right: 5px;
+}
+.account-features .create-account-form .password-shell input::placeholder {
+  font-size: 11px;
+}
+.account-features .create-field select {
+  padding-right: 24px;
+}
+.account-features .add-account {
+  height: 56px;
+  padding: 12px 16px;
+  gap: 9px;
+  font-size: 12px;
+  white-space: nowrap;
+  background: var(--studio-accent);
+  border-color: var(--studio-accent);
+  color: var(--studio-accent-ink);
+}
+.account-features .add-person {
+  font-family: PixelMono, monospace;
+  font-size: 21px;
+  font-weight: bold;
+  line-height: 1;
+}
+.account-features .create-notes {
+  display: flex;
+  gap: 22px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.7;
+  margin-top: 13px;
+}
+.account-features .create-notes > span + span:before {
+  content: "·";
+  margin-right: 19px;
+}
+.account-features .create-account-card > .inline-error {
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+.account-features .create-account-card [aria-invalid="true"] {
+  border-color: var(--error-text);
+}
+.account-features .creation-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-height: 16px;
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--ink);
+  margin: 12px 0 7px;
+}
+.account-features .creation-status.has-message {
+  padding: 12px 0;
+  margin-bottom: 12px;
+}
+.account-features .creation-status svg {
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+}
+.account-features .bulk-accounts {
+  border-top: 1px solid var(--border);
+  margin: 0 -28px;
+}
+.account-features .bulk-accounts > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 19px 28px;
+  list-style: none;
+  font-size: 13px;
+  cursor: pointer;
+  min-height: 62px;
+}
+.account-features .bulk-accounts > summary::-webkit-details-marker {
+  display: none;
+}
+.account-features .bulk-plus {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--muted);
+  transition: transform 180ms ease;
+}
+.account-features .bulk-accounts[open] .bulk-plus {
+  transform: rotate(45deg);
+  color: var(--ink);
+}
+.account-features .bulk-subtitle {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 9px;
+  letter-spacing: 0.6px;
+}
+.account-features .bulk-content {
+  padding: 4px 28px 28px;
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 35%, var(--paper));
+}
+.account-features .bulk-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin: 24px 0;
+}
+.account-features .bulk-intro h3 {
+  font-size: 13px;
+  margin: 0 0 8px;
+}
+.account-features .bulk-intro p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 560px;
+  margin: 0;
+}
+.account-features .bulk-tools {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-shrink: 0;
+}
+.account-features .bulk-tools .button {
+  font-size: 11px;
+  min-height: 44px;
+  padding: 10px 14px;
+}
+.account-features .bulk-tools .quiet-button {
+  font-size: 11px;
+}
+.account-features .csv-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  font-size: 13px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.account-features .csv-label span {
+  font-family: PixelMono, monospace;
+  font-size: 11px;
+  font-weight: normal;
+  color: var(--muted);
+}
+.account-features #account-csv {
+  width: 100%;
+  min-height: 160px;
+  resize: vertical;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: PixelMono, monospace;
+  font-size: 13px;
+  line-height: 1.9;
+  padding: 14px 16px;
+  border: 1px solid var(--border-strong);
+  white-space: pre;
+  overflow: auto;
+}
+.account-features #account-csv::placeholder {
+  color: var(--muted);
+  opacity: 0.8;
+}
+.account-features .csv-help {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 11px 0 18px;
+}
+.account-features .review-accounts {
+  min-height: 45px;
+  font-size: 12px;
+  padding: 11px 16px;
+}
+.account-features .review-accounts:disabled {
+  opacity: 0.5;
+}
+.account-features .bulk-content > .inline-error {
+  margin-top: 20px;
+}
+.account-features .bulk-review {
+  margin-top: 26px;
+  border: 1px solid var(--border);
+}
+.account-features .review-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.account-features .review-heading h3 {
+  font-size: 12px;
+  margin: 0;
+}
+.account-features .review-heading > span {
+  font-size: 10px;
+  color: var(--muted);
+}
+.account-features .review-table-wrap {
+  overflow: auto;
+  max-height: 330px;
+}
+.account-features .bulk-review table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.account-features .bulk-review th {
+  text-align: left;
+  padding: 13px 16px;
+  color: var(--muted);
+  background: var(--paper);
+  font-size: 10px;
+  font-weight: normal;
+  position: sticky;
+  top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.account-features .bulk-review td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  max-width: 300px;
+  overflow-wrap: anywhere;
+}
+.account-features .bulk-review tbody tr:last-child td {
+  border-bottom: 0;
+}
+.account-features .row-error {
+  display: inline-block;
+  background: var(--error-bg);
+  color: var(--error-text);
+  padding: 5px 7px;
+  line-height: 1.7;
+  font-size: 11px;
+}
+.account-features .row-ready {
+  font-size: 11px;
+  color: var(--ink);
+}
+.account-features .row-ready:before {
+  content: "✓";
+  margin-right: 7px;
+}
+.account-features .bulk-confirm {
+  display: flex;
+  gap: 22px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.account-features .bulk-confirm p {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 600px;
+  margin: 0;
+}
+.account-features .bulk-confirm .button {
+  font-size: 12px;
+  min-height: 45px;
+  padding: 11px 16px;
+  white-space: nowrap;
+}
+:root[data-theme="dark"] .account-features .bulk-confirm .button:disabled {
+  background: var(--paper);
+  color: var(--muted);
+  border-color: var(--border);
+  opacity: 0.65;
+  box-shadow: none;
+}
+.account-features .created-section {
+  margin-top: 35px;
+}
+.account-features .created-heading {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 17px;
+}
+.account-features .created-heading .eyebrow {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+}
+.account-features .created-heading h2 {
+  font-size: 19px;
+  margin: 7px 0 0;
+}
+.account-features .created-counter {
+  font-family: PixelMono, monospace;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 10px 12px;
+}
+.account-features .created-empty {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 25px 28px;
+  border: 1px dashed var(--border);
+  background: var(--paper);
+}
+.account-features .empty-pixel {
+  height: 42px;
+  width: 42px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 22px;
+  color: var(--muted);
+}
+.account-features .created-empty h3 {
+  font-size: 12px;
+  margin: 0 0 8px;
+}
+.account-features .created-empty p {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.8;
+}
+.account-features .created-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+}
+.account-features .created-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+.account-features .created-table th {
+  padding: 15px 20px;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  font-weight: normal;
+  text-align: left;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.account-features .created-table td {
+  padding: 15px 20px;
+  font-size: 13px;
+  line-height: 1.8;
+  max-width: 360px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+}
+.account-features .created-table tr:last-child td {
+  border-bottom: 0;
+}
+.account-features .created-table .preview-link {
+  min-height: 40px;
+  font-size: 11px;
+}
+.account-features .role-badge {
+  display: inline-block;
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  padding: 5px 8px;
+}
+.account-features .judge-preview-note {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 10px;
+  line-height: 1.9;
+  color: var(--muted);
+  margin: 23px 0 0;
+}
+.account-features .judge-preview-note svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.account-features .credential-dialog {
+  width: min(440px, calc(100% - 36px));
+  max-width: 440px;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--border-strong);
+  border-top: 3px solid var(--studio-accent);
+  padding: 30px;
+}
+.account-features .credential-dialog::backdrop {
+  background: #070817b8;
+}
+.account-features .credential-dialog h2 {
+  font-size: 22px;
+  margin: 12px 0 18px;
+}
+.account-features .credential-dialog > p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 25px;
+  overflow-wrap: anywhere;
+}
+.account-features .credential-dialog .password-field {
+  margin: 0;
+}
+.account-features .credential-dialog .password-shell input {
+  border: 0;
+  min-width: 0;
+  width: 100%;
+  background: none;
+  color: var(--ink);
+  font-size: 14px;
+  padding: 12px;
+}
+.account-features .credential-username {
+  display: grid;
+  gap: 9px;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.account-features .credential-username input {
+  width: 100%;
+  height: 55px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+}
+.account-features .credential-foot {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 27px;
+}
+.account-features .credential-foot .button {
+  font-size: 12px;
+  padding: 10px 19px;
+  min-height: 45px;
+}
+.account-features .credential-dialog .password-shell input:focus-visible {
+  outline: 0;
+}
+.account-features .register-login-link {
+  background: none;
+  border: 0;
+  min-height: 44px;
+  width: 100%;
+  font-size: 12px;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  padding: 16px 0 0;
+}
+.account-features .demo-role-buttons {
+  display: flex;
+  gap: 8px 22px;
+  flex-wrap: wrap;
+}
+.account-features .demo-role-buttons .preview-link {
+  font-size: 11px;
+}
+:where(.account-features).registration-page {
+  max-width: 570px;
+  margin: 0 auto 30px;
+  padding: 34px;
+  border-top: 3px solid var(--studio-accent);
+}
+:where(.account-features).registration-page h1 {
+  font-size: clamp(23px, 2.3vw, 31px);
+  line-height: 1.6;
+  margin: 18px 0 20px;
+}
+:where(.account-features).registration-page > p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--muted);
+}
+:where(.account-features).registration-page form {
+  margin-top: 27px;
+}
+:where(.account-features).registration-page .account-fieldset > label {
+  display: grid;
+  gap: 9px;
+  margin-bottom: 22px;
+  font-size: 14px;
+  font-weight: bold;
+}
+:where(.account-features).registration-page .account-fieldset > label span {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: normal;
+}
+:where(.account-features).registration-page .account-fieldset > label input {
+  height: 56px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 14px;
+  border: 1px solid var(--border-strong);
+}
+:where(.account-features).registration-page .account-fieldset > .button {
+  min-height: 50px;
+  width: 100%;
+  font-size: 13px;
+}
+:where(.account-features).registration-page > .preview-link {
+  margin-top: 18px;
+  font-size: 12px;
+}
+:where(.account-features).registration-page .registration-demo-note {
+  font-size: 10px;
+  margin-top: 21px;
+  line-height: 1.8;
+  border-top: 1px dashed var(--border);
+  padding-top: 18px;
+}
+@media (max-width: 1100px) {
+  .account-features .create-account-form {
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .account-features .create-account-form .add-account {
+    grid-column: 1/-1;
+    justify-self: start;
+    min-width: 165px;
+    height: 49px;
+  }
+  .account-features .create-notes {
+    gap: 8px 18px;
+  }
+  .account-features .create-notes > span + span:before {
+    margin-right: 16px;
+  }
+  .account-features .registration-control {
+    gap: 24px;
+    padding: 20px;
+  }
+  .account-features .registration-checkbox {
+    font-size: 12px;
+  }
+  .account-features .bulk-intro {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .account-features .bulk-tools {
+    margin-left: auto;
+  }
+  .account-features .create-account-card {
+    padding: 25px 24px 0;
+  }
+  .account-features .bulk-accounts {
+    margin-inline: -24px;
+  }
+  .account-features .bulk-accounts > summary {
+    padding-inline: 24px;
+  }
+  .account-features .bulk-content {
+    padding-inline: 24px;
+  }
+}
+@media (max-width: 800px) {
+  .account-features .judge-heading {
+    gap: 18px;
+  }
+  .account-features .judge-heading h1 {
+    font-size: 29px;
+  }
+  .account-features .judge-permission {
+    font-size: 8px;
+    padding: 8px;
+  }
+  .account-features .registration-control {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .account-features .registration-checkbox {
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    width: 100%;
+  }
+  .account-features .registration-checkbox small {
+    font-size: 8px;
+  }
+  .account-features .csv-label {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+  .account-features .bulk-confirm {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .account-features .created-table-wrap {
+    max-width: 100%;
+  }
+  .account-features .judge-preview-note {
+    align-items: flex-start;
+  }
+  .account-features .judge-preview-note svg {
+    margin-top: 3px;
+  }
+  .account-features .create-heading .small-caption {
+    font-size: 8px;
+    max-width: 140px;
+    text-align: right;
+    line-height: 1.7;
+  }
+}
+@media (max-width: 480px) {
+  .account-features .judge-heading {
+    margin-bottom: 23px;
+    align-items: flex-start;
+  }
+  .account-features .judge-heading h1 {
+    font-size: 24px;
+    line-height: 1.6;
+  }
+  .account-features .judge-heading p {
+    font-size: 12px;
+  }
+  .account-features .judge-permission {
+    font-size: 0;
+    padding: 9px;
+    margin-top: 4px;
+  }
+  .account-features .judge-permission svg {
+    width: 15px;
+    height: 15px;
+  }
+  .account-features .create-account-card {
+    padding: 22px 18px 0;
+  }
+  .account-features .create-heading {
+    margin-bottom: 23px;
+  }
+  .account-features .create-heading h2 {
+    font-size: 17px;
+  }
+  .account-features .create-heading .section-number {
+    width: 32px;
+    height: 34px;
+    flex-basis: 32px;
+    font-size: 11px;
+  }
+  .account-features .create-heading .small-caption {
+    display: none;
+  }
+  .account-features .create-account-form {
+    grid-template-columns: 1fr;
+    gap: 21px;
+  }
+  .account-features .create-account-form .add-account {
+    grid-column: auto;
+    width: 100%;
+    margin-top: 2px;
+  }
+  .account-features .create-field > label,
+  .account-features .create-account-form .password-field > label {
+    font-size: 13px;
+  }
+  .account-features .create-field > input,
+  .account-features .create-field > select {
+    font-size: 16px;
+  }
+  .account-features .create-notes {
+    display: grid;
+    gap: 5px;
+    margin-top: 16px;
+    font-size: 9px;
+  }
+  .account-features .create-notes > span + span:before {
+    content: none;
+  }
+  .account-features .creation-status {
+    margin-top: 10px;
+    min-height: 12px;
+  }
+  .account-features .registration-control {
+    padding: 18px 17px;
+    margin-bottom: 22px;
+  }
+  .account-features .registration-copy {
+    gap: 10px;
+  }
+  .account-features .registration-copy h2 {
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+  .account-features .registration-copy p {
+    font-size: 11px;
+  }
+  .account-features .registration-checkbox {
+    font-size: 12px;
+    gap: 12px;
+  }
+  .account-features .registration-checkbox input {
+    width: 23px;
+    height: 23px;
+  }
+  .account-features .registration-indicator {
+    width: 7px;
+    height: 7px;
+    margin-top: 6px;
+  }
+  .account-features .bulk-accounts {
+    margin-inline: -18px;
+  }
+  .account-features .bulk-accounts > summary {
+    font-size: 11px;
+    gap: 10px;
+    padding: 18px;
+  }
+  .account-features .bulk-subtitle {
+    display: none;
+  }
+  .account-features .bulk-content {
+    padding: 1px 18px 22px;
+  }
+  .account-features .bulk-intro {
+    margin: 22px 0;
+  }
+  .account-features .bulk-intro h3 {
+    font-size: 12px;
+  }
+  .account-features .bulk-intro p {
+    font-size: 11px;
+  }
+  .account-features .bulk-tools {
+    margin-left: 0;
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  .account-features .bulk-tools .button {
+    font-size: 10px;
+  }
+  .account-features .csv-label {
+    font-size: 12px;
+  }
+  .account-features .csv-label span {
+    font-size: 9px;
+    line-height: 1.8;
+  }
+  .account-features #account-csv {
+    font-size: 12px;
+    padding: 11px;
+    min-height: 150px;
+  }
+  .account-features .csv-help {
+    font-size: 10px;
+    line-height: 1.9;
+  }
+  .account-features .review-accounts {
+    font-size: 11px;
+    min-height: 45px;
+  }
+  .account-features .review-heading {
+    padding: 14px 12px;
+    gap: 10px;
+  }
+  .account-features .review-heading h3 {
+    font-size: 10px;
+  }
+  .account-features .review-heading > span {
+    font-size: 8px;
+  }
+  .account-features .bulk-confirm {
+    padding: 14px 12px;
+  }
+  .account-features .bulk-confirm .button {
+    width: 100%;
+    font-size: 11px;
+  }
+  .account-features .created-section {
+    margin-top: 28px;
+  }
+  .account-features .created-heading h2 {
+    font-size: 16px;
+  }
+  .account-features .created-counter {
+    font-size: 9px;
+    padding: 9px;
+    white-space: nowrap;
+  }
+  .account-features .created-empty {
+    padding: 20px 17px;
+    gap: 13px;
+    align-items: flex-start;
+  }
+  .account-features .empty-pixel {
+    flex: 0 0 31px;
+    height: 34px;
+    font-size: 20px;
+  }
+  .account-features .created-empty h3 {
+    font-size: 10px;
+    line-height: 1.7;
+  }
+  .account-features .created-empty p {
+    font-size: 11px;
+  }
+  .account-features .judge-preview-note {
+    font-size: 9px;
+  }
+  :where(.account-features).registration-page {
+    padding: 24px 20px;
+  }
+  :where(.account-features).registration-page h1 {
+    font-size: 23px;
+  }
+  :where(.account-features).registration-page > p {
+    font-size: 12px;
+  }
+  .account-features .credential-dialog {
+    padding: 25px 20px;
+  }
+  .account-features .credential-dialog h2 {
+    font-size: 21px;
+  }
+  .account-features .credential-dialog .password-shell input {
+    font-size: 16px;
+  }
+  .account-features .created-table {
+    min-width: 580px;
+  }
+  .account-features .created-table th,
+  .account-features .created-table td {
+    padding-inline: 15px;
+  }
+  .account-features .created-table td {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-features .registration-control,
+  .account-features .bulk-plus {
+    transition: none !important;
+  }
+}
+
+:where(.account-features).judge-accounts
+  .registration-checkbox
+  input[type="checkbox"] {
+  appearance: none;
+  width: 23px;
+  min-width: 23px;
+  max-width: 23px;
+  height: 23px;
+  min-height: 23px;
+  flex: 0 0 23px;
+  padding: 0;
+  margin: 0;
+}
+
+.account-features .account-fieldset {
+  display: contents;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.account-features {
+  min-width: 0;
+}
+.account-settings,
+.judge-accounts {
+  padding-top: 20px;
+  padding-bottom: 30px;
+}
+.account-features .password-shell input {
+  color: var(--ink);
+}
+.account-features .identity-stamp .participant-avatar {
+  width: 43px;
+  height: 50px;
+}
+.account-features .portrait-plinth .participant-avatar {
+  width: 57px;
+  height: 76px;
+}
+
+.account-settings { margin-inline: auto; }
+.account-features .portrait-plinth .account-avatar,
+.account-features .portrait-plinth .account-avatar > .avatar { width: 57px; height: 76px; }
