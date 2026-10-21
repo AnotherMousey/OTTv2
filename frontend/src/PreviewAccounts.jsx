@@ -1,44 +1,14 @@
-import {loginWithRefresh} from './loginFlow.js';
-import React,{createContext,useContext,useEffect,useRef,useState} from 'react';
-import {request,post,session,authenticate,signOut} from './api/platformApi.js';
-const Context=createContext(null);
-const empty={id:'',name:'Select a tournament',phase:'registration',round:1,totalRounds:0,capacity:0,mapId:'standard-9',firstSide:'white',maxTurns:31,players:[],pairs:[],history:[],counts:{accepted:0,pending:0,botsReady:0}};
-const normalize=e=>({...e,players:(e.players||[]).map(p=>({...p,language:({python:'Python',java:'Java',cpp:'C++'}[p.language]||p.language)})),history:e.history||[],pairs:e.pairs||[],pagination:e.pagination||{},counts:e.counts||{accepted:0,pending:0,botsReady:0}});
-export function PreviewAccounts({children}){
- const [user,setUser]=useState(null),[authChecking,setAuthChecking]=useState(()=>Boolean(session())),[events,setEvents]=useState([]),[tournament,setTournament]=useState(empty),[rankings,setRankings]=useState([]),[error,setError]=useState(''),[busy,setBusy]=useState(false),[loading,setLoading]=useState(true),[eventTotal,setEventTotal]=useState(0),[rankPage,setRankPage]=useState({offset:0,total:0});
- const authVersion=useRef(0),authPending=useRef(false);
- const selected=useRef(''),generation=useRef(0),pages=useRef({offset:0,matchOffset:0,rankOffset:0});
- async function loadDirectory(offset=0){const version=authVersion.current;const data=await request('/api/tournaments?limit=30&offset='+offset);if(version!==authVersion.current)return data;setEvents(current=>offset?[...current,...data.events.map(normalize)].filter((e,i,list)=>list.findIndex(v=>v.id===e.id)===i):data.events.map(normalize));setEventTotal(data.total);if(!selected.current&&data.events[0])selected.current=data.events[0].id;return data;}
- async function refresh({includeRankings=true}={}){const id=selected.current;if(!id){setError('');return;}const version=generation.current,identity=authVersion.current;const p=pages.current;const [event,standings]=await Promise.all([request(`/api/tournaments/${id}?offset=${p.offset}&matchOffset=${p.matchOffset}`),includeRankings?request(`/api/tournaments/${id}/rankings?offset=${p.rankOffset}`):Promise.resolve(null)]);if(version!==generation.current||identity!==authVersion.current)return;const value=normalize(event);value.entryRows=value.players;const people=[...value.players,...(event.pairingPlayers||[]),...(event.myEntry?[event.myEntry]:[])].filter((e,i,list)=>list.findIndex(v=>v.id===e.id)===i);value.players=people;value.pairs=[...value.pairs,...(event.myMatch?[event.myMatch]:[])].filter((p,i,list)=>list.findIndex(v=>v.id===p.id)===i);setTournament(value);if(standings){setRankings(standings.rankings);setRankPage({offset:standings.offset,total:standings.total});}setError('');}
- useEffect(()=>{let active=true,polling=false;const expired=()=>{authVersion.current++;setUser(null);setAuthChecking(false);setLoading(false);setTournament(empty);setRankings([]);setError('Session expired. Log in again.');};window.addEventListener('ott-session-expired',expired);
- const version=authVersion.current;
- (async()=>{try{
-   if(session()){try{const data=await request('/api/auth/me');if(active&&version===authVersion.current)setUser(data.account);}catch(e){if(active&&version===authVersion.current)setError(e.message);}}
-   if(!active||version!==authVersion.current)return;
-   setAuthChecking(false);
-   await loadDirectory();if(active&&version===authVersion.current)await refresh();
- }catch(e){if(active&&version===authVersion.current)setError(e.message);}finally{if(active&&version===authVersion.current){setAuthChecking(false);setLoading(false);}}})();
- const timer=setInterval(async()=>{if(document.hidden||polling||authPending.current)return;const page=location.hash.slice(1);if(!['tournament','mybot','rankings'].includes(page))return;polling=true;const identity=authVersion.current;try{if(!selected.current)await loadDirectory();await refresh({includeRankings:page!=='mybot'});if(session()){const data=await request('/api/auth/me');if(active&&identity===authVersion.current)setUser(data.account);}}catch(e){if(active&&identity===authVersion.current)setError(e.message);}finally{polling=false;}},6000);
- return()=>{active=false;clearInterval(timer);window.removeEventListener('ott-session-expired',expired);};},[]);
- async function login(username,password){
-   const version=++authVersion.current;authPending.current=true;setError('');
-   try{return await loginWithRefresh({authenticate,username,password,onAuthenticated:account=>{setTournament(empty);setRankings([]);setUser(account);setAuthChecking(false);setLoading(true);},refresh:async()=>{
-     try{await loadDirectory();if(version===authVersion.current)await refresh();}
-     finally{if(version===authVersion.current)setLoading(false);}
-   },onRefreshError:e=>{if(version===authVersion.current)setError('Logged in. Tournament data could not load: '+e.message);}});}
-   catch(e){if(version===authVersion.current)setLoading(false);throw e;}
-   finally{authPending.current=false;}
- }
- async function logout(){authVersion.current++;selected.current='';generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};setUser(null);setAuthChecking(false);setLoading(false);setTournament(empty);setRankings([]);try{await signOut();}catch(e){setError(e.message);}}
+import React, { createContext, useContext } from "react";
+import { useTournamentAccounts } from "./hooks/useTournamentAccounts.js";
 
- async function saveAppearance(appearance){const data=await post('/api/auth/appearance',{appearance});setUser(data.account);setRankings(current=>current.map(p=>p.id===data.account.id?{...p,appearance:data.account.appearance}:p));setTournament(current=>({...current,players:current.players.map(p=>p.id===data.account.id?{...p,appearance:data.account.appearance}:p)}));return data.account;}
- async function selectEvent(id){selected.current=id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};try{await refresh();return true;}catch(e){setError(e.message);return false;}}
- async function mutate(path,body){if(busy)return false;setBusy(true);setError('');try{await post(`/api/tournaments/${selected.current}/${path}`,body);await Promise.all([refresh(),loadDirectory()]);return true;}catch(e){setError(e.message);throw e;}finally{setBusy(false);}}
- const action=(path,body)=>()=>mutate(path,body).catch(()=>{});
- const review=(id,accept)=>mutate('review',{userId:id,accept}).catch(()=>{});
- const create=async values=>{setBusy(true);try{const data=await post('/api/tournaments',values);selected.current=data.id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};await loadDirectory();await refresh();return true;}catch(e){setError(e.message);return false;}finally{setBusy(false);}};
- const saveBot=bot=>mutate('bot',{filename:bot.name,language:({Python:'python',Java:'java','C++':'cpp'}[bot.language]||bot.language),source:bot.source});
- const paginate=async(type,offset)=>{pages.current={...pages.current,[type]:offset};setBusy(true);try{await refresh();}catch(e){setError(e.message);}finally{setBusy(false);}};
- return <Context.Provider value={{user,authChecking,login,logout,saveAppearance,events,eventTotal,tournament,rankings,rankPage,error,busy,loading,selectEvent,create,saveBot,join:action('join'),review,approveAll:action('review',{all:true,accept:true}),advance:action('advance'),configure:values=>mutate('settings',values).catch(()=>{}),paginate,loadMore:()=>loadDirectory(events.length).catch(e=>setError(e.message)),refresh}}>{children}</Context.Provider>;
+const Context = createContext(null);
+
+// Retain the existing provider name and consumer contract.
+export function PreviewAccounts({ children }) {
+  const accounts = useTournamentAccounts();
+  return <Context.Provider value={accounts}>{children}</Context.Provider>;
 }
-export function useAccounts(){return useContext(Context);}
+
+export function useAccounts() {
+  return useContext(Context);
+}

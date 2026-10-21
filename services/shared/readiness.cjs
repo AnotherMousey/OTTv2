@@ -34,7 +34,10 @@ function databaseFingerprint(value=process.env.DATABASE_URL){
  ])).digest('hex').slice(0,16);}catch{return 'unconfigured';}
 }
 const buildFiles=['prisma/schema.prisma','services/api/index.cjs','services/api/tournaments.cjs',
- 'services/shared/readiness.cjs','services/shared/db.cjs','services/platform/game-integration.cjs'];
+ 'services/shared/readiness.cjs','services/shared/db.cjs','services/platform/game-integration.cjs',
+ // Keep extracted tournament code covered by the same deployment fingerprint.
+ 'services/api/tournament-queries.cjs','services/api/tournament-commands.cjs',
+ 'services/api/tournament-presenters.cjs'];
 const buildId=crypto.createHash('sha256').update(buildFiles.map(file=>file+'\n'+fs.readFileSync(path.resolve(__dirname,'../..',file),'utf8').replace(/\r\n/g,'\n')).join('\n')).digest('hex').slice(0,16);
 function deploymentIdentity(){return {buildId,databaseFingerprint:databaseFingerprint()};}
 function schemaDetails(error){
