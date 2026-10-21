@@ -175,3 +175,8 @@ model SyncPart {
   digest String @db.Char(64)
   @@id([tournamentId,matchId])
 }
+
+model RegistrationSettings {
+  id      String  @id @db.VarChar(32)
+  enabled Boolean @default(false)
+}
