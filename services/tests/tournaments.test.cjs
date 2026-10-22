@@ -112,7 +112,7 @@ test("entrant and pair DTOs preserve aliases, zero values, appearance and input 
 test("directory retains pagination, hidden imports and grouped counts", async (t) => {
   t.mock.method(db.tournament, "findMany", async (query) => {
     assert.deepEqual(query.where, {
-      AND: [{ phase: { not: "finished" } }, { phase: { not: "importing" } }],
+      AND: [{ phase: { not: "finished" } }, { phase: { not: "importing" } }, { deletedAt: null, OR: [{ hidden: false }, { ownerId: "judge-1" }] }],
     });
     assert.equal(query.skip, 30);
     assert.equal(query.take, 10);
@@ -215,6 +215,7 @@ test("state keeps personal entry, off-page pairing identities, unfinished counts
 });
 
 test("archived rankings retain historical names/ratings, mapped IDs and current appearance", async (t) => {
+  t.mock.method(db.tournament, "findUnique", async () => event);
   const participants = [
     { id: "old-a", name: "Zed", rating: 1200 },
     { id: "old-b", name: "Amy", rating: 1200 },
@@ -371,6 +372,7 @@ test("advance never finishes a live round with unfinished work", async (t) => {
 });
 
 test('daily archive standings retain points-first tournament ranking',async t=>{
+ t.mock.method(db.tournament,'findUnique',async()=>event);
  t.mock.method(db.syncReceipt,'findUnique',async()=>({payload:{complete:true,manifest:{version:2,participants:[{id:'a',name:'A',rating:1200,points:1,wins:1},{id:'b',name:'B',rating:1000,points:2,wins:2}]},accountMap:{a:'new-a',b:'new-b'}}}));
  t.mock.method(db.user,'findMany',async()=>[]);
  const res=response();await api.rankings(request(),res);

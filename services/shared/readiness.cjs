@@ -38,6 +38,7 @@ const buildFiles=['prisma/schema.prisma','services/api/index.cjs','services/api/
  // Keep extracted tournament code covered by the same deployment fingerprint.
  'services/api/tournament-queries.cjs','services/api/tournament-commands.cjs',
  'services/api/tournament-presenters.cjs','services/api/daily-tournaments.cjs',
+ 'services/api/tournament-visibility.cjs',
  'services/platform/daily-policy.cjs','services/platform/daily-tournament.cjs',
  'services/worker/index.cjs','services/worker/queue.cjs'];
 const buildId=crypto.createHash('sha256').update(buildFiles.map(file=>file+'\n'+fs.readFileSync(path.resolve(__dirname,'../..',file),'utf8').replace(/\r\n/g,'\n')).join('\n')).digest('hex').slice(0,16);

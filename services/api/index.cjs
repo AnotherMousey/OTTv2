@@ -38,12 +38,16 @@ app.post('/api/sync/plan',auth,judge,sync.plan);
 app.post('/api/sync/begin',auth,judge,sync.begin);
 app.post('/api/sync/:id/part',auth,judge,sync.uploadPart);
 app.post('/api/sync/:id/complete',auth,judge,sync.complete);
-app.get('/api/tournaments',tournaments.list);app.post('/api/tournaments',auth,judge,tournaments.create);
-// A supplied session is checked even on an otherwise public tournament read.
 const optionalAuth=(req,res,next)=>req.headers.authorization?auth(req,res,next):next();
-app.get('/api/tournaments/:id',optionalAuth,tournaments.state);app.get('/api/tournaments/:id/rankings',tournaments.rankings);
+app.get('/api/tournaments',optionalAuth,tournaments.list);app.post('/api/tournaments',auth,judge,tournaments.create);
+// A supplied session is checked even on an otherwise public tournament read.
+
+app.get('/api/tournaments/:id',optionalAuth,tournaments.state);app.get('/api/tournaments/:id/rankings',optionalAuth,tournaments.rankings);
 app.get('/api/tournaments/:id/rounds',optionalAuth,tournamentRounds.list);
 const dailyTournaments=require('./daily-tournaments.cjs');
+const tournamentVisibility=require('./tournament-visibility.cjs');
+app.post('/api/tournaments/:id/visibility',auth,judge,tournamentVisibility.visibility);
+app.post('/api/tournaments/:id/delete',auth,judge,tournamentVisibility.remove);
 app.post('/api/tournaments/:id/schedule',auth,judge,dailyTournaments.changeSchedule);
 app.get('/api/tournaments/:id/source',auth,judge,dailyTournaments.versions);
 app.get('/api/tournaments/:id/source/:submissionId',auth,judge,dailyTournaments.code);

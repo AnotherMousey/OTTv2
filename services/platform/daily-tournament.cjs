@@ -88,7 +88,7 @@ async function tickEvent(id, now = new Date()) {
     await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${id} FOR UPDATE`;
     const event = await tx.tournament.findUnique({ where: { id } });
     let changed = false;
-    if (!policy.isDaily(event) || event.phase === 'finished') return;
+    if (!policy.isDaily(event) || event.deletedAt || event.phase === 'finished') return;
     if (policy.started(event, now) && event.phase !== 'live') {await tx.tournament.update({ where: { id }, data: { phase: 'live' } });changed=true;}
     const batches = await tx.dailyBatch.findMany({ where: { tournamentId: id }, orderBy: { date: 'asc' } });
     const existing = new Set(batches.map(b => b.date));
@@ -120,7 +120,7 @@ async function tick() {
   if (running) return;
   running = true;
   try {
-    const events = await prisma.tournament.findMany({ where: { format: policy.FORMAT, phase: { not: 'finished' } }, select: { id: true } });
+    const events = await prisma.tournament.findMany({ where: { format: policy.FORMAT, deletedAt: null, phase: { not: 'finished' } }, select: { id: true } });
     for (const event of events) {
       try {
         for (let page = 0; page < 8; page++) if (!await tickEvent(event.id)) break;

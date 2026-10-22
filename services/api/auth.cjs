@@ -17,5 +17,5 @@ async function login(req,res){
   res.json({token,account:publicUser(user)});
 }
 async function logout(req,res){const token=req.headers.authorization?.replace(/^Bearer /i,'');if(token)await prisma.session.deleteMany({where:{tokenHash:digest(token)}});res.json({ok:true});}
-async function eventOwner(tx,id,user){await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${id} FOR UPDATE`;const event=await tx.tournament.findUnique({where:{id}});if(!event)fail(404,'Tournament not found.');if(user.role!=='judge'||event.ownerId!==user.id)fail(403,'Only the organizing judge can change this tournament.');return event;}
+async function eventOwner(tx,id,user){await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${id} FOR UPDATE`;const event=await tx.tournament.findUnique({where:{id}});if(!event||event.deletedAt)fail(404,'Tournament not found.');if(user.role!=='judge'||event.ownerId!==user.id)fail(403,'Only the organizing judge can change this tournament.');return event;}
 module.exports={auth,judge,rate,login,logout,eventOwner};
