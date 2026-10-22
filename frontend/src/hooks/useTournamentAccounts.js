@@ -45,7 +45,7 @@ export function useTournamentAccounts() {
       selected.current = data.events[0].id;
     return data;
   }
-  async function refresh({ includeRankings = true } = {}) {
+  async function refresh({ includeRankings = true, signal, isCurrent } = {}) {
     const id = selected.current;
     if (!id) {
       setError("");
@@ -57,13 +57,14 @@ export function useTournamentAccounts() {
     const p = pages.current, pathId = encodeURIComponent(id);
     const [event, standings] = await Promise.all([
       request(
-        `/api/tournaments/${pathId}?offset=${p.offset}&matchOffset=${p.matchOffset}`,
+        `/api/tournaments/${pathId}?offset=${p.offset}&matchOffset=${p.matchOffset}`, {signal},
       ),
       includeRankings
-        ? request(`/api/tournaments/${pathId}/rankings?offset=${p.rankOffset}`)
+        ? request(`/api/tournaments/${pathId}/rankings?offset=${p.rankOffset}`, {signal})
         : Promise.resolve(null),
     ]);
     if (
+      signal?.aborted || (isCurrent && !isCurrent()) ||
       version !== generation.current ||
       identity !== authVersion.current ||
       profile !== profileVersion.current
@@ -72,7 +73,7 @@ export function useTournamentAccounts() {
     // Separate HTTP responses can straddle an atomic publication. Keep the
     // previous coherent view until the next poll rather than mixing versions.
     if (standings && event.format === 'daily-round-robin' &&
-        (event.publishedBatchId || null) !== (standings.publishedBatchId || null)) return;
+        (event.publishedBatchId || null) !== (standings.publishedBatchId || null)) return false;
     const value = tournamentWorkspace(event);
     setTournament(value);
     setSelectionError(null);
@@ -81,6 +82,7 @@ export function useTournamentAccounts() {
       setRankPage({ offset: standings.offset, total: standings.total });
     }
     setError("");
+    return true;
   }
   useEffect(() => {
     let active = true,
@@ -270,21 +272,33 @@ export function useTournamentAccounts() {
     }));
     return data.account;
   }
-  async function selectEvent(id) {
+  async function selectEvent(id, {signal,throwOnError=false,isCurrent} = {}) {
+    if(signal?.aborted)return false;
+    const previousId=selected.current, previousPages=pages.current;
     selected.current = id;
     const version=++generation.current, identity=authVersion.current;
     pages.current = { offset: 0, matchOffset: 0, rankOffset: 0 };
     setSelectionError(null);if(routePage(location.hash.slice(1))==='tournament')setLoading(true);
     if(routePage(location.hash.slice(1))==='tournament')replaceRoute(tournamentRoute(id));
-    try {
-      await refresh();
-      return version===generation.current&&identity===authVersion.current;
-    } catch (e) {
+    const cancelled=()=>{
       if(version===generation.current&&identity===authVersion.current){
-        setError(e.message);setSelectionError({id,message:unavailableTournament(e)});
+        generation.current++;selected.current=previousId;pages.current=previousPages;setLoading(false);
       }
+    };
+    signal?.addEventListener('abort',cancelled,{once:true});
+    try {
+      const refreshed=await refresh({signal,isCurrent});
+      if(!refreshed&&signal)cancelled();
+      return refreshed===true&&!signal?.aborted&&version===generation.current&&identity===authVersion.current;
+    } catch (e) {
+      if(!signal?.aborted&&version===generation.current&&identity===authVersion.current){
+        setError(e.message);setSelectionError({id,message:unavailableTournament(e)});
+        if(signal)cancelled();
+      }
+      if(throwOnError)throw e;
       return false;
     } finally {
+      signal?.removeEventListener('abort',cancelled);
       if(version===generation.current&&identity===authVersion.current)setLoading(false);
     }
   }

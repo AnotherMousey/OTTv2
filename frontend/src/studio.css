@@ -184,3 +184,12 @@ input[type=file]::file-selector-button{font:inherit;color:var(--ink);background:
 .account-login-form .login-password-toggle:hover:not(:disabled){background:var(--paper)}
 .account-login-form .login-password-toggle:focus-visible{outline:2px solid var(--studio-accent);outline-offset:2px;z-index:1}
 .account-login-form .login-password-toggle:disabled{opacity:.6;cursor:wait}
+
+/* Directory navigation stays inline; retain all existing theme and type tokens. */
+.studio-event.event-opening{outline:2px solid var(--studio-accent);outline-offset:2px;}
+.event-opening .event-body>.button:disabled,.event-opening .event-details-link:disabled{opacity:1;cursor:progress;color:var(--ink);}
+.event-opening .event-body>.button{border-color:var(--studio-accent);box-shadow:inset 0 -3px var(--studio-accent);}
+.event-opening .event-details-link{color:var(--ink);text-decoration-thickness:2px;}
+.event-opening-indicator{display:inline-block;flex:none;width:12px;height:12px;border:2px solid currentColor;border-right-color:transparent;box-sizing:border-box;animation:event-opening-turn 1s linear infinite;}
+@keyframes event-opening-turn{to{transform:rotate(360deg);}}
+@media(prefers-reduced-motion:reduce){.event-opening-indicator{animation:none;border-right-color:currentColor;}}

@@ -1,6 +1,7 @@
+import {createTournamentOpening} from './tournamentOpening.js';
 import {entryLoginRoute} from './tournamentNavigation.js';
 import {TournamentManagementActions} from './TournamentManagementActions.jsx';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import {useAccounts} from './PreviewAccounts.jsx';
 import {request} from './api/platformApi.js';
 import {Button} from './ui.jsx';
@@ -36,6 +37,9 @@ export function StudioTournaments({go}) {
   const [offset, setOffset] = useState(0), [revision, setRevision] = useState(0);
   const [loading, setLoading] = useState(true), [directoryError, setDirectoryError] = useState('');
   const [selecting, setSelecting] = useState(''), [actionError, setActionError] = useState('');
+  const opening=useRef(null);if(!opening.current)opening.current=createTournamentOpening();
+  useEffect(()=>()=>opening.current.cancel(),[]);
+  useEffect(()=>{opening.current.cancel();setSelecting('');},[user?.id]);
   const [adding, setAdding] = useState(false), [name, setName] = useState('');
   const [startDate,setStartDate]=useState(''),[startTime,setStartTime]=useState('00:00'),[endDate,setEndDate]=useState(''),[capacity,setCapacity]=useState(256);
   const [now, setNow] = useState(Date.now());
@@ -75,21 +79,20 @@ export function StudioTournaments({go}) {
   }, []);
 
   const visible = directory.filter(e => (showHidden || !e.hidden) && e.name.toLowerCase().includes(query.toLowerCase()));
-  function changeFilter(id) {setFilter(id); setOffset(0); setDirectory([]); setDirectoryError(''); setRevision(v => v + 1);}
+  function changeFilter(id) {opening.current.cancel();setSelecting('');setFilter(id); setOffset(0); setDirectory([]); setDirectoryError(''); setRevision(v => v + 1);}
   async function add(e) {
     e.preventDefault();
     if (await create({name: name.trim(), startDate, startTime, endDate, capacity: Number(capacity)})) {
       setAdding(false); setName(''); go('tournament');
     }
   }
-  async function open(t, target) {
-    if (selecting) return;
-    setSelecting(t.id); setActionError('');
-    try {
-      const selected = await selectEvent(t.id);
-      if (selected === false) {setActionError('Could not load this tournament. Try again.'); return;}
-      go(target);
-    } finally {setSelecting('');}
+  function open(t, target) {
+    return opening.current.open({id:t.id,target,select:selectEvent,navigate:go,
+      getRoute:()=>location.hash,onPending:id=>{setSelecting(id);if(id)setActionError('');},
+      onError:e=>setActionError(e.status===404||e.status===403
+        ? `${t.name} is no longer available. Choose another tournament.`
+        : `Could not open ${t.name}. ${e.message||'Please try again.'}`),
+    });
   }
   function enter(t) {
     const target = judge ? 'tournament' : ['live', 'finished'].includes(t.phase)
@@ -116,13 +119,14 @@ export function StudioTournaments({go}) {
     <div className="tournament-toolbar"><div className="event-filters" aria-label="Tournament phases">
       {[['all', 'All events'], ['registration', 'Registration'], ['active', 'Ongoing'], ['finished', 'Finished']].map(([id, title]) =>
         <Button secondary className={`button secondary ${filter === id ? 'active' : ''}`} aria-pressed={filter === id} key={id} disabled={filter === id && loading} onClick={() => changeFilter(id)}>{title}</Button>)}
-    </div><label className="tournament-search"><span className="sr-only">Find a tournament</span><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Find a tournament…"/></label></div>
+    </div><label className="tournament-search"><span className="sr-only">Find a tournament</span><input type="search" value={query} onChange={e => {opening.current.cancel();setSelecting('');setQuery(e.target.value);}} placeholder="Find a tournament…"/></label></div>
     {judge&&<div className="phase-actions"><Button secondary aria-pressed={showHidden} onClick={()=>setShowHidden(v=>!v)}>{showHidden?'Hide hidden events':'Show hidden events'}</Button></div>}
     {query && directory.length < total && <p className="account-note">Search covers loaded tournaments. Load more to search additional events.</p>}
-    {error && <p className="error" role="alert">{error}</p>}
+    {error && !actionError && <p className="error" role="alert">{error}</p>}
     {actionError && <p className="error" role="alert">{actionError}</p>}
     {directoryError && <div className="error" role="alert"><p>{directoryError}</p><Button secondary disabled={loading} onClick={() => setRevision(v => v + 1)}>Retry loading tournaments</Button></div>}
     {loading && <p role="status">Loading tournaments…</p>}
+    <p className="event-opening-announcement sr-only" role="status" aria-live="polite" aria-atomic="true">{selecting?`Opening ${directory.find(t=>t.id===selecting)?.name||'tournament'}. Please wait.`:''}</p>
     <div className="studio-event-grid">{visible.map((t, i) => {
       const count = t.counts?.accepted ?? 0, ready = t.counts?.botsReady ?? 0;
       const map = maps.find(m => m.id === t.mapId);
@@ -130,7 +134,7 @@ export function StudioTournaments({go}) {
       const width = config?.length ?? config?.boardSize, height = config?.width ?? config?.boardSize;
       const label = judge ? 'Manage tournament' : t.phase === 'preparation' ? 'Prepare your bot'
         : t.phase === 'registration' ? 'Request entry' : ['live', 'finished'].includes(t.phase) ? 'Watch a match' : 'View tournament';
-      return <article className="studio-event" key={t.id}>
+      return <article className={`studio-event ${selecting===t.id?'event-opening':''}`} key={t.id}>
         <div className="event-art"><Pixel kind={t.phase === 'registration' ? 'trophy' : t.phase === 'live' ? 'scissors' : 'bot'} side={t.phase === 'live' ? 'black' : 'white'}/><span>OTT / {String(i + 1).padStart(2, '0')}</span><div className="event-art-corner"/></div>
         <div className="event-body"><span className={`event-phase ${t.phase}`}>{t.hidden?'HIDDEN':phaseLabel(t.phase).toUpperCase()}</span>
           <h2>{t.name}</h2><p className="event-description">{t.description}</p>
@@ -138,9 +142,9 @@ export function StudioTournaments({go}) {
           {t.format==='daily-round-robin'&&<p className="account-note">{t.startDate} {t.startTime||'00:00'} — {t.endDate}</p>}
           <Countdown timezone={t.timezone} deadline={tournamentDeadline(t)} label={t.format==='daily-round-robin'?'NEXT BOT LOCK':deadlineLabels[t.phase] || 'NEXT PHASE'} now={now}/>
           <div className="event-readiness"><span>{t.phase === 'preparation' ? `${ready} / ${count} bots ready` : t.phase === 'registration' ? 'Registration open' : 'Tournament in progress'}</span>{judge && t.counts?.pending > 0 && <span>{t.counts.pending} pending</span>}</div>
-          <Button secondary disabled={Boolean(selecting)} aria-busy={selecting === t.id} onClick={() => enter(t)}>{selecting === t.id ? 'Opening…' : label}<span className="pixel-arrow" aria-hidden="true"/></Button>
+          <Button secondary disabled={selecting===t.id} aria-busy={selecting === t.id} onClick={() => enter(t)}>{selecting === t.id ? 'Opening…' : label}<span className={selecting===t.id?"event-opening-indicator":"pixel-arrow"} aria-hidden="true"/></Button>
           <TournamentManagementActions compact event={t} onChanged={()=>{setOffset(0);setRevision(v=>v+1);}} onDeleted={()=>{setOffset(0);setRevision(v=>v+1);}}/>
-          {!judge && <button className="text-link event-details-link" disabled={Boolean(selecting)} onClick={() => open(t, 'tournament')}>Tournament details</button>}
+          {!judge && <button className="text-link event-details-link" disabled={selecting===t.id} aria-busy={selecting===t.id} onClick={() => open(t, 'tournament')}>{selecting===t.id?'Opening details…':'Tournament details'}</button>}
         </div>
       </article>;
     })}</div>
