@@ -5,7 +5,7 @@ export function initialTheme(storage, prefersDark = false) {
   } catch {
     /* Restricted storage must not prevent the UI from opening. */
   }
-  return prefersDark ? "dark" : "light";
+  return "light";
 }
 export function persistTheme(storage, theme) {
   try {
