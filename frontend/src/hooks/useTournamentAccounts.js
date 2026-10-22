@@ -271,6 +271,20 @@ export function useTournamentAccounts() {
       setBusy(false);
     }
   }
+  async function manageTournament(id, action, body = {}) {
+    if (busy) return false;
+    setBusy(true);setError('');
+    try {
+      await post(`/api/tournaments/${encodeURIComponent(id)}/${action}`, body);
+      if (action === 'delete' && selected.current === id) {
+        selected.current='';generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};
+        setTournament(empty);setRankings([]);setRankPage({offset:0,total:0});
+      }
+      await loadDirectory();
+      if (selected.current) await refresh();
+      return true;
+    } catch (e) {setError(e.message);throw e;} finally {setBusy(false);}
+  }
   const action = (path, body) => () => mutate(path, body).catch(() => {});
   const review = (id, accept) =>
     mutate("review", { userId: id, accept }).catch(() => {});
@@ -326,6 +340,8 @@ export function useTournamentAccounts() {
     busy,
     loading,
     selectEvent,
+    changeVisibility: (id, hidden) => manageTournament(id, "visibility", {hidden}),
+    deleteTournament: id => manageTournament(id, "delete"),
     create,
     saveBot,
     join: action("join"),

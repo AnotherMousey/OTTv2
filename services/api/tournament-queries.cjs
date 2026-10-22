@@ -1,5 +1,6 @@
 const { prisma } = require("../shared/db.cjs");
 const { fail, int } = require("../shared/domain.cjs");
+const visibility = require("./tournament-visibility.cjs");
 const daily = require("../platform/daily-policy.cjs");
 const { entrant, pair } = require("./tournament-presenters.cjs");
 
@@ -29,13 +30,13 @@ async function list(req, res) {
       : {};
   const [events, total] = await Promise.all([
     prisma.tournament.findMany({
-      where: { AND: [where, { phase: { not: "importing" } }] },
+      where: { AND: [where, { phase: { not: "importing" } }, visibility.readableWhere(req.user)] },
       orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
     }),
     prisma.tournament.count({
-      where: { AND: [where, { phase: { not: "importing" } }] },
+      where: { AND: [where, { phase: { not: "importing" } }, visibility.readableWhere(req.user)] },
     }),
   ]);
   const ids = events.map((e) => e.id);
@@ -78,7 +79,7 @@ async function state(req, res) {
   const event = await prisma.tournament.findUnique({
     where: { id: req.params.id },
   });
-  if (!event || event.phase === "importing") fail(404, "Tournament not found.");
+  if (!visibility.canRead(event, req.user)) fail(404, "Tournament not found.");
   if (daily.isDaily(event)) return require("./daily-tournaments.cjs").readState(req, res);
   const offset = int(req.query.offset || 0, 0, 100000, "Offset"),
     limit = int(req.query.limit || 100, 1, 100, "Limit");
@@ -224,6 +225,7 @@ async function state(req, res) {
   });
 }
 async function rankings(req, res) {
+  const readableEvent = await visibility.requireReadable(req.params.id, req.user);
   const offset = int(req.query.offset || 0, 0, 100000, "Offset");
   const receipt = await prisma.syncReceipt.findUnique({
     where: { tournamentId: req.params.id },
@@ -258,7 +260,7 @@ async function rankings(req, res) {
       limit: 100,
     });
   }
-  const event = await prisma.tournament.findUnique({ where: { id: req.params.id } });
+  const event = readableEvent;
   if (daily.isDaily(event)) return require("./daily-tournaments.cjs").rankings(req, res);
   const [entries, total] = await Promise.all([
     prisma.entry.findMany({

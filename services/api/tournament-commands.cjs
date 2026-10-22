@@ -58,7 +58,7 @@ async function join(req, res) {
     const event = await tx.tournament.findUnique({
       where: { id: req.params.id },
     });
-    if (!event) fail(404, "Tournament not found.");
+    if (!require("./tournament-visibility.cjs").canRead(event, req.user)) fail(404, "Tournament not found.");
     if (event.phase !== "registration" || daily.started(event))
       fail(409, "Tournament registration is closed.");
     const existing = await tx.entry.findUnique({

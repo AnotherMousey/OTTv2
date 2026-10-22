@@ -1,3 +1,4 @@
+import {TournamentManagementActions} from './TournamentManagementActions.jsx';
 import React, {useEffect, useState} from 'react';
 import {useAccounts} from './PreviewAccounts.jsx';
 import {request} from './api/platformApi.js';
@@ -29,7 +30,7 @@ function Countdown({deadline, label, now, timezone}) {
 
 export function StudioTournaments({go}) {
   const {user, selectEvent, create, error, busy} = useAccounts();
-  const [filter, setFilter] = useState('all'), [query, setQuery] = useState('');
+  const [filter, setFilter] = useState('all'), [query, setQuery] = useState(''), [showHidden,setShowHidden]=useState(false);
   const [directory, setDirectory] = useState([]), [total, setTotal] = useState(0);
   const [offset, setOffset] = useState(0), [revision, setRevision] = useState(0);
   const [loading, setLoading] = useState(true), [directoryError, setDirectoryError] = useState('');
@@ -39,6 +40,8 @@ export function StudioTournaments({go}) {
   const [now, setNow] = useState(Date.now());
   const [maps, setMaps] = useState(bundledMaps);
   const judge = user?.role === 'judge';
+
+  useEffect(() => {setOffset(0);setDirectory([]);setShowHidden(false);}, [user?.id]);
 
   useEffect(() => {
     const controller = new AbortController(); let active = true;
@@ -52,7 +55,7 @@ export function StudioTournaments({go}) {
       .catch(e => {if (active && e.name !== 'AbortError') setDirectoryError(e.message);})
       .finally(() => {if (active) setLoading(false);});
     return () => {active = false; controller.abort();};
-  }, [filter, offset, revision]);
+  }, [filter, offset, revision, user?.id]);
 
   useEffect(() => {
     const controller = new AbortController(); let active = true;
@@ -70,7 +73,7 @@ export function StudioTournaments({go}) {
     return () => {clearInterval(timer); document.removeEventListener('visibilitychange', visibility);};
   }, []);
 
-  const visible = directory.filter(e => e.name.toLowerCase().includes(query.toLowerCase()));
+  const visible = directory.filter(e => (showHidden || !e.hidden) && e.name.toLowerCase().includes(query.toLowerCase()));
   function changeFilter(id) {setFilter(id); setOffset(0); setDirectory([]); setDirectoryError(''); setRevision(v => v + 1);}
   async function add(e) {
     e.preventDefault();
@@ -112,6 +115,7 @@ export function StudioTournaments({go}) {
       {[['all', 'All events'], ['registration', 'Registration'], ['preparation', 'Preparation'], ['pairing', 'Pairing review'], ['live', 'Matches'], ['finished', 'Finished'], ['active', 'Ongoing']].map(([id, title]) =>
         <Button secondary className={`button secondary ${filter === id ? 'active' : ''}`} aria-pressed={filter === id} key={id} disabled={filter === id && loading} onClick={() => changeFilter(id)}>{title}</Button>)}
     </div><label className="tournament-search"><span className="sr-only">Find a tournament</span><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Find a tournament…"/></label></div>
+    {judge&&<div className="phase-actions"><Button secondary aria-pressed={showHidden} onClick={()=>setShowHidden(v=>!v)}>{showHidden?'Hide hidden events':'Show hidden events'}</Button></div>}
     {query && directory.length < total && <p className="account-note">Search covers loaded tournaments. Load more to search additional events.</p>}
     {error && <p className="error" role="alert">{error}</p>}
     {actionError && <p className="error" role="alert">{actionError}</p>}
@@ -126,19 +130,20 @@ export function StudioTournaments({go}) {
         : t.phase === 'registration' ? 'Request entry' : ['live', 'finished'].includes(t.phase) ? 'Watch a match' : 'View tournament';
       return <article className="studio-event" key={t.id}>
         <div className="event-art"><Pixel kind={t.phase === 'registration' ? 'trophy' : t.phase === 'live' ? 'scissors' : 'bot'} side={t.phase === 'live' ? 'black' : 'white'}/><span>OTT / {String(i + 1).padStart(2, '0')}</span><div className="event-art-corner"/></div>
-        <div className="event-body"><span className={`event-phase ${t.phase}`}>{phaseLabel(t.phase).toUpperCase()}</span>
+        <div className="event-body"><span className={`event-phase ${t.phase}`}>{t.hidden?'HIDDEN':phaseLabel(t.phase).toUpperCase()}</span>
           <h2>{t.name}</h2><p className="event-description">{t.description}</p>
           <div className="event-stats"><div><span>PLAYERS</span><b>{count} / {t.capacity}</b></div><div><span>ROUND</span><b>{String(t.round).padStart(2, '0')} / {String(t.totalRounds).padStart(2, '0')}</b></div><div><span>MAP</span><b>{width && height ? `${width} × ${height}` : 'Not set'}</b></div></div>
-          {t.format==='daily-round-robin'&&<p>{t.startDate} — {t.endDate} · Asia/Ho_Chi_Minh<br/>Daily double round robin · lock 21:00–21:30</p>}
+          {t.format==='daily-round-robin'&&<p className="account-note">{t.startDate} — {t.endDate}</p>}
           <Countdown timezone={t.timezone} deadline={tournamentDeadline(t)} label={t.format==='daily-round-robin'?'NEXT BOT LOCK':deadlineLabels[t.phase] || 'NEXT PHASE'} now={now}/>
-          <div className="event-readiness"><span>{t.phase === 'preparation' ? `${ready} / ${count} bots ready` : t.phase === 'registration' ? 'Organizer-issued accounts' : 'Judge-managed rounds'}</span>{judge && t.counts?.pending > 0 && <span>{t.counts.pending} pending</span>}</div>
+          <div className="event-readiness"><span>{t.phase === 'preparation' ? `${ready} / ${count} bots ready` : t.phase === 'registration' ? 'Registration open' : 'Tournament in progress'}</span>{judge && t.counts?.pending > 0 && <span>{t.counts.pending} pending</span>}</div>
           <Button secondary disabled={Boolean(selecting)} aria-busy={selecting === t.id} onClick={() => enter(t)}>{selecting === t.id ? 'Opening…' : label}<span className="pixel-arrow" aria-hidden="true"/></Button>
+          <TournamentManagementActions compact event={t} onChanged={()=>{setOffset(0);setRevision(v=>v+1);}} onDeleted={()=>{setOffset(0);setRevision(v=>v+1);}}/>
           {!judge && <button className="text-link event-details-link" disabled={Boolean(selecting)} onClick={() => open(t, 'tournament')}>Tournament details</button>}
         </div>
       </article>;
     })}</div>
     {!loading && !directoryError && !visible.length && <section className="card empty"><h2>No tournaments found.</h2><p>Try another name or phase.</p><Button secondary onClick={() => {setQuery(''); changeFilter('all');}}>Clear filters</Button></section>}
     {directory.length < total && <div className="phase-actions"><span>{directory.length} loaded / {total} events</span><Button secondary disabled={loading} onClick={() => setOffset(directory.length)}>Load more tournaments</Button></div>}
-    <p className="preview-footnote">Daily tournament dates and locks use Asia/Ho_Chi_Minh. Results publish at or after 21:30 when every match finishes. The server enforces all deadlines.</p>
+
   </>;
 }

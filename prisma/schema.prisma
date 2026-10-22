@@ -55,11 +55,14 @@ model Tournament {
   startDate String? @db.Char(10)
   endDate String? @db.Char(10)
   publishedBatchId String? @db.VarChar(48)
+  hidden Boolean @default(false)
+  deletedAt DateTime?
   batches DailyBatch[]
   entries Entry[]
   matches Match[]
   submissions Submission[]
   @@index([phase, createdAt])
+  @@index([deletedAt,hidden,ownerId])
 }
 model Entry {
   tournamentId String @db.VarChar(64)

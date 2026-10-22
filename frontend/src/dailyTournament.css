@@ -1,9 +1,33 @@
-.daily-schedule,.daily-source{margin:20px 0;padding:24px;}
-.daily-facts,.daily-version-list,.daily-match-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
-.daily-facts{margin:16px 0;}
-.daily-source pre{max-height:60vh;overflow:auto;padding:16px;background:var(--bg);border:2px solid currentColor;font-family:monospace;font-size:14px;line-height:1.5;white-space:pre;}
-.daily-source code{overflow-wrap:anywhere;}
-.daily-version-list{margin:16px 0;}
-.daily-match-actions button{font-size:12px;}
-.daily-schedule h2{overflow-wrap:anywhere;}
-@media(max-width:640px){.daily-schedule,.daily-source{padding:16px;}.daily-facts{align-items:flex-start;flex-direction:column;}}
+/* Approved composition. Typography, colors, artwork and theme tokens come from the existing design. */
+.tournament-schedule{margin:20px 0 0;}
+.schedule-main{display:grid;grid-template-columns:1.15fr 1fr;gap:32px;padding:28px 32px;border:1px solid var(--border);border-left:4px solid var(--studio-accent);background:var(--paper);}
+.schedule-title{display:flex;align-items:center;gap:18px;min-width:0;}.schedule-title>.pixel{flex:none;}.schedule-title h2{margin:8px 0 0;}
+.schedule-cells{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-content:center;}.schedule-cells>div{border-left:1px solid var(--border);padding-left:20px;}.schedule-cells span,.schedule-cells b{display:block;}.schedule-cells b{margin-top:10px;overflow-wrap:anywhere;}
+.schedule-caption{display:flex;justify-content:space-between;gap:24px;padding:18px 0;border-bottom:1px solid var(--border);color:var(--muted);}
+.tournament-management-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}.tournament-management-actions .button{margin:0;}.tournament-management-actions>p{flex-basis:100%;}.tournament-delete{color:var(--error-text)!important;}
+.tournament-studio .tournament-workspace-tabs{margin:30px 0;padding:0;background:none!important;border-bottom:1px solid var(--border);gap:24px;}.tournament-studio .tournament-workspace-tabs button{border:0;border-bottom:3px solid transparent;background:none;color:var(--muted);padding:14px 4px;}.tournament-studio .tournament-workspace-tabs button.active{background:none;color:var(--ink);border-bottom-color:var(--studio-accent);}
+.tournament-work-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:26px;align-items:start;}.tournament-work-grid>.card{margin-top:0;}.tournament-overview,.tournament-next,.tournament-dates{padding:26px;}.tournament-overview h2,.tournament-next h2,.tournament-dates h2{margin:0;}
+.tournament-mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin:28px 0;}.tournament-mini-stats>div{border-left:2px solid var(--border);padding:4px 18px;}.tournament-mini-stats b{display:block;margin-top:12px;}
+.tournament-next-note{padding:18px 20px;background:var(--surface);border-left:3px solid var(--studio-accent);line-height:1.8;}
+.tournament-next ol{list-style:none;padding:0;margin:8px 0;}.tournament-next li{display:grid;grid-template-columns:38px 1fr;gap:16px;padding:20px 0;}.tournament-next li+li{border-top:1px solid var(--border);}.tournament-next li p{margin:7px 0 0;}.tournament-step{width:34px;height:34px;display:grid;place-items:center;background:var(--surface);border:1px solid var(--border);}
+.tournament-small-form{display:grid;gap:20px;}.tournament-small-form label{display:flex;flex-direction:column;gap:12px;}.tournament-small-form .button{justify-self:start;}.tournament-small-form input{width:100%;min-width:0;}.tournament-dates hr{border:0;border-top:1px solid var(--border);margin:26px 0;}
+.tournament-studio .table-wrap{border:1px solid var(--border);}.tournament-studio .account-rankings{margin:0;}.tournament-studio .account-rankings td{padding-block:20px;}.tournament-studio .entry-actions{gap:12px;flex-wrap:wrap;}
+.tournament-versions{margin:28px 0;border-top:1px solid var(--border);padding-top:16px;}.tournament-versions summary{padding:10px 0;cursor:pointer;}.tournament-versions label{display:flex;flex-direction:column;gap:12px;max-width:420px;}.daily-version-list,.daily-match-actions{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0;}
+.tournament-confirm,.tournament-source-dialog{background:var(--paper);color:var(--ink);border:2px solid var(--border-strong);max-width:600px;width:calc(100% - 40px);padding:28px;}.tournament-source-dialog{max-width:850px;max-height:calc(100vh - 40px);overflow:auto;}.tournament-source-dialog pre{max-height:55vh;overflow:auto;background:var(--surface);border:1px solid var(--border);padding:20px;white-space:pre;}.tournament-source-dialog code{font-family:PixelMono,monospace;}.tournament-source-dialog details p{overflow-wrap:anywhere;}.tournament-confirm::backdrop,.tournament-source-dialog::backdrop{background:#0009;}
+@media(max-width:1000px){.tournament-work-grid{grid-template-columns:1fr;}.schedule-main{gap:24px;}}
+@media(max-width:640px){.schedule-main{grid-template-columns:1fr;padding:22px;}.schedule-caption{flex-direction:column;gap:12px;}.schedule-cells{gap:18px;}.schedule-cells>div{padding-left:12px;}.tournament-mini-stats{gap:6px;}.tournament-mini-stats>div{padding-inline:10px;}.tournament-overview,.tournament-next,.tournament-dates{padding:20px;}.tournament-studio .tournament-workspace-tabs{gap:18px;overflow:auto;flex-wrap:nowrap;}.tournament-studio .tournament-workspace-tabs button{flex:none;white-space:nowrap;}.tournament-management-actions .button{flex:1;}.tournament-source-dialog,.tournament-confirm{padding:20px;}}
+
+.studio-event .tournament-management-actions{padding-top:16px;border-top:1px solid var(--border);}.studio-event .tournament-management-actions .button{flex:1;}
+
+/* Retain approved action highlights. View code keeps the original secondary button. */
+:root[data-theme=light] .tournament-management-actions .button.tournament-visibility{background:#f3d170;color:#19201b;border-color:#a77c26;box-shadow:3px 3px 0 #c5aa63;}
+:root[data-theme=light] .tournament-management-actions .button.tournament-visibility:hover{background:#ffe397;}
+:root[data-theme=light] .tournament-management-actions .button.tournament-delete{background:#b93627;color:#fffdf6!important;border-color:#8d271e;box-shadow:3px 3px 0 #dfb5a8;}
+:root[data-theme=light] .tournament-management-actions .button.tournament-delete:hover{background:#a82d20;}
+:root[data-theme=dark] .tournament-management-actions .button.tournament-delete{background:transparent;border-color:var(--error-text);}
+.entry-actions .button.entry-accept,.entry-actions .button.entry-decline{box-shadow:none;}
+:root[data-theme=light] .entry-actions .button.entry-accept{background:#fbe3a0;color:var(--ink);border-color:#b99a47;}
+:root[data-theme=light] .entry-actions .button.entry-decline{background:#fff0e8;color:#923e2b;border-color:#cf9a88;}
+:root[data-theme=dark] .entry-actions .button.entry-accept{background:color-mix(in srgb,var(--studio-accent) 24%,var(--paper));border-color:var(--studio-accent);color:var(--ink);}
+:root[data-theme=dark] .entry-actions .button.entry-decline{background:color-mix(in srgb,var(--error-text) 8%,var(--paper));border-color:color-mix(in srgb,var(--error-text) 45%,var(--border));color:var(--error-text);}
+.entry-actions .button.entry-accept:hover,.entry-actions .button.entry-decline:hover{box-shadow:2px 2px 0 var(--border);}

@@ -98,3 +98,32 @@ test('a boundary-crossing upload uses one acceptance timestamp under the event l
  t.mock.method(db.entry,'update',async()=>{});t.mock.method(db.job,'create',async()=>{});
  assert.equal((await request('/api/tournaments/t/bot',{as:'player',body:{filename:'a.py',source:'print(1)',language:'python'}})).status,202);
 });
+
+test('only the organizing Judge can hide or delete a tournament',async t=>{
+  const request=await client(t);
+  t.mock.method(db.tournament,'findUnique',async()=>event);
+  for(const action of ['visibility','delete']){
+    for(const as of ['player','other'])assert.equal((await request('/api/tournaments/t/'+action,{as,body:{hidden:true}})).status,403);
+    assert.equal((await request('/api/tournaments/t/'+action,{body:{hidden:true}})).status,401);
+  }
+});
+test('hide is reversible; deletion revokes pending claims and cannot be undone',async t=>{
+  const request=await client(t);let current={...event},jobs, matches;const audit=[];
+  t.mock.method(db.tournament,'findUnique',async()=>current);
+  t.mock.method(db.tournament,'update',async({data})=>Object.assign(current,data));
+  t.mock.method(db.audit,'create',async({data})=>audit.push(data));
+  t.mock.method(db.job,'updateMany',async query=>{jobs=query;return {count:2};});
+  t.mock.method(db.match,'updateMany',async query=>{matches=query;return {count:1};});
+  assert.equal((await request('/api/tournaments/t/visibility',{as:'judge',body:{hidden:true}})).status,200);
+  assert.equal(current.hidden,true);
+  for(const as of [undefined,'player','other'])for(const suffix of ['/state','/rankings','/rounds'])assert.equal((await request('/api/tournaments/t'+suffix,{as})).status,404);
+  assert.equal((await request('/api/tournaments/t/visibility',{as:'judge',body:{hidden:false}})).status,200);
+  assert.equal(current.hidden,false);
+  assert.equal((await request('/api/tournaments/t/delete',{as:'judge',body:{}})).status,200);
+  assert.ok(current.deletedAt instanceof Date);
+  assert.equal(jobs.data.status,'cancelled');assert.equal(jobs.data.claim,null);assert.equal(jobs.data.leaseUntil,null);
+  assert.equal(matches.data.status,'cancelled');assert.deepEqual(matches.data.revision,{increment:1});
+  assert.equal(audit.at(-1).action,'tournament.delete');
+  assert.equal((await request('/api/tournaments/t/visibility',{as:'judge',body:{hidden:false}})).status,404);
+  for(const suffix of ['/state','/rankings','/rounds'])assert.equal((await request('/api/tournaments/t'+suffix,{as:'judge'})).status,404);
+});

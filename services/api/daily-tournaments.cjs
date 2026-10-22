@@ -1,6 +1,7 @@
 const { prisma, transaction } = require('../shared/db.cjs');
 const { fail, int } = require('../shared/domain.cjs');
 const { eventOwner } = require('./auth.cjs');
+const visibility = require('./tournament-visibility.cjs');
 const policy = require('../platform/daily-policy.cjs');
 const { entrant, pair } = require('./tournament-presenters.cjs');
 const owns = (event, user) => user?.role === 'judge' && user.id === event.ownerId;
@@ -8,7 +9,7 @@ const visibleMatches = (user) => ({ OR: [{ batchId: null }, { batch: { published
   ...(user?.role === 'judge' ? [{ tournament: { ownerId: user.id } }] : [])] });
 const botSelect = { id: true, filename: true, language: true, status: true, error: true, version: true, createdAt: true };
 function participant(entry, standing) {
-  return { ...entrant(entry), rating: standing?.rating ?? 1000, games: standing?.games ?? 0,
+  return { ...entrant(entry), activeSubmissionId: entry.activeSubmissionId || entry.activeSubmission?.id || null, rating: standing?.rating ?? 1000, games: standing?.games ?? 0,
     lastDelta: standing?.lastDelta ?? 0, wins: standing?.wins ?? 0, draws: standing?.draws ?? 0,
     losses: standing?.losses ?? 0, points: standing?.points ?? 0 };
 }
@@ -16,7 +17,7 @@ async function readState(req, res) {
   const result = await transaction(async tx => {
     await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${req.params.id} FOR UPDATE`;
     const event = await tx.tournament.findUnique({ where: { id: req.params.id } });
-    if (!event) fail(404, 'Tournament not found.');
+    if (!visibility.canRead(event, req.user)) fail(404, 'Tournament not found.');
     const manager = owns(event, req.user), offset = int(req.query.offset || 0, 0, 100000, 'Offset');
     const matchOffset = int(req.query.matchOffset || 0, 0, 100000000, 'Match offset');
     const entries = await tx.entry.findMany({ where: { tournamentId: event.id }, include: { user: true, activeSubmission: { select: botSelect } }, orderBy: { userId: 'asc' }, skip: offset, take: 100 });
@@ -52,7 +53,7 @@ async function rankings(req, res) {
   const result = await transaction(async tx => {
     await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${req.params.id} FOR UPDATE`;
     const event = await tx.tournament.findUnique({ where: { id: req.params.id } });
-    if (!event) fail(404, 'Tournament not found.');
+    if (!visibility.canRead(event, req.user)) fail(404, 'Tournament not found.');
     const offset = int(req.query.offset || 0, 0, 100000, 'Offset');
     const rows = event.publishedBatchId ? await tx.dailyStanding.findMany({ where: { batchId: event.publishedBatchId }, orderBy: [{ points: 'desc' }, { rating: 'desc' }, { wins: 'desc' }, { userId: 'asc' }], skip: offset, take: 100 }) : [];
     const entries = await tx.entry.findMany({ where: { tournamentId: event.id, status: 'accepted', ...(event.publishedBatchId ? { userId: { in: rows.map(r => r.userId) } } : {}) }, include: { user: true, activeSubmission: { select: botSelect } },
@@ -86,7 +87,7 @@ async function changeSchedule(req, res) {
 }
 async function code(req, res) {
   const event = await prisma.tournament.findUnique({ where: { id: req.params.id } });
-  if (!event || !owns(event, req.user)) fail(403, 'Only the organizing judge can inspect participant source.');
+  if (!visibility.canRead(event, req.user) || !owns(event, req.user)) fail(403, 'Only the organizing judge can inspect participant source.');
   const submission = await prisma.submission.findUnique({ where: { id: req.params.submissionId } });
   if (!submission || submission.tournamentId !== event.id) fail(404, 'Tournament submission not found.');
   const entry = await prisma.entry.findUnique({ where: { tournamentId_userId: { tournamentId: event.id, userId: submission.userId } } });
@@ -96,7 +97,7 @@ async function code(req, res) {
 }
 async function versions(req, res) {
   const event = await prisma.tournament.findUnique({ where: { id: req.params.id } });
-  if (!event || !owns(event, req.user)) fail(403, 'Only the organizing judge can inspect participant source.');
+  if (!visibility.canRead(event, req.user) || !owns(event, req.user)) fail(403, 'Only the organizing judge can inspect participant source.');
   const userId = String(req.query.userId || '');
   const rows = await prisma.submission.findMany({ where: { tournamentId: event.id, userId }, select: botSelect, orderBy: { version: 'desc' }, take: 100 });
   res.json({ submissions: rows });
