@@ -350,7 +350,7 @@ test("bulk creation writes all accounts atomically and handles uniqueness races"
 });
 test("rate limits prevent public registration and password mutation", async (t) => {
   const request = await client(t);
-  t.mock.method(fixture.db.rateBucket, "upsert", async () => ({ count: 11 }));
+  t.mock.method(fixture.db.rateBucket, "upsert", async () => ({ count: 16 }));
   assert.equal(
     (await request("/api/auth/register", { body: row("limited") })).status,
     429,

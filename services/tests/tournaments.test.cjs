@@ -24,7 +24,7 @@ const event = {
 const entry = {
   userId: player.id,
   status: "accepted",
-  user: { ...player, name: "Alice", rating: 1010, games: 2, lastDelta: 10 },
+  user: { ...player, username: "alice", name: "Alice", rating: 1010, games: 2, lastDelta: 10 },
   activeSubmissionId: "bot-1",
   activeSubmission: {
     filename: "a.py",
@@ -69,6 +69,7 @@ test("entrant and pair DTOs preserve aliases, zero values, appearance and input 
   assert.deepEqual(api.entrant(value), {
     id: player.id,
     name: "Alice",
+    username: "alice",
     appearance: { hat: "fez" },
     rating: 0,
     games: 2,

@@ -4,6 +4,7 @@ function entrant(e) {
   return {
     id: u.id,
     name: u.name,
+    username: u.username,
     appearance: u.appearance ?? null,
     rating: u.rating,
     games: u.games,
