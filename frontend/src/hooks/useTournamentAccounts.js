@@ -342,6 +342,7 @@ export function useTournamentAccounts() {
     selectEvent,
     changeVisibility: (id, hidden) => manageTournament(id, "visibility", {hidden}),
     changeRegistration: (id, open) => manageTournament(id, "registration", {open}),
+    changeEntryMode: (id, mode) => manageTournament(id, "entry-mode", {mode}),
     deleteTournament: id => manageTournament(id, "delete"),
     create,
     saveBot,

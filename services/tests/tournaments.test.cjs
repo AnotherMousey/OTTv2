@@ -51,6 +51,8 @@ test("tournament facade retains public exports", () => {
     "join",
     "review",
     "registration",
+    "entryMode",
+    "addParticipants",
     "settings",
     "advance",
     "entrant",
@@ -324,6 +326,42 @@ test("judge can close registration; closed tournaments reject new entries", asyn
     status: 409,
     message: "The organizer has closed registration for this tournament.",
   });
+});
+
+test("open entry accepts joining players; judge mode blocks self-joins", async (t) => {
+  t.mock.method(db, "$queryRaw", async () => []);
+  t.mock.method(db.entry, "findUnique", async () => null);
+  t.mock.method(db.entry, "count", async () => 0);
+  t.mock.method(db.audit, "create", async () => ({}));
+  const upserts = [];
+  t.mock.method(db.entry, "upsert", async (args) => upserts.push(args));
+  t.mock.method(db.tournament, "findUnique", async () => event);
+  await api.join(request({ user: player }), response());
+  assert.equal(upserts[0].create.status, "accepted");
+  assert.equal(upserts[0].update.status, "accepted");
+  t.mock.method(db.tournament, "findUnique", async () => ({ ...event, entryMode: "judge" }));
+  await assert.rejects(api.join(request({ user: player }), response()), { status: 403 });
+  await assert.rejects(api.entryMode(request({ body: { mode: "closed" } }), response()), { status: 400 });
+});
+
+test("judge adds players by username within capacity and reports unknown names", async (t) => {
+  t.mock.method(db, "$queryRaw", async () => []);
+  t.mock.method(db.tournament, "findUnique", async () => ({ ...event, capacity: 3 }));
+  t.mock.method(db.user, "findMany", async ({ where }) =>
+    [{ id: "u-bob", username: "bob" }, { id: "u-cat", username: "cat" }].filter((u) => where.username.in.includes(u.username)));
+  t.mock.method(db.entry, "findMany", async () => [{ userId: "u-cat", status: "accepted" }]);
+  t.mock.method(db.entry, "count", async () => 2);
+  t.mock.method(db.audit, "create", async () => ({}));
+  const upserts = [];
+  t.mock.method(db.entry, "upsert", async (args) => upserts.push(args));
+  const res = response();
+  await api.addParticipants(request({ body: { usernames: ["@Bob", "cat", "ghost", "bob"] } }), res);
+  assert.deepEqual(res.body, { added: ["bob"], alreadyAccepted: ["cat"], notFound: ["ghost"] });
+  assert.equal(upserts.length, 1);
+  assert.equal(upserts[0].create.status, "accepted");
+  t.mock.method(db.entry, "count", async () => 3);
+  await assert.rejects(api.addParticipants(request({ body: { usernames: ["bob"] } }), response()), { status: 409 });
+  await assert.rejects(api.addParticipants(request({ body: { usernames: [] } }), response()), { status: 400 });
 });
 
 test("review preserves organizing-judge ownership and explicit booleans", async (t) => {

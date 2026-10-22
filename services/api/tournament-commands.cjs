@@ -12,6 +12,11 @@ const audit = (tx, actor, event, action, metadata = {}) =>
   tx.audit.create({
     data: { actorId: actor.id, tournamentId: event, action, metadata },
   });
+// open: any player who joins is accepted. judge: only the organizing judge adds players.
+const ENTRY_MODES = ["open", "judge"];
+const entryModeValue = (value) =>
+  ENTRY_MODES.includes(value) ? value : fail(400, "Entry mode must be open or judge.");
+const registrationClosed = (event) => event.phase !== "registration" || daily.started(event);
 async function create(req, res) {
   const body = req.body;
   const dates = daily.schedule(body.startDate, body.endDate, body.startTime);
@@ -38,6 +43,7 @@ async function create(req, res) {
       format: daily.FORMAT,
       ...dates,
       capacity: int(body.capacity || 4000, 2, 4000, "Capacity"),
+      entryMode: entryModeValue(body.entryMode || "open"),
       gameId: body.gameId || "ottv2",
       gameConfig: body.gameConfig || {},
       ...(initialConfig._game.id === "ottv2"
@@ -61,6 +67,8 @@ async function join(req, res) {
     if (!require("./tournament-visibility.cjs").canRead(event, req.user)) fail(404, "Tournament not found.");
     if (event.phase !== "registration" || daily.started(event))
       fail(409, "Tournament registration is closed.");
+    if (event.entryMode === "judge")
+      fail(403, "The organizer adds participants to this tournament.");
     if (event.registrationOpen === false)
       fail(409, "The organizer has closed registration for this tournament.");
     const existing = await tx.entry.findUnique({
@@ -82,10 +90,10 @@ async function join(req, res) {
       where: {
         tournamentId_userId: { tournamentId: event.id, userId: req.user.id },
       },
-      create: { tournamentId: event.id, userId: req.user.id },
-      update: { status: "pending" },
+      create: { tournamentId: event.id, userId: req.user.id, status: "accepted" },
+      update: { status: "accepted" },
     });
-    await audit(tx, req.user, event.id, "entry.request");
+    await audit(tx, req.user, event.id, "entry.join");
   });
   res.json({ ok: true });
 }
@@ -132,6 +140,60 @@ async function registration(req, res) {
     });
   });
   res.json({ ok: true, registrationOpen: req.body.open });
+}
+async function entryMode(req, res) {
+  const mode = entryModeValue(req.body.mode);
+  await transaction(async (tx) => {
+    const event = await eventOwner(tx, req.params.id, req.user);
+    if (registrationClosed(event)) fail(409, "Registration has already ended.");
+    await tx.tournament.update({ where: { id: event.id }, data: { entryMode: mode } });
+    await audit(tx, req.user, event.id, "tournament.entryMode", { mode });
+  });
+  res.json({ ok: true, entryMode: mode });
+}
+// Judge-added players are accepted directly, whatever the entry mode.
+async function addParticipants(req, res) {
+  const names = req.body.usernames;
+  if (!Array.isArray(names) || !names.length || names.length > 500)
+    fail(400, "Provide 1–500 usernames.");
+  // Unknown or malformed names are reported back, not rejected, so one typo
+  // never blocks a pasted roster. A leading @ matches the leaderboard handle.
+  const usernames = [...new Set(names.map((n) => text(n, 1, 33, "Username").trim().replace(/^@/, "").toLowerCase()))];
+  const result = await transaction(async (tx) => {
+    await tx.$queryRaw`SELECT id FROM Tournament WHERE id=${req.params.id} FOR UPDATE`;
+    const event = await eventOwner(tx, req.params.id, req.user);
+    if (registrationClosed(event)) fail(409, "Registration has already ended.");
+    const users = await tx.user.findMany({
+      where: { username: { in: usernames }, role: "player", active: true },
+      select: { id: true, username: true },
+    });
+    const existing = await tx.entry.findMany({
+      where: { tournamentId: event.id, userId: { in: users.map((u) => u.id) } },
+      select: { userId: true, status: true },
+    });
+    const accepted = new Set(existing.filter((e) => e.status === "accepted").map((e) => e.userId));
+    const adding = users.filter((u) => !accepted.has(u.id));
+    const taken = await tx.entry.count({
+      where: { tournamentId: event.id, status: { in: ["pending", "accepted"] } },
+    });
+    const pendingAmongAdding = existing.filter((e) => e.status === "pending").length;
+    if (taken - pendingAmongAdding + adding.length > event.capacity)
+      fail(409, `Only ${event.capacity - taken + pendingAmongAdding} places are left.`);
+    for (const u of adding)
+      await tx.entry.upsert({
+        where: { tournamentId_userId: { tournamentId: event.id, userId: u.id } },
+        create: { tournamentId: event.id, userId: u.id, status: "accepted" },
+        update: { status: "accepted" },
+      });
+    const found = new Set(users.map((u) => u.username.toLowerCase()));
+    await audit(tx, req.user, event.id, "entry.add", { count: adding.length });
+    return {
+      added: adding.map((u) => u.username),
+      alreadyAccepted: users.filter((u) => accepted.has(u.id)).map((u) => u.username),
+      notFound: usernames.filter((n) => !found.has(n)),
+    };
+  });
+  res.json(result);
 }
 async function settings(req, res) {
   await transaction(async (tx) => {
@@ -299,4 +361,4 @@ async function advance(req, res) {
   res.json({ ok: true });
 }
 
-module.exports = { create, join, review, registration, settings, advance, audit };
+module.exports = { create, join, review, registration, entryMode, addParticipants, settings, advance, audit };
