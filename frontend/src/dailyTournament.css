@@ -1,0 +1,9 @@
+.daily-schedule,.daily-source{margin:20px 0;padding:24px;}
+.daily-facts,.daily-version-list,.daily-match-actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+.daily-facts{margin:16px 0;}
+.daily-source pre{max-height:60vh;overflow:auto;padding:16px;background:var(--bg);border:2px solid currentColor;font-family:monospace;font-size:14px;line-height:1.5;white-space:pre;}
+.daily-source code{overflow-wrap:anywhere;}
+.daily-version-list{margin:16px 0;}
+.daily-match-actions button{font-size:12px;}
+.daily-schedule h2{overflow-wrap:anywhere;}
+@media(max-width:640px){.daily-schedule,.daily-source{padding:16px;}.daily-facts{align-items:flex-start;flex-direction:column;}}

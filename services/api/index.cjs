@@ -42,12 +42,16 @@ app.get('/api/tournaments',tournaments.list);app.post('/api/tournaments',auth,ju
 // A supplied session is checked even on an otherwise public tournament read.
 const optionalAuth=(req,res,next)=>req.headers.authorization?auth(req,res,next):next();
 app.get('/api/tournaments/:id',optionalAuth,tournaments.state);app.get('/api/tournaments/:id/rankings',tournaments.rankings);
-app.get('/api/tournaments/:id/rounds',tournamentRounds.list);
+app.get('/api/tournaments/:id/rounds',optionalAuth,tournamentRounds.list);
+const dailyTournaments=require('./daily-tournaments.cjs');
+app.post('/api/tournaments/:id/schedule',auth,judge,dailyTournaments.changeSchedule);
+app.get('/api/tournaments/:id/source',auth,judge,dailyTournaments.versions);
+app.get('/api/tournaments/:id/source/:submissionId',auth,judge,dailyTournaments.code);
 app.post('/api/tournaments/:id/join',auth,tournaments.join);app.post('/api/tournaments/:id/review',auth,judge,tournaments.review);app.post('/api/tournaments/:id/settings',auth,judge,tournaments.settings);app.post('/api/tournaments/:id/advance',auth,judge,tournaments.advance);app.post('/api/tournaments/:id/bot',auth,bots.submit);app.get('/api/tournaments/:id/bots',auth,bots.history);
 // POST actions also work with previously cached CORS method allowlists.
 app.post('/api/practice/history/delete',auth,practiceHistory.remove);app.post('/api/practice/history/:id/delete',auth,practiceHistory.remove);
 app.delete('/api/practice/history',auth,practiceHistory.remove);app.delete('/api/practice/history/:id',auth,practiceHistory.remove);
-app.get('/api/practice/history',auth,practiceHistory.list);app.get('/api/matches',matches.list);app.post('/api/practice',auth,matches.practice);app.get('/api/matches/:id',matches.get);app.get('/api/matches/:id/live',matches.live);app.get('/api/matches/:id/replay',matches.replay);app.post('/api/matches/:id/retry',auth,judge,matches.retry);
+app.get('/api/practice/history',auth,practiceHistory.list);app.get('/api/matches',optionalAuth,matches.list);app.post('/api/practice',auth,matches.practice);app.get('/api/matches/:id',optionalAuth,matches.get);app.get('/api/matches/:id/live',optionalAuth,matches.live);app.get('/api/matches/:id/replay',optionalAuth,matches.replay);app.post('/api/matches/:id/retry',auth,judge,matches.retry);
 app.use((req,res)=>res.status(404).json({error:'API route not found.'}));app.use((error,req,res,next)=>{if(res.headersSent)return next(error);if(schemaError(error)){console.error(JSON.stringify({event:'api.schema_error',...deploymentIdentity(),...schemaDetails(error),path:req.path}));return res.status(503).json({error:schemaMessage,code:'DATABASE_SCHEMA_OUTDATED'});}const status=error.status||(error.type==='entity.too.large'?413:error.code==='P2002'?409:500);if(status===500)console.error(JSON.stringify({event:'api.error',code:error.code||'unknown',path:req.path}));res.status(status).json({error:status===500?'Request could not be completed. Try again.':error.code==='P2002'?'This record already exists.':error.message});});return app;}
 if(require.main===module){const server=createApp().listen(Number(process.env.PORT)||3000,'0.0.0.0',()=>console.log('OTTv2 API listening'));async function stop(){server.close();setTimeout(()=>process.exit(1),10000).unref();await prisma.$disconnect();}process.on('SIGTERM',stop);process.on('SIGINT',stop);}
 module.exports={createApp};

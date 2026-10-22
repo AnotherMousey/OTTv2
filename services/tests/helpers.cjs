@@ -27,6 +27,8 @@ function database() {
     "audit",
     "syncReceipt",
     "rateBucket",
+    "dailyBatch",
+    "dailyStanding",
   ]) {
     db[model] = Object.fromEntries(
       methods.map((method) => [
@@ -38,6 +40,7 @@ function database() {
     );
   }
   db.$queryRaw = async () => [];
+  db.$executeRaw = async () => { throw Error("Unexpected raw write"); };
   return db;
 }
 

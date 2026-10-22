@@ -29,7 +29,8 @@
     "deployment:check": "node scripts/check-deployment.cjs",
     "db:status": "prisma migrate status",
     "test:deployment:db": "node --test services/tests/schema-drift.integration.cjs",
-    "db:diff": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script"
+    "db:diff": "prisma migrate diff --from-schema-datasource prisma/schema.prisma --to-schema-datamodel prisma/schema.prisma --script",
+    "test:daily:db": "node --test services/tests/daily.integration.cjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.0",

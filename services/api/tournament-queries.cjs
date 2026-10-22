@@ -1,5 +1,6 @@
 const { prisma } = require("../shared/db.cjs");
 const { fail, int } = require("../shared/domain.cjs");
+const daily = require("../platform/daily-policy.cjs");
 const { entrant, pair } = require("./tournament-presenters.cjs");
 
 async function counts(id) {
@@ -67,7 +68,7 @@ async function list(req, res) {
   for (const row of ready)
     stats.get(row.tournamentId).botsReady = row._count._all;
   res.json({
-    events: events.map((e) => ({ ...e, counts: stats.get(e.id) })),
+    events: events.map((e) => ({ ...daily.display(e), counts: stats.get(e.id) })),
     total,
     offset,
     limit,
@@ -78,6 +79,7 @@ async function state(req, res) {
     where: { id: req.params.id },
   });
   if (!event || event.phase === "importing") fail(404, "Tournament not found.");
+  if (daily.isDaily(event)) return require("./daily-tournaments.cjs").readState(req, res);
   const offset = int(req.query.offset || 0, 0, 100000, "Offset"),
     limit = int(req.query.limit || 100, 1, 100, "Limit");
   const matchOffset = int(
@@ -230,7 +232,9 @@ async function rankings(req, res) {
     if (!receipt.payload.complete) fail(404, "Tournament not found.");
     const { manifest, accountMap } = receipt.payload;
     const rows = [...manifest.participants].sort(
-      (a, b) => b.rating - a.rating || a.name.localeCompare(b.name),
+      (a, b) => manifest.version === 2
+        ? (b.points || 0) - (a.points || 0) || b.rating - a.rating || (b.wins || 0) - (a.wins || 0) || a.id.localeCompare(b.id)
+        : b.rating - a.rating || a.name.localeCompare(b.name),
     );
     const page = rows.slice(offset, offset + 100);
     const profiles = await prisma.user.findMany({
@@ -254,6 +258,8 @@ async function rankings(req, res) {
       limit: 100,
     });
   }
+  const event = await prisma.tournament.findUnique({ where: { id: req.params.id } });
+  if (daily.isDaily(event)) return require("./daily-tournaments.cjs").rankings(req, res);
   const [entries, total] = await Promise.all([
     prisma.entry.findMany({
       where: { tournamentId: req.params.id, status: "accepted" },

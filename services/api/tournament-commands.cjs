@@ -6,6 +6,7 @@ const {
   settingsUpdate,
 } = require("../platform/game-integration.cjs");
 const crypto = require("node:crypto");
+const daily = require("../platform/daily-policy.cjs");
 
 const audit = (tx, actor, event, action, metadata = {}) =>
   tx.audit.create({
@@ -13,6 +14,8 @@ const audit = (tx, actor, event, action, metadata = {}) =>
   });
 async function create(req, res) {
   const body = req.body;
+  const dates = daily.schedule(body.startDate, body.endDate);
+  if (dates.startDate <= daily.localDate()) fail(400, 'Start date must be tomorrow or later; registration closes at 00:00 on that date.');
   const id = crypto.randomUUID();
   const initialConfig = freezeConfig({
     gameId: body.gameId || "ottv2",
@@ -32,7 +35,8 @@ async function create(req, res) {
         "Description",
       ),
       ownerId: req.user.id,
-      totalRounds: int(body.totalRounds || 3, 1, 20, "Rounds"),
+      format: daily.FORMAT,
+      ...dates,
       capacity: int(body.capacity || 4000, 2, 4000, "Capacity"),
       gameId: body.gameId || "ottv2",
       gameConfig: body.gameConfig || {},
@@ -55,7 +59,7 @@ async function join(req, res) {
       where: { id: req.params.id },
     });
     if (!event) fail(404, "Tournament not found.");
-    if (event.phase !== "registration")
+    if (event.phase !== "registration" || daily.started(event))
       fail(409, "Tournament registration is closed.");
     const existing = await tx.entry.findUnique({
       where: {
@@ -86,7 +90,7 @@ async function join(req, res) {
 async function review(req, res) {
   await transaction(async (tx) => {
     const event = await eventOwner(tx, req.params.id, req.user);
-    if (event.phase !== "registration") fail(409, "Entry review is closed.");
+    if (event.phase !== "registration" || daily.started(event)) fail(409, "Entry review is closed.");
     const status =
       req.body.accept === true
         ? "accepted"
@@ -113,7 +117,7 @@ async function review(req, res) {
 async function settings(req, res) {
   await transaction(async (tx) => {
     const event = await eventOwner(tx, req.params.id, req.user);
-    if (!["registration", "preparation"].includes(event.phase))
+    if (daily.started(event) || !["registration", "preparation"].includes(event.phase))
       fail(409, "Settings are locked.");
     const change = settingsUpdate(event, req.body),
       config = change.data;
@@ -139,7 +143,7 @@ async function settings(req, res) {
       for (const entry of entries) {
         await tx.submission.update({
           where: { id: entry.activeSubmissionId },
-          data: { status: "queued", error: null },
+          data: { status: "queued", error: null, readyAt: null },
         });
         await tx.job.update({
           where: { key: "validate:" + entry.activeSubmissionId },
@@ -162,6 +166,7 @@ async function settings(req, res) {
 async function advance(req, res) {
   await transaction(async (tx) => {
     const e = await eventOwner(tx, req.params.id, req.user);
+    if (daily.isDaily(e)) fail(409, "Daily tournaments advance automatically. Use schedule settings to change the end date.");
     if (e.phase === "registration") {
       if (
         await tx.entry.count({

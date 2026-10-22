@@ -11,7 +11,7 @@
 export const tournamentSchedules = Object.freeze({});
 
 export function tournamentDeadline(tournament, schedules = tournamentSchedules) {
-  const value = schedules[tournament.id]?.[tournament.phase];
+  const value = tournament.format==='daily-round-robin' ? tournament.nextLockAt : schedules[tournament.id]?.[tournament.phase];
   const deadline = typeof value === 'string' && /T.*(?:Z|[+-]\d{2}:\d{2})$/i.test(value) ? Date.parse(value) : NaN;
   if (!Number.isFinite(deadline)) return null;
   return new Date(deadline).toISOString();

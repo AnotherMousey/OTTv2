@@ -51,6 +51,11 @@ model Tournament {
   moveTimeLimitMs Int @default(2000)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  format String @default("legacy") @db.VarChar(24)
+  startDate String? @db.Char(10)
+  endDate String? @db.Char(10)
+  publishedBatchId String? @db.VarChar(48)
+  batches DailyBatch[]
   entries Entry[]
   matches Match[]
   submissions Submission[]
@@ -82,14 +87,19 @@ model Submission {
   status String @default("queued") @db.VarChar(16)
   error String? @db.Text
   createdAt DateTime @default(now())
+  readyAt DateTime?
   activeEntries Entry[] @relation("ActiveBot")
   jobs Job[]
   @@index([userId,tournamentId,createdAt])
+  @@index([tournamentId,createdAt])
 }
 model Match {
   id String @id @db.VarChar(48)
   tournamentId String? @db.VarChar(64)
   tournament Tournament? @relation(fields:[tournamentId],references:[id])
+  batchId String? @db.VarChar(48)
+  batch DailyBatch? @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  sequence Int?
   round Int @default(1)
   whiteId String @db.VarChar(30)
   blackId String? @db.VarChar(30)
@@ -114,7 +124,9 @@ model Match {
   updatedAt DateTime @updatedAt
   frames Frame[]
   jobs Job[]
-  @@unique([tournamentId,round,whiteId])
+  @@unique([batchId,sequence])
+  @@index([batchId,status])
+  @@index([tournamentId,round,whiteId])
   @@index([tournamentId,round,status])
   @@index([status,createdAt])
   @@index([ownerId,createdAt])
@@ -179,4 +191,41 @@ model SyncPart {
 model RegistrationSettings {
   id      String  @id @db.VarChar(32)
   enabled Boolean @default(false)
+}
+
+// Snapshots and private ratings remain invisible until publishedAt is committed.
+model DailyBatch {
+  id String @id @db.VarChar(48)
+  tournamentId String @db.VarChar(64)
+  tournament Tournament @relation(fields:[tournamentId],references:[id],onDelete:Cascade)
+  date String @db.Char(10)
+  round Int
+  cutoff DateTime
+  publishAfter DateTime
+  state String @default("scheduling") @db.VarChar(16)
+  bots Json
+  config Json
+  expected Int
+  scheduled Int @default(0)
+  ratingCursor Int @default(0)
+  publishedAt DateTime?
+  createdAt DateTime @default(now())
+  matches Match[]
+  standings DailyStanding[]
+  @@unique([tournamentId,date])
+  @@index([tournamentId,state,date])
+}
+model DailyStanding {
+  batchId String @db.VarChar(48)
+  batch DailyBatch @relation(fields:[batchId],references:[id],onDelete:Cascade)
+  userId String @db.VarChar(30)
+  rating Int @default(1000)
+  games Int @default(0)
+  wins Int @default(0)
+  draws Int @default(0)
+  losses Int @default(0)
+  points Float @default(0)
+  lastDelta Int @default(0)
+  @@id([batchId,userId])
+  @@index([batchId,points,rating,userId])
 }

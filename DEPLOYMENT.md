@@ -1,3 +1,9 @@
+# Daily scheduler deployment addition
+
+Apply `202610220001_daily_round_robin` before deploying the updated API and worker. Use Node **24.x** as declared by current package manifests. Run at least one always-on `npm run worker` process with the existing DATABASE_URL, RUNNER_URL and RUNNER_SECRET. This process also schedules daily batches, calculates private tournament Elo and publishes eligible completed batches. The API alone does not run the scheduler. Keep worker and API source/schema versions aligned.
+
+Daily dates use Asia/Ho_Chi_Minh regardless of host timezone. Results may be delayed beyond 21:30; uploads still reopen at 21:30. No new environment variable is required. See [daily operations and capacity](docs/DAILY_TOURNAMENTS.md), including migration commands, missed-cutoff recovery, archive bounds and workload examples. Existing worker/runner capacity is not a 30-minute guarantee.
+
 # OTTv2: Render + Railway deployment
 
 This is the implementation stage after approval of the A layout with B accents. The source uses real API and MySQL data. The earlier standalone `preview.html` remains a design reference; it does not become a database client.

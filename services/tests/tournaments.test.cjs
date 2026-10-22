@@ -369,3 +369,10 @@ test("advance never finishes a live round with unfinished work", async (t) => {
       "Wait for all matches; retry failed infrastructure jobs before advancing.",
   });
 });
+
+test('daily archive standings retain points-first tournament ranking',async t=>{
+ t.mock.method(db.syncReceipt,'findUnique',async()=>({payload:{complete:true,manifest:{version:2,participants:[{id:'a',name:'A',rating:1200,points:1,wins:1},{id:'b',name:'B',rating:1000,points:2,wins:2}]},accountMap:{a:'new-a',b:'new-b'}}}));
+ t.mock.method(db.user,'findMany',async()=>[]);
+ const res=response();await api.rankings(request(),res);
+ assert.deepEqual(res.body.rankings.map(p=>p.id),['new-b','new-a']);
+});

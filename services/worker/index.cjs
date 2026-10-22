@@ -46,6 +46,9 @@ async function main() {
   process.on("SIGTERM", () => (stopping = true));
   process.on("SIGINT", () => (stopping = true));
   await prisma.$connect();
+  const daily = require('../platform/daily-tournament.cjs');
+  await daily.tick();
+  const scheduler = setInterval(() => daily.tick().catch(error => console.error('Daily scheduler failed:', error.code || error.name)), 1000);
   const cleanup = setInterval(() => {
     queue.recover().catch((e) => console.error("Queue recovery failed"));
     prisma.session
@@ -82,6 +85,7 @@ async function main() {
     }),
   );
   clearInterval(cleanup);
+  clearInterval(scheduler);
   await prisma.$disconnect();
 }
 if (require.main === module)

@@ -12,12 +12,12 @@ const deadlineLabels = {
   pairing: 'PAIRING REVIEW ENDS', live: 'CURRENT ROUND ENDS', finished: 'EVENT ENDED',
 };
 
-function Countdown({deadline, label, now}) {
+function Countdown({deadline, label, now, timezone}) {
   if (!deadline) return <div className="tournament-countdown"><span className="eyebrow">SCHEDULE</span><b>Not scheduled</b><small>Waiting for organizer schedule.</small></div>;
   const target = Date.parse(deadline);
   const parts = remaining(target, now), ended = now >= target;
   const formatted = new Intl.DateTimeFormat(undefined, {
-    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZoneName: 'short', ...(timezone?{timeZone:timezone}:{}),
   }).format(target);
   return <div className={`tournament-countdown ${ended ? 'ended' : ''}`}
     aria-label={`${ended ? 'Scheduled deadline reached' : label}: ${parts[0]} days ${parts[1]} hours ${parts[2]} minutes ${parts[3]} seconds`}>
@@ -35,7 +35,7 @@ export function StudioTournaments({go}) {
   const [loading, setLoading] = useState(true), [directoryError, setDirectoryError] = useState('');
   const [selecting, setSelecting] = useState(''), [actionError, setActionError] = useState('');
   const [adding, setAdding] = useState(false), [name, setName] = useState('');
-  const [rounds, setRounds] = useState(5), [capacity, setCapacity] = useState(256);
+  const [startDate,setStartDate]=useState(''),[endDate,setEndDate]=useState(''),[capacity,setCapacity]=useState(256);
   const [now, setNow] = useState(Date.now());
   const [maps, setMaps] = useState(bundledMaps);
   const judge = user?.role === 'judge';
@@ -74,7 +74,7 @@ export function StudioTournaments({go}) {
   function changeFilter(id) {setFilter(id); setOffset(0); setDirectory([]); setDirectoryError(''); setRevision(v => v + 1);}
   async function add(e) {
     e.preventDefault();
-    if (await create({name: name.trim(), totalRounds: Number(rounds), capacity: Number(capacity)})) {
+    if (await create({name: name.trim(), startDate, endDate, capacity: Number(capacity)})) {
       setAdding(false); setName(''); go('tournament');
     }
   }
@@ -104,7 +104,7 @@ export function StudioTournaments({go}) {
     {adding && judge && <form className="card judge-section" onSubmit={add}>
       <h2>NEW TOURNAMENT</h2><div className="event-create">
         <label>Tournament name<input value={name} onChange={e => setName(e.target.value)} required maxLength={80}/></label>
-        <label>Rounds<input type="number" min="1" max="20" required value={rounds} onChange={e => setRounds(e.target.value)}/></label>
+        <label>Start date (ICT)<input type="date" required value={startDate} onChange={e=>setStartDate(e.target.value)}/></label><label>End date, inclusive (ICT)<input type="date" required min={startDate} value={endDate} onChange={e=>setEndDate(e.target.value)}/></label>
         <label>Player capacity<input type="number" min="2" max="4000" required value={capacity} onChange={e => setCapacity(e.target.value)}/></label>
       </div><Button type="submit" disabled={busy}>Create tournament</Button>
     </form>}
@@ -129,7 +129,8 @@ export function StudioTournaments({go}) {
         <div className="event-body"><span className={`event-phase ${t.phase}`}>{phaseLabel(t.phase).toUpperCase()}</span>
           <h2>{t.name}</h2><p className="event-description">{t.description}</p>
           <div className="event-stats"><div><span>PLAYERS</span><b>{count} / {t.capacity}</b></div><div><span>ROUND</span><b>{String(t.round).padStart(2, '0')} / {String(t.totalRounds).padStart(2, '0')}</b></div><div><span>MAP</span><b>{width && height ? `${width} × ${height}` : 'Not set'}</b></div></div>
-          <Countdown deadline={tournamentDeadline(t)} label={deadlineLabels[t.phase] || 'NEXT PHASE'} now={now}/>
+          {t.format==='daily-round-robin'&&<p>{t.startDate} — {t.endDate} · Asia/Ho_Chi_Minh<br/>Daily double round robin · lock 21:00–21:30</p>}
+          <Countdown timezone={t.timezone} deadline={tournamentDeadline(t)} label={t.format==='daily-round-robin'?'NEXT BOT LOCK':deadlineLabels[t.phase] || 'NEXT PHASE'} now={now}/>
           <div className="event-readiness"><span>{t.phase === 'preparation' ? `${ready} / ${count} bots ready` : t.phase === 'registration' ? 'Organizer-issued accounts' : 'Judge-managed rounds'}</span>{judge && t.counts?.pending > 0 && <span>{t.counts.pending} pending</span>}</div>
           <Button secondary disabled={Boolean(selecting)} aria-busy={selecting === t.id} onClick={() => enter(t)}>{selecting === t.id ? 'Opening…' : label}<span className="pixel-arrow" aria-hidden="true"/></Button>
           {!judge && <button className="text-link event-details-link" disabled={Boolean(selecting)} onClick={() => open(t, 'tournament')}>Tournament details</button>}
@@ -138,6 +139,6 @@ export function StudioTournaments({go}) {
     })}</div>
     {!loading && !directoryError && !visible.length && <section className="card empty"><h2>No tournaments found.</h2><p>Try another name or phase.</p><Button secondary onClick={() => {setQuery(''); changeFilter('all');}}>Clear filters</Button></section>}
     {directory.length < total && <div className="phase-actions"><span>{directory.length} loaded / {total} events</span><Button secondary disabled={loading} onClick={() => setOffset(directory.length)}>Load more tournaments</Button></div>}
-    <p className="preview-footnote">Scheduled times are displayed in your timezone. Your organizer controls tournament phases; countdown expiry does not change entry or submission permissions.</p>
+    <p className="preview-footnote">Daily tournament dates and locks use Asia/Ho_Chi_Minh. Results publish at or after 21:30 when every match finishes. The server enforces all deadlines.</p>
   </>;
 }
