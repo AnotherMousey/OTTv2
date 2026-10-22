@@ -107,9 +107,10 @@ export function StudioTournaments({go}) {
     {adding && judge && <form className="card judge-section" onSubmit={add}>
       <h2>NEW TOURNAMENT</h2><div className="event-create">
         <label>Tournament name<input value={name} onChange={e => setName(e.target.value)} required maxLength={80}/></label>
-        <label>Start date (ICT)<input type="date" required value={startDate} onChange={e=>setStartDate(e.target.value)}/></label><label>Start time (ICT)<input type="time" required max="20:59" value={startTime} onChange={e=>setStartTime(e.target.value)}/></label><label>End date, inclusive (ICT)<input type="date" required min={startDate} value={endDate} onChange={e=>setEndDate(e.target.value)}/></label>
+        <label>Start date (ICT)<input type="date" required value={startDate} onChange={e=>setStartDate(e.target.value)}/></label><label>Start time (ICT)<input type="time" required max="20:59" value={startTime} onChange={e=>setStartTime(e.target.value)}/></label>
         <label>Player capacity<input type="number" min="2" max="4000" required value={capacity} onChange={e => setCapacity(e.target.value)}/></label>
-      </div><Button type="submit" disabled={busy}>Create tournament</Button>
+        <label>End date, inclusive (ICT)<input type="date" required min={startDate} value={endDate} onChange={e=>setEndDate(e.target.value)}/></label>
+      </div><div className="phase-actions"><Button type="submit" disabled={busy}>Create tournament</Button></div>
     </form>}
     <div className="tournament-toolbar"><div className="event-filters" aria-label="Tournament phases">
       {[['all', 'All events'], ['registration', 'Registration'], ['preparation', 'Preparation'], ['pairing', 'Pairing review'], ['live', 'Matches'], ['finished', 'Finished'], ['active', 'Ongoing']].map(([id, title]) =>
