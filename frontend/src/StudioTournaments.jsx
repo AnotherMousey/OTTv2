@@ -36,7 +36,7 @@ export function StudioTournaments({go}) {
   const [loading, setLoading] = useState(true), [directoryError, setDirectoryError] = useState('');
   const [selecting, setSelecting] = useState(''), [actionError, setActionError] = useState('');
   const [adding, setAdding] = useState(false), [name, setName] = useState('');
-  const [startDate,setStartDate]=useState(''),[endDate,setEndDate]=useState(''),[capacity,setCapacity]=useState(256);
+  const [startDate,setStartDate]=useState(''),[startTime,setStartTime]=useState('00:00'),[endDate,setEndDate]=useState(''),[capacity,setCapacity]=useState(256);
   const [now, setNow] = useState(Date.now());
   const [maps, setMaps] = useState(bundledMaps);
   const judge = user?.role === 'judge';
@@ -77,7 +77,7 @@ export function StudioTournaments({go}) {
   function changeFilter(id) {setFilter(id); setOffset(0); setDirectory([]); setDirectoryError(''); setRevision(v => v + 1);}
   async function add(e) {
     e.preventDefault();
-    if (await create({name: name.trim(), startDate, endDate, capacity: Number(capacity)})) {
+    if (await create({name: name.trim(), startDate, startTime, endDate, capacity: Number(capacity)})) {
       setAdding(false); setName(''); go('tournament');
     }
   }
@@ -107,12 +107,13 @@ export function StudioTournaments({go}) {
     {adding && judge && <form className="card judge-section" onSubmit={add}>
       <h2>NEW TOURNAMENT</h2><div className="event-create">
         <label>Tournament name<input value={name} onChange={e => setName(e.target.value)} required maxLength={80}/></label>
-        <label>Start date (ICT)<input type="date" required value={startDate} onChange={e=>setStartDate(e.target.value)}/></label><label>End date, inclusive (ICT)<input type="date" required min={startDate} value={endDate} onChange={e=>setEndDate(e.target.value)}/></label>
+        <label>Start date (ICT)<input type="date" required value={startDate} onChange={e=>setStartDate(e.target.value)}/></label><label>Start time (ICT)<input type="time" required max="20:59" value={startTime} onChange={e=>setStartTime(e.target.value)}/></label>
         <label>Player capacity<input type="number" min="2" max="4000" required value={capacity} onChange={e => setCapacity(e.target.value)}/></label>
-      </div><Button type="submit" disabled={busy}>Create tournament</Button>
+        <label>End date, inclusive (ICT)<input type="date" required min={startDate} value={endDate} onChange={e=>setEndDate(e.target.value)}/></label>
+      </div><div className="phase-actions"><Button type="submit" disabled={busy}>Create tournament</Button></div>
     </form>}
     <div className="tournament-toolbar"><div className="event-filters" aria-label="Tournament phases">
-      {[['all', 'All events'], ['registration', 'Registration'], ['preparation', 'Preparation'], ['pairing', 'Pairing review'], ['live', 'Matches'], ['finished', 'Finished'], ['active', 'Ongoing']].map(([id, title]) =>
+      {[['all', 'All events'], ['registration', 'Registration'], ['active', 'Ongoing'], ['finished', 'Finished']].map(([id, title]) =>
         <Button secondary className={`button secondary ${filter === id ? 'active' : ''}`} aria-pressed={filter === id} key={id} disabled={filter === id && loading} onClick={() => changeFilter(id)}>{title}</Button>)}
     </div><label className="tournament-search"><span className="sr-only">Find a tournament</span><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Find a tournament…"/></label></div>
     {judge&&<div className="phase-actions"><Button secondary aria-pressed={showHidden} onClick={()=>setShowHidden(v=>!v)}>{showHidden?'Hide hidden events':'Show hidden events'}</Button></div>}
@@ -133,7 +134,7 @@ export function StudioTournaments({go}) {
         <div className="event-body"><span className={`event-phase ${t.phase}`}>{t.hidden?'HIDDEN':phaseLabel(t.phase).toUpperCase()}</span>
           <h2>{t.name}</h2><p className="event-description">{t.description}</p>
           <div className="event-stats"><div><span>PLAYERS</span><b>{count} / {t.capacity}</b></div><div><span>ROUND</span><b>{String(t.round).padStart(2, '0')} / {String(t.totalRounds).padStart(2, '0')}</b></div><div><span>MAP</span><b>{width && height ? `${width} × ${height}` : 'Not set'}</b></div></div>
-          {t.format==='daily-round-robin'&&<p className="account-note">{t.startDate} — {t.endDate}</p>}
+          {t.format==='daily-round-robin'&&<p className="account-note">{t.startDate} {t.startTime||'00:00'} — {t.endDate}</p>}
           <Countdown timezone={t.timezone} deadline={tournamentDeadline(t)} label={t.format==='daily-round-robin'?'NEXT BOT LOCK':deadlineLabels[t.phase] || 'NEXT PHASE'} now={now}/>
           <div className="event-readiness"><span>{t.phase === 'preparation' ? `${ready} / ${count} bots ready` : t.phase === 'registration' ? 'Registration open' : 'Tournament in progress'}</span>{judge && t.counts?.pending > 0 && <span>{t.counts.pending} pending</span>}</div>
           <Button secondary disabled={Boolean(selecting)} aria-busy={selecting === t.id} onClick={() => enter(t)}>{selecting === t.id ? 'Opening…' : label}<span className="pixel-arrow" aria-hidden="true"/></Button>
