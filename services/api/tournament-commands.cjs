@@ -14,8 +14,8 @@ const audit = (tx, actor, event, action, metadata = {}) =>
   });
 async function create(req, res) {
   const body = req.body;
-  const dates = daily.schedule(body.startDate, body.endDate);
-  if (dates.startDate <= daily.localDate()) fail(400, 'Start date must be tomorrow or later; registration closes at 00:00 on that date.');
+  const dates = daily.schedule(body.startDate, body.endDate, body.startTime);
+  if (daily.startsAt(dates) <= new Date()) fail(400, 'Start time must be in the future; registration closes when the tournament starts.');
   const id = crypto.randomUUID();
   const initialConfig = freezeConfig({
     gameId: body.gameId || "ottv2",

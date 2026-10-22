@@ -10,13 +10,20 @@ function dateValue(value) {
     fail(400, 'Dates must be valid YYYY-MM-DD dates in Asia/Ho_Chi_Minh.');
   return value;
 }
-function schedule(start, end) {
+// Start must precede the first 21:00 cutoff so the start date still plays a round.
+function timeValue(value = '00:00') {
+  if (typeof value !== 'string' || !/^([01]\d|20):[0-5]\d$/.test(value))
+    fail(400, 'Start time must be HH:MM between 00:00 and 20:59 Asia/Ho_Chi_Minh.');
+  return value;
+}
+function schedule(start, end, time) {
   start = dateValue(start); end = dateValue(end);
   const days = Math.round((instant(end) - instant(start)) / DAY) + 1;
   if (days < 1 || days > 366) fail(400, 'Tournament duration must be 1–366 days.');
-  return { startDate: start, endDate: end, totalRounds: days };
+  return { startDate: start, endDate: end, startTime: timeValue(time), totalRounds: days };
 }
-const started = (event, now = new Date()) => isDaily(event) && now >= instant(event.startDate);
+const startsAt = event => instant(event.startDate, event.startTime || '00:00');
+const started = (event, now = new Date()) => isDaily(event) && now >= startsAt(event);
 function botLocked(event, now = new Date()) {
   if (!isDaily(event)) return false;
   const day = localDate(now);
@@ -37,7 +44,7 @@ function nextLock(event, now = new Date()) {
 function display(event, now = new Date()) {
   if (!isDaily(event)) return event;
   return { ...event, phase: event.phase === 'finished' ? 'finished' : started(event, now) ? 'live' : 'registration',
-    timezone: 'Asia/Ho_Chi_Minh', registrationClosesAt: instant(event.startDate).toISOString(),
+    timezone: 'Asia/Ho_Chi_Minh', registrationClosesAt: startsAt(event).toISOString(),
     serverNow: now.toISOString(), botLocked: botLocked(event, now),
     botSubmissionsOpen: event.phase !== 'finished' && localDate(now) <= event.endDate && !botLocked(event, now),
     nextLockAt: nextLock(event, now) };
@@ -59,4 +66,4 @@ function applyRating(white, black, score) {
   }
   return delta;
 }
-module.exports = { FORMAT, isDaily, instant, localDate, nextDate, dateValue, schedule, started, botLocked, assertBotOpen, nextLock, display, pairingAt, applyRating };
+module.exports = { FORMAT, isDaily, instant, localDate, nextDate, dateValue, timeValue, schedule, startsAt, started, botLocked, assertBotOpen, nextLock, display, pairingAt, applyRating };

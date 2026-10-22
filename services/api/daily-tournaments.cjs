@@ -70,14 +70,14 @@ async function changeSchedule(req, res) {
     if (!policy.isDaily(event)) {
       if (!['registration', 'preparation'].includes(event.phase) || await tx.match.count({ where: { tournamentId: event.id } }))
         fail(409, 'Only an unplayed registration/preparation tournament can switch format. Existing matches and history are preserved.');
-      const dates = policy.schedule(req.body.startDate, req.body.endDate);
-      if (dates.startDate <= policy.localDate()) fail(400, 'Start date must be tomorrow or later.');
+      const dates = policy.schedule(req.body.startDate, req.body.endDate, req.body.startTime);
+      if (policy.startsAt(dates) <= new Date()) fail(400, 'Start time must be in the future.');
       await tx.tournament.update({ where: { id: event.id }, data: { ...dates, format: policy.FORMAT, phase: 'registration', firstSide: 'white' } });
       await tx.audit.create({ data: { actorId: req.user.id, tournamentId: event.id, action: 'daily.convert', metadata: dates } });
       return;
     }
     if (event.phase === 'finished') fail(409, 'A finalized tournament cannot be rescheduled.');
-    const dates = policy.schedule(event.startDate, req.body.endDate);
+    const dates = policy.schedule(event.startDate, req.body.endDate, event.startTime);
     const latest = await tx.dailyBatch.findFirst({ where: { tournamentId: event.id }, orderBy: { date: 'desc' } });
     if (dates.endDate < policy.localDate() || (latest && dates.endDate < latest.date)) fail(409, 'End date cannot precede today or an existing batch. No history or running work can be removed.');
     await tx.tournament.update({ where: { id: event.id }, data: dates });

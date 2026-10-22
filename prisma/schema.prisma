@@ -53,6 +53,7 @@ model Tournament {
   updatedAt DateTime @updatedAt
   format String @default("legacy") @db.VarChar(24)
   startDate String? @db.Char(10)
+  startTime String @default("00:00") @db.Char(5)
   endDate String? @db.Char(10)
   publishedBatchId String? @db.VarChar(48)
   hidden Boolean @default(false)

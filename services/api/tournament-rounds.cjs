@@ -5,7 +5,7 @@ const STATES={all:null,live:['running'],queued:['scheduled','queued'],completed:
 const matchSelect={id:true,round:true,whiteId:true,blackId:true,status:true,whiteBefore:true,blackBefore:true,whiteDelta:true,blackDelta:true,score:true,result:true,batchId:true,whiteSubmissionId:true,blackSubmissionId:true};
 // Read-only, bounded round pages. Never returns submissions, private practice or guessed pairings.
 async function list(req,res){
- const event=await prisma.tournament.findUnique({where:{id:req.params.id},select:{id:true,name:true,phase:true,round:true,totalRounds:true,format:true,startDate:true,endDate:true,hidden:true,deletedAt:true,ownerId:true}});
+ const event=await prisma.tournament.findUnique({where:{id:req.params.id},select:{id:true,name:true,phase:true,round:true,totalRounds:true,format:true,startDate:true,startTime:true,endDate:true,hidden:true,deletedAt:true,ownerId:true}});
  if(!require('./tournament-visibility.cjs').canRead(event,req.user))fail(404,'Tournament not found.');
  const visibility=visibleMatches(req.user);
  const totalRounds=Math.max(1,event.totalRounds,event.round);

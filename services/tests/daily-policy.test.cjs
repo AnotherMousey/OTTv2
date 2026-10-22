@@ -26,6 +26,15 @@ test('registration closes at local midnight; extending end does not change cutof
   assert.equal(p.started(event,at('00:00:00')),true);
   assert.equal(p.started({...event,endDate:'2026-10-30'},at('00:00:00')),true);
 });
+test('judge-chosen start time closes registration at that hour',()=>{
+  const timed={...event,startTime:'14:30'};
+  assert.equal(p.started(timed,at('14:29:59.999')),false);
+  assert.equal(p.started(timed,at('14:30:00')),true);
+  assert.equal(p.display(timed,at('09:00:00')).registrationClosesAt,'2026-10-22T07:30:00.000Z');
+  assert.equal(p.schedule('2026-10-22','2026-10-22').startTime,'00:00');
+  assert.equal(p.schedule('2026-10-22','2026-10-22','20:59').startTime,'20:59');
+  for(const t of ['21:00','23:15','9:00','24:00','12:60','noon'])assert.throws(()=>p.schedule('2026-10-22','2026-10-22',t),{status:400},t);
+});
 test('inclusive schedules validate leap days, invalid dates, order and bounds',()=>{
   assert.equal(p.schedule('2028-02-28','2028-03-01').totalRounds,3);
   assert.equal(p.schedule('2026-10-22','2026-10-22').totalRounds,1);

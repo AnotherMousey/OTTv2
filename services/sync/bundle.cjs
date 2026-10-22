@@ -7,7 +7,7 @@ function validateManifest(m){
  if(m?.format!=='bot-tournament-bundle'||![1,2].includes(m.version)||m.tournament?.phase!=='finished')fail(400,'Only completed tournament bundles v1/v2 are supported.');
  const daily=m.version===2;
  if(!daily&&m.tournament.format&&m.tournament.format!=='legacy')fail(400,'Daily events require bundle version 2.');
- if(daily){if(m.tournament.format!=='daily-round-robin')fail(400,'Version 2 requires daily round robin.');const dates=require('../platform/daily-policy.cjs').schedule(m.tournament.startDate,m.tournament.endDate);if(dates.totalRounds!==m.tournament.totalRounds)fail(400,'Daily schedule does not match round count.');}
+ if(daily){if(m.tournament.format!=='daily-round-robin')fail(400,'Version 2 requires daily round robin.');const dates=require('../platform/daily-policy.cjs').schedule(m.tournament.startDate,m.tournament.endDate,m.tournament.startTime);if(dates.totalRounds!==m.tournament.totalRounds)fail(400,'Daily schedule does not match round count.');}
  if(!/^[A-Za-z0-9_-]{1,64}$/.test(m.tournament.id)||!Array.isArray(m.participants)||m.participants.length<2||m.participants.length>4000||!Array.isArray(m.submissions)||m.submissions.length>80000||!Array.isArray(m.matches)||m.matches.length>40000)fail(400,'Bundle exceeds tournament bounds.');
  unique(m.participants,'id');unique(m.participants,'username');unique(m.submissions,'id');unique(m.matches,'id');
  const users=new Set(m.participants.map(u=>u.id));
