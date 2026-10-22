@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import {tournamentTarget,routePage,expiredSessionDestination,replaceRoute,tournamentRoute,unavailableTournament} from "../tournamentNavigation.js";
 import { loginWithRefresh } from "../loginFlow.js";
 import {
   request,
@@ -21,6 +22,7 @@ export function useTournamentAccounts() {
     [tournament, setTournament] = useState(empty),
     [rankings, setRankings] = useState([]),
     [error, setError] = useState(""),
+    [selectionError, setSelectionError] = useState(null),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true),
     [eventTotal, setEventTotal] = useState(0),
@@ -28,7 +30,7 @@ export function useTournamentAccounts() {
   const authVersion = useRef(0),
     authPending = useRef(false),
     profileVersion = useRef(0);
-  const selected = useRef(""),
+  const selected = useRef(tournamentTarget(location.hash.slice(1))?.id || ""),
     generation = useRef(0),
     pages = useRef({ offset: 0, matchOffset: 0, rankOffset: 0 });
   async function loadDirectory(offset = 0) {
@@ -52,13 +54,13 @@ export function useTournamentAccounts() {
     const version = generation.current,
       identity = authVersion.current,
       profile = profileVersion.current;
-    const p = pages.current;
+    const p = pages.current, pathId = encodeURIComponent(id);
     const [event, standings] = await Promise.all([
       request(
-        `/api/tournaments/${id}?offset=${p.offset}&matchOffset=${p.matchOffset}`,
+        `/api/tournaments/${pathId}?offset=${p.offset}&matchOffset=${p.matchOffset}`,
       ),
       includeRankings
-        ? request(`/api/tournaments/${id}/rankings?offset=${p.rankOffset}`)
+        ? request(`/api/tournaments/${pathId}/rankings?offset=${p.rankOffset}`)
         : Promise.resolve(null),
     ]);
     if (
@@ -73,6 +75,7 @@ export function useTournamentAccounts() {
         (event.publishedBatchId || null) !== (standings.publishedBatchId || null)) return;
     const value = tournamentWorkspace(event);
     setTournament(value);
+    setSelectionError(null);
     if (standings) {
       setRankings(standings.rankings);
       setRankPage({ offset: standings.offset, total: standings.total });
@@ -84,14 +87,23 @@ export function useTournamentAccounts() {
       polling = false;
     const expired = () => {
       authVersion.current++;
+      generation.current++;
       setUser(null);
       setAuthChecking(false);
       setLoading(false);
       setTournament(empty);
       setRankings([]);
       setError("Session expired. Log in again.");
+      setSelectionError(null);
+      const destination=expiredSessionDestination(location.hash.slice(1),selected.current);
+      if(destination)replaceRoute(destination);
     };
     window.addEventListener("ott-session-expired", expired);
+    const selectFromRoute=()=>{
+      const target=tournamentTarget(location.hash.slice(1));
+      if(target?.id&&target.id!==selected.current)void selectEvent(target.id);
+    };
+    window.addEventListener('hashchange',selectFromRoute);
     const version = authVersion.current;
     (async () => {
       try {
@@ -109,7 +121,10 @@ export function useTournamentAccounts() {
         await loadDirectory();
         if (active && version === authVersion.current) await refresh();
       } catch (e) {
-        if (active && version === authVersion.current) setError(e.message);
+        if (active && version === authVersion.current) {
+          setError(e.message);
+          if(selected.current)setSelectionError({id:selected.current,message:unavailableTournament(e)});
+        }
       } finally {
         if (active && version === authVersion.current) {
           setAuthChecking(false);
@@ -119,7 +134,7 @@ export function useTournamentAccounts() {
     })();
     const timer = setInterval(async () => {
       if (document.hidden || polling || authPending.current) return;
-      const page = location.hash.slice(1);
+      const page = routePage(location.hash.slice(1));
       if (!["tournament", "mybot", "rankings"].includes(page)) return;
       polling = true;
       const identity = authVersion.current,
@@ -146,6 +161,7 @@ export function useTournamentAccounts() {
       active = false;
       clearInterval(timer);
       window.removeEventListener("ott-session-expired", expired);
+      window.removeEventListener("hashchange", selectFromRoute);
     };
   }, []);
   async function login(username, password) {
@@ -158,6 +174,9 @@ export function useTournamentAccounts() {
         username,
         password,
         onAuthenticated: (account) => {
+          const target=tournamentTarget(location.hash.slice(1));
+          if(target?.id){selected.current=target.id;generation.current++;pages.current={offset:0,matchOffset:0,rankOffset:0};}
+          setSelectionError(null);
           setTournament(empty);
           setRankings([]);
           setUser(account);
@@ -166,15 +185,22 @@ export function useTournamentAccounts() {
         },
         refresh: async () => {
           try {
-            await loadDirectory();
-            if (version === authVersion.current) await refresh();
+            if(tournamentTarget(location.hash.slice(1))?.id){
+              await refresh();
+              void loadDirectory().catch(()=>{});
+            }else{
+              await loadDirectory();
+              if (version === authVersion.current) await refresh();
+            }
           } finally {
             if (version === authVersion.current) setLoading(false);
           }
         },
         onRefreshError: (e) => {
-          if (version === authVersion.current)
+          if (version === authVersion.current){
             setError("Logged in. Tournament data could not load: " + e.message);
+            if(selected.current)setSelectionError({id:selected.current,message:unavailableTournament(e)});
+          }
         },
       });
     } catch (e) {
@@ -246,14 +272,20 @@ export function useTournamentAccounts() {
   }
   async function selectEvent(id) {
     selected.current = id;
-    generation.current++;
+    const version=++generation.current, identity=authVersion.current;
     pages.current = { offset: 0, matchOffset: 0, rankOffset: 0 };
+    setSelectionError(null);if(routePage(location.hash.slice(1))==='tournament')setLoading(true);
+    if(routePage(location.hash.slice(1))==='tournament')replaceRoute(tournamentRoute(id));
     try {
       await refresh();
-      return true;
+      return version===generation.current&&identity===authVersion.current;
     } catch (e) {
-      setError(e.message);
+      if(version===generation.current&&identity===authVersion.current){
+        setError(e.message);setSelectionError({id,message:unavailableTournament(e)});
+      }
       return false;
+    } finally {
+      if(version===generation.current&&identity===authVersion.current)setLoading(false);
     }
   }
   async function mutate(path, body) {
@@ -337,6 +369,7 @@ export function useTournamentAccounts() {
     rankings,
     rankPage,
     error,
+    selectionError,
     busy,
     loading,
     selectEvent,

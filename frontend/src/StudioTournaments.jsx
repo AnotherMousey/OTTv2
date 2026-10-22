@@ -1,3 +1,4 @@
+import {entryLoginRoute} from './tournamentNavigation.js';
 import {TournamentManagementActions} from './TournamentManagementActions.jsx';
 import React, {useEffect, useState} from 'react';
 import {useAccounts} from './PreviewAccounts.jsx';
@@ -92,7 +93,7 @@ export function StudioTournaments({go}) {
   }
   function enter(t) {
     const target = judge ? 'tournament' : ['live', 'finished'].includes(t.phase)
-      ? `watch?tournament=${encodeURIComponent(t.id)}` : !user ? 'login'
+      ? `watch?tournament=${encodeURIComponent(t.id)}` : !user ? entryLoginRoute(t.id)
       : t.phase === 'preparation' ? 'mybot' : 'tournament';
     return open(t, target);
   }

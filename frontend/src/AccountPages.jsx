@@ -1,3 +1,4 @@
+import {tournamentTarget,loginDestination,replaceRoute,tournamentRoute} from './tournamentNavigation.js';
 import {DailyScheduleNotice,isDailyTournament} from './DailyTournament.jsx';
 import {ParticipantAvatar} from './ParticipantAvatar.jsx';
 import {LoginDuel} from './CharacterStudio.jsx';
@@ -11,19 +12,29 @@ import {Pagination} from './Pagination.jsx';
 import {TournamentWorkspace,EventPicker} from './TournamentWorkspace.jsx';
 const signed=n=>n>0?`+${n}`:String(n);
 export function LoginGate({go}){return <section className="card account-gate"><Pixel className="heading-sprite"/><span className="eyebrow">ORGANIZER ACCOUNT</span><h1>LOG IN TO CONTINUE</h1><p>Use the account provided by your tournament organizer.</p><Button onClick={()=>go('login')}>Log in ↗</Button></section>;}
-export function LoginPage({go}){
+export function LoginPage({go,route='login'}){
+ const target=tournamentTarget(route);
  const [registrationOpen,setRegistrationOpen]=useState(false);
  useEffect(()=>{let active=true;request('/api/auth/registration').then(data=>{if(active)setRegistrationOpen(data.enabled);}).catch(()=>{});return()=>{active=false;};},[]);
  const {login,user,authChecking}=useAccounts(),[username,setUsername]=useState(''),[password,setPassword]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  useEffect(() => {
-  if (user && !authChecking) go('home');
- }, [user, authChecking]);
- async function submit(e){e.preventDefault();setError('');setBusy(true);try{const account=await login(username,password);go('home');}catch(e){setError(e.message);}finally{setBusy(false);}}
+  if (user && !authChecking) {
+   const destination=loginDestination(route);
+   if(target)replaceRoute(destination);else go(destination);
+  }
+ }, [user, authChecking, route]);
+ async function submit(e){e.preventDefault();setError('');setBusy(true);try{await login(username,password);}catch(e){setError(e.message);}finally{setBusy(false);}}
  if(user)return <section className="card account-gate" role="status" aria-busy="true"><h1>OPENING WORKSPACE</h1><p>You are logged in.</p></section>;
- return <div className="account-features"><div className="account-login-layout"><section className="login-intro"><span className="eyebrow">OTTv2 / TOURNAMENT ACCOUNTS</span><h1>YOUR ACCOUNT<br/>YOUR NEXT MOVE<span className="yellow-dot">.</span></h1><p>Your organizer gives you an account. Log in, join the tournament, and let the judge assign your opponent.</p><LoginDuel/><span className="account-note">{registrationOpen?'Player registration is open.':'Accounts are issued by the organizer.'}</span></section><form className="card account-login-form" onSubmit={submit}><span className="eyebrow">WELCOME BACK</span><h2>LOG IN</h2><label>Username<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} required disabled={busy}/></label><PasswordField id="login-password" label="Password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" disabled={busy} error={error} describedBy={error?'login-error':undefined}/>{error&&<p id="login-error" className="inline-error" role="alert">{error}</p>}<Button type="submit" disabled={busy}>{busy?'Checking account…':<>Log in <span className="pixel-arrow" aria-hidden="true"/></>}</Button>{registrationOpen&&<button type="button" className="register-login-link" onClick={()=>go('register')}>Create a player account ↗</button>}<p className="account-note">Need account help? Contact your organizer.</p></form></div></div>;
+ return <div className="account-features"><div className="account-login-layout"><section className="login-intro"><span className="eyebrow">OTTv2 / TOURNAMENT ACCOUNTS</span><h1>YOUR ACCOUNT<br/>YOUR NEXT MOVE<span className="yellow-dot">.</span></h1><p>Your organizer gives you an account. Log in, join the tournament, and let the judge assign your opponent.</p><LoginDuel/><span className="account-note">{registrationOpen?'Player registration is open.':'Accounts are issued by the organizer.'}</span></section><form className="card account-login-form" onSubmit={submit}><span className="eyebrow">WELCOME BACK</span><h2>LOG IN</h2>{target&&<p className="account-note" role="status">{target.invalid?'This tournament return link is invalid or expired. After login, browse tournaments.':'Log in to return to this tournament. You will confirm entry after signing in.'}</p>}<label>Username<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} required disabled={busy}/></label><PasswordField id="login-password" label="Password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" disabled={busy} error={error} describedBy={error?'login-error':undefined}/>{error&&<p id="login-error" className="inline-error" role="alert">{error}</p>}<Button type="submit" disabled={busy}>{busy?'Checking account…':<>Log in <span className="pixel-arrow" aria-hidden="true"/></>}</Button>{target&&<Button type="button" secondary onClick={()=>replaceRoute(target.invalid?'tournaments':tournamentRoute(target.id))}>Cancel login</Button>}{registrationOpen&&<button type="button" className="register-login-link" onClick={()=>go('register')}>Create a player account ↗</button>}<p className="account-note">Need account help? Contact your organizer.</p></form></div></div>;
 }
 export {PlayerMenu as AccountControl} from './PlayerMenu.jsx';
-export function TournamentAccountPage({go}){return <TournamentWorkspace go={go}/>;}
+export function TournamentAccountPage({go,route='tournament'}){
+ const {tournament,selectionError,selectEvent}=useAccounts(),target=tournamentTarget(route);
+ const problem=target?.invalid?'This tournament link is invalid.':selectionError?.id===(target?.id||tournament.id)?selectionError.message:null;
+ if(problem)return <section className="card account-gate"><h1>TOURNAMENT UNAVAILABLE</h1><p role="alert">{problem}</p>{target?.id&&<Button secondary onClick={()=>selectEvent(target.id)}>Try again</Button>}<Button onClick={()=>go('tournaments')}>Browse tournaments</Button></section>;
+ if(target?.id&&tournament.id!==target.id)return <section className="card account-gate" role="status" aria-busy="true"><h1>OPENING TOURNAMENT</h1><p>Loading your selected tournament…</p></section>;
+ return <TournamentWorkspace go={go}/>;
+}
 export function AccountRankings(){
  const {rankings,user,tournament}=useAccounts(),[query,setQuery]=useState('');
  const {rankPage,paginate,busy}=useAccounts();

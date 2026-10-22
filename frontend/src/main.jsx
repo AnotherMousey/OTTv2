@@ -1,3 +1,4 @@
+import {routePage} from './tournamentNavigation.js';
 import {ThemeSwitch} from './ThemeSwitch.jsx';
 import {CharacterStudio} from './CharacterStudio.jsx';
 import {StudioTournaments} from './StudioTournaments.jsx';
@@ -127,7 +128,7 @@ function App() {
               key={id}
               href={`#${id}`}
               onClick={id === "match" ? e=>{e.preventDefault();go(id);} : undefined}
-              aria-current={(page === id || (id === "watch" && (page.startsWith("watch") || page==='match'&&new URLSearchParams(location.search).has('match'))) || (id === "tournaments" && ["tournament","rankings"].includes(page)) || (id === "api" && page === "rules") || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
+              aria-current={(page === id || (id === "watch" && (page.startsWith("watch") || page==='match'&&new URLSearchParams(location.search).has('match'))) || (id === "tournaments" && ["tournament","rankings"].includes(routePage(page))) || (id === "api" && page === "rules") || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
             >
               {label}
             </a>
@@ -143,7 +144,7 @@ function App() {
       <main className="page" key={page}>
         {authChecking ? (
           <section className="card account-gate" role="status" aria-live="polite" aria-busy="true"><h1>CHECKING SESSION</h1><p>Verifying your saved login…</p></section>
-        ) : loading&&['tournament','tournaments','mybot','rankings','submissions'].includes(page) ? (
+        ) : loading&&['tournament','tournaments','mybot','rankings','submissions'].includes(routePage(page)) ? (
           <section className="card account-gate" role="status" aria-live="polite" aria-busy="true"><h1>LOADING TOURNAMENTS</h1><p>{user?'You are logged in. Fetching your tournament workspace…':'Fetching tournament data…'}</p></section>
         ) : page === "settings" ? (user ? <AccountSettings key={user.id}/> : <LoginGate go={go}/>) : page === "accounts" ? (user?.role==='judge' ? <JudgeAccounts key={user.id} go={go}/> : user ? <section className="card"><h1>JUDGE ACCESS REQUIRED</h1><p>Your account cannot manage player accounts.</p></section> : <LoginGate go={go}/>) : page === "register" ? <RegisterPage go={go}/> : page === "customize" ? (user ? <CharacterStudio key={user.id} notify={setToast}/> : <LoginGate go={go}/>) : page === "home" ? (
           <Home go={go} bot={bot} />
@@ -161,10 +162,10 @@ function App() {
           user?.role==='player'||(user&&user.role!=='judge') ? <SubmissionHistory go={go}/> : <LoginGate go={go}/>
         ) : page === "practice" ? (
           user&&user.role!=='judge' ? <Submission bot={bot} save={saveBot} prepare={prepare}/> : <StudioTournaments go={go}/>
-        ) : page === "tournament" ? (
-          <TournamentAccountPage go={go} />
-        ) : page === "login" ? (
-          <LoginPage go={go}/>
+        ) : routePage(page) === "tournament" ? (
+          <TournamentAccountPage go={go} route={page} />
+        ) : routePage(page) === "login" ? (
+          <LoginPage go={go} route={page}/>
         ) : page === "api" || page === "rules" ? (
           <Rules />
         ) : (

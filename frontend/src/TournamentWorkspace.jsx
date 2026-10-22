@@ -1,3 +1,4 @@
+import {entryLoginRoute} from './tournamentNavigation.js';
 import {ParticipantAvatar} from './ParticipantAvatar.jsx';
 import {DailyTournamentWorkspace,isDailyTournament,DailyFormatSetup} from './DailyTournament.jsx';
 import {TournamentRoundMap} from './TournamentRoundMap.jsx';
@@ -70,7 +71,7 @@ export function TournamentWorkspace({go}){
  const action={registration:'Close registration / prepare bots',preparation:'Lock bots / review pairings',pairing:'Start round',live:tournament.round>=tournament.totalRounds?'Finish tournament':'Open next bot preparation'};
  const messages={registration:'Review entry requests before closing registration.',preparation:'Accepted players submit one bot each. All bots must be ready before pairing.',pairing:'Review Elo-based pairings. Bot submissions and settings are locked.',live:'Matches run on the isolated execution service. The engine records results and Elo changes.',finished:'Final standings and completed match recordings remain available.'};
  async function next(){if(!await advance())return;setTab(tournament.phase==='preparation'?'pairings':'overview');}
- let nextTitle='FIND YOUR TOURNAMENT',nextDescription='Log in with your player account to request entry.',nextLabel='Log in',nextPage='login';
+ let nextTitle='FIND YOUR TOURNAMENT',nextDescription='Log in with your player account to request entry.',nextLabel='Log in',nextPage=entryLoginRoute(tournament.id);
  if(user){
   if(player?.entry==='pending'){nextTitle='YOUR ENTRY IS UNDER REVIEW';nextDescription='The judge must accept your request before you can enter a bot.';nextLabel='Browse other tournaments';nextPage='tournaments';}
   else if(player?.entry!=='accepted'){nextTitle=tournament.phase==='registration'?'REQUEST YOUR PLACE':'REGISTRATION IS CLOSED';nextDescription=tournament.phase==='registration'?'Join this tournament. The judge reviews every player entry.':'You can watch its matches or choose another tournament.';nextLabel='Browse tournaments';nextPage='tournaments';}
