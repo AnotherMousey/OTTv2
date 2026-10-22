@@ -51,7 +51,7 @@ app.post('/api/tournaments/:id/delete',auth,judge,tournamentVisibility.remove);
 app.post('/api/tournaments/:id/schedule',auth,judge,dailyTournaments.changeSchedule);
 app.get('/api/tournaments/:id/source',auth,judge,dailyTournaments.versions);
 app.get('/api/tournaments/:id/source/:submissionId',auth,judge,dailyTournaments.code);
-app.post('/api/tournaments/:id/join',auth,tournaments.join);app.post('/api/tournaments/:id/review',auth,judge,tournaments.review);app.post('/api/tournaments/:id/settings',auth,judge,tournaments.settings);app.post('/api/tournaments/:id/advance',auth,judge,tournaments.advance);app.post('/api/tournaments/:id/bot',auth,bots.submit);app.get('/api/tournaments/:id/bots',auth,bots.history);
+app.post('/api/tournaments/:id/join',auth,tournaments.join);app.post('/api/tournaments/:id/review',auth,judge,tournaments.review);app.post('/api/tournaments/:id/registration',auth,judge,tournaments.registration);app.post('/api/tournaments/:id/settings',auth,judge,tournaments.settings);app.post('/api/tournaments/:id/advance',auth,judge,tournaments.advance);app.post('/api/tournaments/:id/bot',auth,bots.submit);app.get('/api/tournaments/:id/bots',auth,bots.history);
 // POST actions also work with previously cached CORS method allowlists.
 app.post('/api/practice/history/delete',auth,practiceHistory.remove);app.post('/api/practice/history/:id/delete',auth,practiceHistory.remove);
 app.delete('/api/practice/history',auth,practiceHistory.remove);app.delete('/api/practice/history/:id',auth,practiceHistory.remove);

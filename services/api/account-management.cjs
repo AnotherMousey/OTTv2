@@ -60,7 +60,7 @@ async function setPolicy(req, res) {
   res.json({ enabled: value.enabled });
 }
 async function register(req, res) {
-  await rate("register:" + req.ip, 10, 900);
+  await rate("register:" + req.ip, 15, 900);
   const current = await prisma.registrationSettings.findUnique({
     where: { id: POLICY },
   });

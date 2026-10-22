@@ -57,6 +57,7 @@ model Tournament {
   endDate String? @db.Char(10)
   publishedBatchId String? @db.VarChar(48)
   hidden Boolean @default(false)
+  registrationOpen Boolean @default(true)
   deletedAt DateTime?
   batches DailyBatch[]
   entries Entry[]

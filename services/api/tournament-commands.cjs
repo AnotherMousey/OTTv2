@@ -61,6 +61,8 @@ async function join(req, res) {
     if (!require("./tournament-visibility.cjs").canRead(event, req.user)) fail(404, "Tournament not found.");
     if (event.phase !== "registration" || daily.started(event))
       fail(409, "Tournament registration is closed.");
+    if (event.registrationOpen === false)
+      fail(409, "The organizer has closed registration for this tournament.");
     const existing = await tx.entry.findUnique({
       where: {
         tournamentId_userId: { tournamentId: event.id, userId: req.user.id },
@@ -113,6 +115,23 @@ async function review(req, res) {
     });
   });
   res.json({ ok: true });
+}
+// Pauses new entry requests only; pending entries can still be reviewed.
+async function registration(req, res) {
+  if (typeof req.body.open !== "boolean") fail(400, "open must be true or false.");
+  await transaction(async (tx) => {
+    const event = await eventOwner(tx, req.params.id, req.user);
+    if (event.phase !== "registration" || daily.started(event))
+      fail(409, "Registration has already ended.");
+    await tx.tournament.update({
+      where: { id: event.id },
+      data: { registrationOpen: req.body.open },
+    });
+    await audit(tx, req.user, event.id, "tournament.registration", {
+      open: req.body.open,
+    });
+  });
+  res.json({ ok: true, registrationOpen: req.body.open });
 }
 async function settings(req, res) {
   await transaction(async (tx) => {
@@ -280,4 +299,4 @@ async function advance(req, res) {
   res.json({ ok: true });
 }
 
-module.exports = { create, join, review, settings, advance, audit };
+module.exports = { create, join, review, registration, settings, advance, audit };

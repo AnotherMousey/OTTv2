@@ -50,6 +50,7 @@ test("tournament facade retains public exports", () => {
     "create",
     "join",
     "review",
+    "registration",
     "settings",
     "advance",
     "entrant",
@@ -290,6 +291,38 @@ test("join rejects non-player before transaction; accepted requests stay idempot
   await api.join(request({ user: player }), res);
   assert.deepEqual(res.body, { ok: true });
   assert.match(locks[0][0], /Tournament.*FOR UPDATE/);
+});
+
+test("judge can close registration; closed tournaments reject new entries", async (t) => {
+  t.mock.method(db, "$queryRaw", async () => []);
+  t.mock.method(db.tournament, "findUnique", async () => event);
+  const updates = [];
+  t.mock.method(db.tournament, "update", async (args) => {
+    updates.push(args);
+    return event;
+  });
+  t.mock.method(db.audit, "create", async () => ({}));
+  await assert.rejects(
+    api.registration(request({ body: { open: "no" } }), response()),
+    { status: 400 },
+  );
+  await assert.rejects(
+    api.registration(
+      request({ user: { id: "another-judge", role: "judge" }, body: { open: false } }),
+      response(),
+    ),
+    { status: 403 },
+  );
+  const res = response();
+  await api.registration(request({ body: { open: false } }), res);
+  assert.deepEqual(res.body, { ok: true, registrationOpen: false });
+  assert.deepEqual(updates[0].data, { registrationOpen: false });
+  t.mock.method(db.tournament, "findUnique", async () => ({ ...event, registrationOpen: false }));
+  t.mock.method(db.entry, "findUnique", async () => null);
+  await assert.rejects(api.join(request({ user: player }), response()), {
+    status: 409,
+    message: "The organizer has closed registration for this tournament.",
+  });
 });
 
 test("review preserves organizing-judge ownership and explicit booleans", async (t) => {
