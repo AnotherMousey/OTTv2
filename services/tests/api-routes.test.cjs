@@ -86,7 +86,7 @@ test("route middleware preserves missing-session and player versus judge permiss
   assert.deepEqual(
     await request("/api/tournaments", {
       as: "player",
-      body: { name: "Arena" },
+      body: { name: "Arena", startDate: "2099-01-01", endDate: "2099-01-07" },
     }),
     { status: 403, body: { error: "Judge access required." } },
   );
@@ -99,7 +99,7 @@ test("route middleware preserves missing-session and player versus judge permiss
   t.mock.method(db.audit, "create", async () => {});
   const res = await request("/api/tournaments", {
     as: "judge",
-    body: { name: "Arena" },
+    body: { name: "Arena", startDate: "2099-01-01", endDate: "2099-01-07" },
   });
   assert.equal(res.status, 201);
   assert.equal(res.body.name, "Arena");

@@ -67,6 +67,10 @@ export function useTournamentAccounts() {
       profile !== profileVersion.current
     )
       return;
+    // Separate HTTP responses can straddle an atomic publication. Keep the
+    // previous coherent view until the next poll rather than mixing versions.
+    if (standings && event.format === 'daily-round-robin' &&
+        (event.publishedBatchId || null) !== (standings.publishedBatchId || null)) return;
     const value = tournamentWorkspace(event);
     setTournament(value);
     if (standings) {
