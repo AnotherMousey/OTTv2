@@ -113,7 +113,7 @@ export function StudioTournaments({go}) {
       </div><div className="phase-actions"><Button type="submit" disabled={busy}>Create tournament</Button></div>
     </form>}
     <div className="tournament-toolbar"><div className="event-filters" aria-label="Tournament phases">
-      {[['all', 'All events'], ['registration', 'Registration'], ['preparation', 'Preparation'], ['pairing', 'Pairing review'], ['live', 'Matches'], ['finished', 'Finished'], ['active', 'Ongoing']].map(([id, title]) =>
+      {[['all', 'All events'], ['registration', 'Registration'], ['active', 'Ongoing'], ['finished', 'Finished']].map(([id, title]) =>
         <Button secondary className={`button secondary ${filter === id ? 'active' : ''}`} aria-pressed={filter === id} key={id} disabled={filter === id && loading} onClick={() => changeFilter(id)}>{title}</Button>)}
     </div><label className="tournament-search"><span className="sr-only">Find a tournament</span><input type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Find a tournament…"/></label></div>
     {judge&&<div className="phase-actions"><Button secondary aria-pressed={showHidden} onClick={()=>setShowHidden(v=>!v)}>{showHidden?'Hide hidden events':'Show hidden events'}</Button></div>}
