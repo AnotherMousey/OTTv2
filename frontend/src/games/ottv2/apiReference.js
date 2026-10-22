@@ -166,7 +166,7 @@ export const API_LANGUAGES = [
         kind: "class",
         doc: "A piece in coordinate form.",
         members: [
-          member("TeamType getTeamType()", "A = white, B = black."),
+          member("TeamType getTeamType()", "A = your piece, B = enemy piece."),
           member("SoldierType getSoldierType()", "rock, paper or scissor."),
           member("int getId()", "Index of this piece in sensePieces()."),
           member("Coordinate getPosition()", "Current coordinate."),
@@ -214,8 +214,8 @@ export const API_LANGUAGES = [
       {
         name: "TeamType",
         kind: "enum",
-        doc: "Side in coordinate form.",
-        members: [member("A, B", "A = white, B = black.")],
+        doc: "Owner in coordinate form, relative to you.",
+        members: [member("A, B", "A = your pieces, B = enemy pieces.")],
       },
       {
         name: "GameActionException",
@@ -262,7 +262,7 @@ export const API_LANGUAGES = [
         kind: "class",
         doc: "A piece in coordinate form.",
         members: [
-          member("getTeamType() -> str", "A = white, B = black."),
+          member("getTeamType() -> str", "A = your piece, B = enemy piece."),
           member("getSoldierType() -> str", '"rock", "paper" or "scissor".'),
           member("getId() -> int", "Soldier index for this turn."),
           member("getPosition() -> Coordinate", "Current coordinate."),
@@ -317,8 +317,8 @@ export const API_LANGUAGES = [
       {
         name: "TeamType",
         kind: "constants",
-        doc: "Also importable directly: A, B.",
-        members: [member("TeamType.A, TeamType.B", "A = white, B = black.")],
+        doc: "Also importable directly: A, B. Relative to you.",
+        members: [member("TeamType.A, TeamType.B", "A = your pieces, B = enemy pieces.")],
       },
     ],
   },
