@@ -1,6 +1,7 @@
 import React,{useRef,useState,useEffect} from 'react';
 import {useAccounts} from './PreviewAccounts.jsx';
 import {Button} from './ui.jsx';
+import {entryWindow} from './tournamentModel.js';
 export function TournamentManagementActions({event,onChanged=()=>{},onDeleted=()=>{},compact=false}){
  const {user,changeVisibility,changeRegistration,deleteTournament,busy}=useAccounts(),[confirming,setConfirming]=useState(false),[error,setError]=useState(''),dialog=useRef(null);
  useEffect(()=>{if(confirming)dialog.current?.showModal();},[confirming]);
@@ -10,7 +11,7 @@ export function TournamentManagementActions({event,onChanged=()=>{},onDeleted=()
  async function remove(){setError('');try{if(await deleteTournament(event.id)){setConfirming(false);onDeleted();}}catch(e){setError(e.message);}}
  return <div className={`tournament-management-actions ${compact?'compact':''}`}>
    <Button secondary className="button secondary tournament-visibility" disabled={busy} onClick={visibility}>{event.hidden?'Show tournament':'Hide tournament'}</Button>
-   {event.phase==='registration'&&event.entryMode!=='judge'&&<Button secondary className="button secondary tournament-registration" disabled={busy} onClick={registration}>{event.registrationOpen===false?'Open registration':'Close registration'}</Button>}
+   {entryWindow(event)&&event.entryMode!=='judge'&&<Button secondary className="button secondary tournament-registration" disabled={busy} onClick={registration}>{event.registrationOpen===false?'Open registration':'Close registration'}</Button>}
    <Button secondary disabled={busy} className="button secondary tournament-delete" onClick={()=>{setError('');setConfirming(true);}}>Delete</Button>
    {error&&!confirming&&<p className="error" role="alert">{error}</p>}
    {confirming&&<dialog ref={dialog} className="tournament-confirm" onCancel={()=>setConfirming(false)} onClose={()=>setConfirming(false)}>

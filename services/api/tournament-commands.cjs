@@ -16,7 +16,7 @@ const audit = (tx, actor, event, action, metadata = {}) =>
 const ENTRY_MODES = ["open", "judge"];
 const entryModeValue = (value) =>
   ENTRY_MODES.includes(value) ? value : fail(400, "Entry mode must be open or judge.");
-const registrationClosed = (event) => event.phase !== "registration" || daily.started(event);
+const registrationClosed = (event) => !daily.entryWindow(event);
 async function create(req, res) {
   const body = req.body;
   const dates = daily.schedule(body.startDate, body.endDate, body.startTime);
@@ -65,8 +65,7 @@ async function join(req, res) {
       where: { id: req.params.id },
     });
     if (!require("./tournament-visibility.cjs").canRead(event, req.user)) fail(404, "Tournament not found.");
-    if (event.phase !== "registration" || daily.started(event))
-      fail(409, "Tournament registration is closed.");
+    if (registrationClosed(event)) fail(409, "Tournament registration is closed.");
     if (event.entryMode === "judge")
       fail(403, "The organizer adds participants to this tournament.");
     if (event.registrationOpen === false)
@@ -100,7 +99,7 @@ async function join(req, res) {
 async function review(req, res) {
   await transaction(async (tx) => {
     const event = await eventOwner(tx, req.params.id, req.user);
-    if (event.phase !== "registration" || daily.started(event)) fail(409, "Entry review is closed.");
+    if (registrationClosed(event)) fail(409, "Entry review is closed.");
     const status =
       req.body.accept === true
         ? "accepted"
@@ -129,8 +128,7 @@ async function registration(req, res) {
   if (typeof req.body.open !== "boolean") fail(400, "open must be true or false.");
   await transaction(async (tx) => {
     const event = await eventOwner(tx, req.params.id, req.user);
-    if (event.phase !== "registration" || daily.started(event))
-      fail(409, "Registration has already ended.");
+    if (registrationClosed(event)) fail(409, "Registration has already ended.");
     await tx.tournament.update({
       where: { id: event.id },
       data: { registrationOpen: req.body.open },

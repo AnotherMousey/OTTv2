@@ -34,6 +34,8 @@ export function recordResult(state,pairId,score){
 }
 
 export const PHASES=['registration','preparation','pairing','live','finished'];
+// Daily events report their own entry window; classic events take entries only during registration.
+export const entryWindow=t=>t?.entryWindow??t?.phase==='registration';
 export const phaseLabel=phase=>({registration:'Registration',preparation:'Bot preparation',pairing:'Pairing review',live:'Matches',finished:'Finished'}[phase]||phase);
 export function makeEvent(id,name,phase='registration'){
  const seed=initialTournament();

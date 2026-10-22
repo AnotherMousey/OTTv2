@@ -24,6 +24,13 @@ function schedule(start, end, time) {
 }
 const startsAt = event => instant(event.startDate, event.startTime || '00:00');
 const started = (event, now = new Date()) => isDaily(event) && now >= startsAt(event);
+// Daily entries stay possible until the event ends: each 21:00 snapshot takes the
+// accepted roster at that moment, so late players start from the next evening.
+// The judge decides whether entry is actually open (registrationOpen/entryMode).
+function entryWindow(event, now = new Date()) {
+  if (!isDaily(event)) return event?.phase === 'registration';
+  return event.phase !== 'finished' && localDate(now) <= event.endDate;
+}
 function botLocked(event, now = new Date()) {
   if (!isDaily(event)) return false;
   const day = localDate(now);
@@ -45,7 +52,7 @@ function display(event, now = new Date()) {
   if (!isDaily(event)) return event;
   return { ...event, phase: event.phase === 'finished' ? 'finished' : started(event, now) ? 'live' : 'registration',
     timezone: 'Asia/Ho_Chi_Minh', registrationClosesAt: startsAt(event).toISOString(),
-    serverNow: now.toISOString(), botLocked: botLocked(event, now),
+    serverNow: now.toISOString(), botLocked: botLocked(event, now), entryWindow: entryWindow(event, now),
     botSubmissionsOpen: event.phase !== 'finished' && localDate(now) <= event.endDate && !botLocked(event, now),
     nextLockAt: nextLock(event, now) };
 }
@@ -66,4 +73,4 @@ function applyRating(white, black, score) {
   }
   return delta;
 }
-module.exports = { FORMAT, isDaily, instant, localDate, nextDate, dateValue, timeValue, schedule, startsAt, started, botLocked, assertBotOpen, nextLock, display, pairingAt, applyRating };
+module.exports = { FORMAT, isDaily, instant, localDate, nextDate, dateValue, timeValue, schedule, startsAt, started, entryWindow, botLocked, assertBotOpen, nextLock, display, pairingAt, applyRating };

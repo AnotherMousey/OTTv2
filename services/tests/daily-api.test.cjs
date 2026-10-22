@@ -68,10 +68,20 @@ test('submission API rejects locked-time requests independently of frontend',asy
   t.mock.method(db.entry,'update',async()=>{});t.mock.method(db.job,'create',async()=>{});
   const res=await request('/api/tournaments/t/bot',{as:'player',body});assert.equal(res.status,202);
 });
-test('join and review close at midnight even if scheduler has not changed phase',async t=>{
+test('judge controls daily entry after the start; entry ends with the event',async t=>{
   const request=await client(t);
-  t.mock.timers.enable({apis:['Date'],now:p.instant('2026-10-22').getTime()});
-  t.mock.method(db.tournament,'findUnique',async()=>({...event,phase:'registration'}));
+  t.mock.method(db,'$queryRaw',async()=>[]);
+  t.mock.timers.enable({apis:['Date'],now:p.instant('2026-10-23','12:00').getTime()});
+  t.mock.method(db.tournament,'findUnique',async()=>({...event,registrationOpen:false}));
+  assert.equal((await request('/api/tournaments/t/join',{as:'player',body:{}})).status,409);
+  t.mock.method(db.tournament,'findUnique',async()=>event);
+  t.mock.method(db.entry,'findUnique',async()=>null);
+  t.mock.method(db.entry,'count',async()=>0);
+  const upserts=[];t.mock.method(db.entry,'upsert',async args=>{upserts.push(args);});
+  t.mock.method(db.audit,'create',async()=>{});
+  assert.equal((await request('/api/tournaments/t/join',{as:'player',body:{}})).status,200);
+  assert.equal(upserts[0].create.status,'accepted');
+  t.mock.timers.setTime(p.instant('2026-10-31').getTime());
   assert.equal((await request('/api/tournaments/t/join',{as:'player',body:{}})).status,409);
   assert.equal((await request('/api/tournaments/t/review',{as:'judge',body:{all:true,accept:true}})).status,409);
 });
