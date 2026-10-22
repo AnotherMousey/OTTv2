@@ -1,3 +1,4 @@
+import {HeroTheatre,HomeHighlights} from './HomeArtwork.jsx';
 import {ParticipantAvatar} from './ParticipantAvatar.jsx';
 import {supportedMaps,mapMoveLimit} from './games/ottv2/settings.js';
 import {describeMove} from './moveLog.js';
@@ -24,37 +25,12 @@ export function Home({ go, bot }) {
   const ranks=rankings.map(p=>[p.name,p.rating,p.id,p.appearance]);
   return (
     <>
-      <section className="hero">
+      <section className="hero home-interactive">
         <div className="hero-art">
-          <Landscape className="tall">
-            <div className="big-sprite">
-              <Pixel kind="hammer" />
-            </div>
-            <div className="art-label">
-              ONE BOARD
-              <br />
-              ENDLESS STRATEGIES
-            </div>
-            <div className="art-piece p1">
-              <Pixel kind="paper" side="black" />
-            </div>
-            <div className="art-piece p2">
-              <Pixel kind="scissors" />
-            </div>
-          </Landscape>
+          <HeroTheatre/>
         </div>
         <div className="hero-content">
-          <div className="art-row">
-            <Landscape>
-              <Pixel className="art-icon" />
-            </Landscape>
-            <Landscape className="gold">
-              <Pixel kind="trophy" className="art-icon" />
-            </Landscape>
-            <div className="mini-board">
-              <Board frame={demoReplay.frames[0]} compact />
-            </div>
-          </div>
+          <HomeHighlights/>
           <div className="eyebrow">UNIVERSITY BOT PROGRAMMING TOURNAMENT</div>
           <h1>
             BUILD A BOT

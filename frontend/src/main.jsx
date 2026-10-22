@@ -1,3 +1,4 @@
+import {ThemeSwitch} from './ThemeSwitch.jsx';
 import {CharacterStudio} from './CharacterStudio.jsx';
 import {StudioTournaments} from './StudioTournaments.jsx';
 import {MotionEnvironment,useDecorativeVisibility} from './MotionPreferences.jsx';
@@ -18,6 +19,7 @@ import "./refinements.css";
 import "./approvedDesign.css";
 import "./studio.css";
 import "./accountFeatures.css";
+import "./homeInteractions.css";
 import { Pixel } from "./Pixel";
 import { Button } from "./ui";
 import { Home, Match, Rankings, Submission, Tournament, Rules } from "./pages";
@@ -131,21 +133,7 @@ function App() {
             </a>
           ))}
         </nav>
-        <button
-          className="theme-toggle"
-          type="button"
-          aria-label={
-            theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-          }
-          aria-pressed={theme === "dark"}
-          title={
-            theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-          }
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        >
-          <Pixel kind={theme === "dark" ? "sun" : "moon"} />
-          <span>{theme === "dark" ? "Light" : "Dark"}</span>
-        </button>
+        <ThemeSwitch theme={theme} onChange={setTheme}/>
         <AccountControl go={go}/>
       </header>
       <div className="demo-banner">
