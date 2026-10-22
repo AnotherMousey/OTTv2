@@ -1,5 +1,5 @@
 import {ParticipantAvatar} from './ParticipantAvatar.jsx';
-import {LoginDuel,PlayerAvatar} from './CharacterStudio.jsx';
+import {LoginDuel} from './CharacterStudio.jsx';
 import React,{useState,useEffect,useRef} from 'react';
 import {useAccounts} from './PreviewAccounts.jsx';
 import {Pixel} from './Pixel.jsx';
@@ -21,14 +21,7 @@ export function LoginPage({go}){
  if(user)return <section className="card account-gate" role="status" aria-busy="true"><h1>OPENING WORKSPACE</h1><p>You are logged in.</p></section>;
  return <div className="account-features"><div className="account-login-layout"><section className="login-intro"><span className="eyebrow">OTTv2 / TOURNAMENT ACCOUNTS</span><h1>YOUR ACCOUNT<br/>YOUR NEXT MOVE<span className="yellow-dot">.</span></h1><p>Your organizer gives you an account. Log in, join the tournament, and let the judge assign your opponent.</p><LoginDuel/><span className="account-note">{registrationOpen?'Player registration is open.':'Accounts are issued by the organizer.'}</span></section><form className="card account-login-form" onSubmit={submit}><span className="eyebrow">WELCOME BACK</span><h2>LOG IN</h2><label>Username<input autoComplete="username" value={username} onChange={e=>setUsername(e.target.value)} required disabled={busy}/></label><PasswordField id="login-password" label="Password" value={password} onChange={e=>setPassword(e.target.value)} autoComplete="current-password" disabled={busy} error={error} describedBy={error?'login-error':undefined}/>{error&&<p id="login-error" className="inline-error" role="alert">{error}</p>}<Button type="submit" disabled={busy}>{busy?'Checking account…':<>Log in <span className="pixel-arrow" aria-hidden="true"/></>}</Button>{registrationOpen&&<button type="button" className="register-login-link" onClick={()=>go('register')}>Create a player account ↗</button>}<p className="account-note">Need account help? Contact your organizer.</p></form></div></div>;
 }
-export function AccountControl({go}){
- const {user,logout,authChecking}=useAccounts(),[open,setOpen]=useState(false);
- const trigger=useRef(null);
- useEffect(()=>{if(!open)return;const close=e=>{if(e.key==='Escape'){setOpen(false);trigger.current?.focus();}};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[open]);
- if(authChecking)return <span role="status">Checking session…</span>;
- if(!user)return <Button onClick={()=>go('login')}>Log in</Button>;
- return <div className="account-control"><button ref={trigger} className="account-chip" aria-expanded={open} aria-label="Open account menu" onClick={()=>setOpen(!open)}><PlayerAvatar/><span>{user.name}<small>{user.role==='judge'?'JUDGE ACCOUNT':`${user.rating} ELO / PLAYER`}</small></span><span className="pixel-chevron" aria-hidden="true"/></button>{open&&<div className="account-menu"><span className="account-menu-role">{user.role==='judge'?'Judge workspace':'Player workspace'}</span>{user.role!=='judge'&&<button onClick={()=>{go('practice');setOpen(false);}}>Practice match</button>}{user.role!=='judge'&&<button onClick={()=>{go('submissions');setOpen(false);}}>Practice history</button>}<button onClick={()=>{go('settings');setOpen(false);}}>Account settings</button>{user.role==='judge'&&<button onClick={()=>{go('accounts');setOpen(false);}}>Manage accounts</button>}<button onClick={()=>{go('customize');setOpen(false);}}>Customize character</button><button onClick={()=>{logout();setOpen(false);go('login');}}>Sign out</button></div>}</div>;
-}
+export {PlayerMenu as AccountControl} from './PlayerMenu.jsx';
 export function TournamentAccountPage({go}){return <TournamentWorkspace go={go}/>;}
 export function AccountRankings(){
  const {rankings,user,tournament}=useAccounts(),[query,setQuery]=useState('');
