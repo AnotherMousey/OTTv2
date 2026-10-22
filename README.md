@@ -1,92 +1,200 @@
-# Production deployment update
+# OTTv2 — Bot Tournament Platform
 
-The Render + Railway implementation replaces the JSON backend for production. Read [DEPLOYMENT.md](DEPLOYMENT.md). Use `npm start` for the Prisma/MySQL API and `npm run worker` for the durable worker. Bot execution needs the dedicated Docker runner described in that guide. There is no built-in production password.
+A university bot tournament platform with a pixel-art React interface, a Node.js API, MySQL persistence, and isolated Python, Java, and C++ bot execution. Players prepare bots; judges organize tournaments; spectators follow live matches and replays.
 
-The approved frontend is connected to server data. Original fonts, artwork and engine rules remain. The older instructions below describe the original JSON implementation and are retained for reference.
+## Features
 
----
+- **Tournaments:** enrollment requests, judge approval, bot preparation and validation, round pairings, match execution, and Elo rankings.
+- **Practice and replay:** private two-bot practice, account-owned history, live spectating, and recorded match playback.
+- **Accounts:** player and judge roles, judge-created accounts, optional player self-registration, and validated bulk CSV import.
+- **Account settings:** team-name editing with a live player-card preview, password changes with validation, animated pixel-eye password reveal, and character customization.
+- **Interface:** original pixel characters and fonts, responsive layouts, light/dark themes, and an expandable profile pass showing the actual account and saved appearance.
+- **Interactive Home:** selectable hammer/paper/scissors artwork, moving landscapes, mascot and trophy interactions, and a moving miniature board. The miniature board is Home artwork, separate from tournament game state.
+- **Theme control:** vivid daytime and moonlit representations with a pixel-iris transition where supported; reduced-motion preferences and artwork pause controls are available.
+- **Offline events:** a local Docker stack plus authenticated tournament export/import for reviewed synchronization.
 
-# OTTv2 — Approved frontend v5 integrated with the backend
+There is **no built-in production username or password**. Current accounts, submissions, jobs, and recordings use Prisma/MySQL; the legacy JSON backend is not the production entry point.
 
-This project integrates the approved pixel frontend with the existing room server and Java/C++/Python graders. Game rendering is selected through a frontend game registry; OTTv2 engine, rules, coordinate utilities and configuration live under `logic/games/ottv2`. Compatibility imports at `logic/engine.js`, `utils.js` and `constants.js` remain available.
+## Architecture
 
-## Preview without installation
+| Component | Source | Responsibility |
+| --- | --- | --- |
+| Frontend | `frontend/src/` | React/Vite UI, account workspace, tournament views, spectating, replay |
+| API | `services/api/` | Authentication, permissions, accounts, tournaments, bot uploads, match reads |
+| Worker | `services/worker/` | Durable queue claims, runner communication, frames, results and rating updates |
+| Runner | `services/runner/` | Docker-based bot compilation and execution |
+| Shared services | `services/shared/`, `services/platform/` | Database access, validation, readiness and game integration |
+| Game logic | `logic/games/ottv2/` | OTTv2 rules, configuration and engine; registry in `logic/games/registry.js` |
+| Bot SDKs | `logic/sdk/` | Python, Java and C++ interfaces |
+| Persistence | `prisma/` | MySQL schema and migrations |
+| Event synchronization | `services/sync/`, `scripts/tournament-sync.cjs` | Export, mapping review and import |
 
-Open `frontend/preview.html`, navigate to Replay, and choose **Finished sample matches…**. All nine samples end through the authoritative engine. The same samples are JSON files under `samples/matches` for Import replay. Offline submission displays a message requiring the backend; it does not fabricate bot results.
+The API does not compile or execute uploaded bot source. The worker sends execution requests to the dedicated runner. MySQL stores the durable platform data; runner containers handle temporary execution files.
 
-## Run the integrated application
+## Requirements
 
-Requires Node 26.x. Bot matches additionally require Python 3, g++ with C++20 support, and Java JDK 17+ (including `javac`).
+- **Node.js 24.x**, matching both package manifests, the Dockerfile and `render.yaml`.
+- **Docker Engine with Compose**, using Linux containers, for the full local stack and bot execution.
+- **MySQL 8.4** for the supplied Compose setup.
+
+The committed root/frontend `.node-version` files and some older documentation still say Node 26. Use Node 24 explicitly for the current configuration.
+
+## Quick start: local Docker stack
+
+Clone the repository and create local configuration:
+
+```bash
+git clone https://github.com/AnotherMousey/OTTv2.git
+cd OTTv2
+cp .env.example .env
+```
+
+Edit `.env` before starting. Set distinct, URL-safe `MYSQL_PASSWORD` and `MYSQL_ROOT_PASSWORD` values, your own `OPERATOR_USERNAME` and `OPERATOR_NAME`, an `OPERATOR_PASSWORD` of 12–128 characters, and a random shared `RUNNER_SECRET`. Generate a secret with:
+
+```bash
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
+
+Build the bot image, start the stack, and create the first judge:
+
+```bash
+docker build -f services/runner/Bot.Dockerfile -t ottv2-bot:latest .
+docker compose -f compose.local.yaml up -d --build
+docker compose -f compose.local.yaml exec api npm run db:bootstrap
+```
+
+Wait for the API to be ready before bootstrapping. Bootstrap creates a judge and refuses to overwrite an existing account or reset its password. Log in with the credentials you configured.
+
+Start the frontend development server:
+
+```bash
+npm --prefix frontend ci
+npm --prefix frontend run dev
+```
+
+Open **http://127.0.0.1:5173**. Vite proxies API requests to `http://127.0.0.1:3000`. The API also serves its Docker-built frontend at **http://127.0.0.1:3000/app/**.
+
+Check readiness or inspect service logs:
+
+```bash
+curl --fail http://127.0.0.1:3000/ready
+docker compose -f compose.local.yaml logs --tail=100 api worker runner
+```
+
+The local MySQL named volume retains data across container restarts. To stop services while retaining it:
+
+```bash
+docker compose -f compose.local.yaml down
+```
+
+Do not add `--volumes` unless you intend to erase that local database.
+
+## Accounts and tournament workflow
+
+The implemented roles are **player** and **judge**. A separate Admin role is not currently implemented.
+
+1. Log in as the bootstrapped judge. Open **Manage accounts** to create player or judge accounts using username, team name, password, and role.
+2. Enable self-registration only when desired. Self-registration creates players; it cannot grant judge access.
+3. For CSV import, use the header below. Review validation errors before importing; the API accepts 1–500 accounts per batch.
+
+   ```csv
+   username,name,password,role
+   ```
+
+   Keep credential files private. Usernames use 3–32 letters, numbers, dots, underscores or hyphens; team names use 2–80 characters; passwords use 12–128 characters. An empty team-name field defaults to the username. Supported roles are `player` and `judge`.
+
+4. Create a tournament. Players request enrollment; the organizing judge reviews requests and controls tournament phases.
+5. Accepted players save bots during preparation. Bot validation checks compilation/startup and a legal initial move; it does not prove correct behavior for an entire match.
+6. The judge creates round pairings and starts queued matches. The worker records outcomes and applies rated tournament results. Practice matches do not change Elo.
+
+Players can edit their team name, change their password, and customize their original character through the account menu. Public tournament matches support spectating; private practice recordings require their owner's session.
+
+## Configuration
+
+Start from [`.env.example`](.env.example) and [`frontend/.env.example`](frontend/.env.example).
+
+| Variable | Used by | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | API, worker, database commands | MySQL application connection |
+| `MIGRATION_DATABASE_URL` | Migration wrapper | Optional separate connection with migration privileges |
+| `ALLOWED_ORIGINS` | API | Comma-separated exact frontend origins, without paths or trailing slashes |
+| `PORT` | API | Listening port; defaults to 3000 outside Docker |
+| `RUNNER_URL` | Worker | Execution runner origin |
+| `RUNNER_SECRET` | Worker and runner | Matching authentication secret |
+| `WORKER_CONCURRENCY` | Worker | Parallel job capacity |
+| `RUNNER_CONCURRENCY` | Runner | Parallel execution capacity |
+| `OPERATOR_USERNAME`, `OPERATOR_NAME`, `OPERATOR_PASSWORD` | Bootstrap | Initial judge identity and credentials |
+| `VITE_API_BASE_URL` | Frontend build | API origin, without `/api`; leave unset for the local Vite proxy |
+
+Root services read environment variables; do not assume every npm command loads `.env`. For example, to run the API with a local environment file explicitly:
+
+```bash
+node --env-file=.env services/api/index.cjs
+```
+
+That command starts only the API. It does not migrate the database, bootstrap accounts, start a worker, or start a runner. The local Compose quick start handles service configuration for you.
+
+## Build and checks
+
+From the repository root:
 
 ```bash
 npm ci
-npm run build
-npm start
-```
-
-Open http://localhost:3000/#submit . Select a map, turn limit, first side and the language for each player; run the included bot examples. Language changes replace untouched example code with the matching language example; edited source is retained.
-
-```bash
-npm run dev
-```
-
-Development starts the backend on 3000 and Vite on its printed URL. Root build also regenerates embedded samples and the offline preview. Frontend code remains independent of server code at build time; Vercel uses the committed generated sample JSON.
-
-## Game configuration
-
-- Default legacy room: 9×9, original 9 pieces per side, White first, 5-minute clocks, no turn limit, all-piece elimination.
-- Bot default: same engine setup, 31-turn limit; more remaining pieces wins, equal counts draw.
-- Custom maps: 5–26 rows/columns, explicit initial pieces, targets, first side, clock budget, elimination mode and turn limit.
-- `elimination: "one-type"` enables loss after one piece type is completely eliminated; `"all-pieces"` retains actual engine behavior in the attached repository.
-- Same-type captures remain blocked. Bot invalid actions consume a turn, as in the existing grader; invalid human-room moves are rejected without consuming a turn.
-- Goal/elimination takes precedence when achieved on the final permitted turn. `limitPolicy: "draw"` restores the old grader's unconditional draw at the limit if required.
-
-## Samples and tests
-
-See `samples/README.md` for map sizes, terminal match results and reproduction instructions.
-
-```bash
-npm run samples
+npm run db:generate
+npm --prefix frontend ci
 npm test
+npm --prefix frontend run build
 ```
 
-Tests cover runtime preflight, server-history ownership association, complete replay persistence across process restarts, existing rooms, captures, blocking, authorization, reset, clocks/forfeit, CORS, metadata, cursor replay, all sample transitions, configurable boards and real bot runner execution. Language tests explicitly skip when the required compiler/runtime is unavailable; check the reported skip count.
+`npm test` runs the committed service tests followed by the frontend tests. These checks do not establish production capacity or verify isolation on your deployment host.
 
-## API and protocol
+`npm run build` generates Prisma Client, installs frontend dependencies, and builds `frontend/dist`. `npm run dev` watches the API only; run the frontend development server separately.
 
-Existing endpoints and input fields are retained. Room and bot creation accept optional `gameId`, `mapId` and `config`. New `/api/games/current` and `/api/games/ottv2/spec` endpoints expose capabilities and maps. Logs now carry protocol version 2 metadata, renderer version, exact judge configuration and terminal result. Old replay imports and old non-cursor API consumers remain supported.
+Some package scripts currently reference missing files: `test:db`, `test:sync:db`, and `test:deployment:db`. They are not usable verification steps in this checkout until their target files are restored. The older root README's `samples` script is also no longer defined.
 
-See `docs/PROTOCOL.md`, `docs/INTEGRATION_CHANGES.md` and `logic/README.md`.
+## Deployment
 
-## Deploy
+The committed deployment configuration separates the following services:
 
-Frontend: Vercel, Root Directory `frontend`, Vite, `npm ci`, `npm run build`, output `dist`, Node 26.x, `VITE_API_BASE_URL` set to the actual backend origin.
+| Service | Configuration / target |
+| --- | --- |
+| API | `railway.json`, using the root `Dockerfile`; Railway beside MySQL |
+| MySQL | Railway database with persistent storage |
+| Worker | `render.yaml`; Render background worker |
+| Frontend | `render.yaml`; Render Static Site |
+| Runner | `services/runner/compose.yaml`; dedicated Docker-capable Linux host |
 
-Backend: Render Docker service using the included `Dockerfile` and `render.yaml`, with `ALLOWED_ORIGINS` set to the exact frontend origin. Docker includes Java/Python/C++ toolchains. Full steps: `DEPLOY_VERCEL_RENDER.md`.
+See [DEPLOYMENT.md](DEPLOYMENT.md) for infrastructure setup, runner restrictions and operating details. Its Node 26 and account-screen descriptions are older than the current code; use the requirements and account features in this README for those topics.
 
-## Accounts and tournaments
+For a separately hosted static frontend, including Vercel, build `frontend/` with `npm ci` and `npm run build`, then publish `dist`. Set `VITE_API_BASE_URL` before building and add the frontend origin to the API's `ALLOWED_ORIGINS`. Changing the API URL requires rebuilding the frontend. The application uses hash routes.
 
-The backend supports operator-provisioned accounts and multi-round tournaments. Bootstrap the operator with `OPERATOR_USERNAME` and `OPERATOR_PASSWORD`; use the bearer token returned by `/api/auth/login` for account, registration, code upload, and round-management APIs. Account records live in the private `DATA_DIR/account.json`, and each tournament has its own ignored JSON file under `DATA_DIR/tournaments`.
+Railway runs `scripts/migrate.cjs` before starting the API; `npm start` also runs that migration wrapper before starting the API. `/health` checks the API process; `/ready` checks database/schema readiness. Use migrations for schema changes, maintain backups, and never use a destructive reset against production.
 
-## Preserved scope and limits
+For public bot submissions, harden and dedicate the execution host. Bot containers use resource limits and restricted execution, but Docker alone is not a complete security boundary. Capacity must be measured on the actual worker, runner and database; no concurrent-user guarantee is implied.
 
-Navigation, theme, pixel assets, replay controls, import/export and the room/bot workflows remain. The existing frontend demo rankings remain separate from backend tournament standings. Tournament pairings use weighted random ordering plus current points and coefficients; the backend does not eliminate players between rounds.
+## Offline tournaments and synchronization
 
-Rooms, submissions, queue and recordings are still in process memory and are lost on restart. The worker bound limits concurrent graders; it is not a distributed queue or a 4,000-user load-test result. Bot source still executes directly in server processes, as in the original project: use trusted submissions until isolated workers are implemented. Docker supplies dependencies; it does not provide per-bot isolation.
+Prepare the Docker images while connected to the Internet, after configuring `.env`:
 
-## Latest frontend integration
+```bash
+npm run offline:prepare
+npm run offline
+```
 
-The accepted v5 frontend is now the live application in `frontend/`. It retains the original rectangular gold flag, subdued dark-mode pole and YOU badge, and smooth 720 ms piece movement at 1× with capture fading. Submission-linked replays hide the sample selector and import control. My Submissions loads real server history, polls status, and opens the corresponding real replay. The offline `frontend/preview.html` remains a demonstration only.
+Open **http://127.0.0.1:3000/app/**. The offline stack has its own MySQL volume and idempotent judge bootstrap. For LAN access, configure `OFFLINE_BIND` and `OFFLINE_ORIGINS` before starting it.
 
-Server source, match metadata, terminal replays, account records and tournament records are atomically stored under `DATA_DIR` (default `./data`). Keep that directory private and outside source control. A stable browser client ID still associates legacy submission history with the browser. Live rooms remain in memory. Run one backend process with this file adapter; use a database adapter before horizontal scaling.
+Use the synchronization CLI with an organizing judge's bearer token in `SYNC_TOKEN`. Use a source token for export and a destination token for planning/import:
 
-See [DEPLOY_VERCEL_RENDER.md](DEPLOY_VERCEL_RENDER.md) for exact deployment settings, persistence requirements and CLI deployment when a teammate owns the repository. `frontend/` replaces the old `/ottv2` build folder; do not keep using the old Render frontend build command. With `SERVE_FRONTEND=false`, Render serves the API without requiring a frontend build.
+```bash
+npm run sync -- export SOURCE_API_URL TOURNAMENT_ID ./event-export
+npm run sync -- plan DESTINATION_API_URL ./event-export
+npm run sync -- import DESTINATION_API_URL ./event-export ./reviewed-account-map.json
+```
 
-## Reusable tournament refactor and offline operation
+Replace the uppercase arguments with actual values. Planning writes `mapping-review.json`; inspect it and create a separate source-account-ID to destination-account-ID JSON object for import. Review identities before importing. Imported event results preserve tournament rating snapshots without applying global Elo again.
 
-See [architecture audit and operating guide](docs/REFACTOR_AUDIT_VI.md) and
-[verification record](docs/VERIFICATION_REFACTOR.md). Prepare images while online
-with `npm run offline:prepare`; use `npm run offline` after disconnecting. The
-unchanged frontend is served at `http://127.0.0.1:3000/app/`. Sync completed events
-through `npm run sync`, with an explicitly reviewed account mapping. Imports
-preserve tournament-specific rating snapshots and never apply global Elo again.
+## Maintaining game and interface identity
+
+Keep game rules and configuration in the game subsystem, tournament orchestration in the platform/services, and rendering in the frontend game registry. Original compatibility entry points such as `logic/engine.js` remain available. Treat rule changes, protocol changes, schema migrations, and visual redesigns as explicit work rather than incidental cleanup.
+
+The current UI retains the repository's original pixel artwork, character customization, fonts, and light/dark palettes. `frontend/preview.html` is an older standalone preview; the live application is built from `frontend/src/` and uses the API.
