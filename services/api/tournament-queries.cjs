@@ -161,7 +161,7 @@ async function state(req, res) {
         },
       },
     });
-    me = entry ? entrant(entry) : null;
+    me = entry ? entrant(entry, req.user, event) : null;
     const match = await prisma.match.findFirst({
       where: {
         tournamentId: event.id,
@@ -169,7 +169,7 @@ async function state(req, res) {
         OR: [{ whiteId: req.user.id }, { blackId: req.user.id }],
       },
     });
-    myMatch = match ? pair(match) : null;
+    myMatch = match ? pair(match, req.user?.role === 'judge' && event.ownerId === req.user.id) : null;
   }
   if (myMatch) {
     const ids = [myMatch.white, myMatch.black].filter(
@@ -212,13 +212,13 @@ async function state(req, res) {
   });
   res.json({
     ...event,
-    history: history.map(pair),
+    history: history.map(m => pair(m, req.user?.role === 'judge' && event.ownerId === req.user.id)),
     counts: { ...stats, unfinished },
-    players: entries.map((e) => entrant({ ...e, user: historic(e.user) })),
+    players: entries.map((e) => entrant({ ...e, user: historic(e.user) }, req.user, event)),
     pairingPlayers: missing
       .map(historic)
       .map((u) => ({ id: u.id, name: u.name, rating: u.rating })),
-    pairs: matches.map(pair),
+    pairs: matches.map(m => pair(m, req.user?.role === 'judge' && event.ownerId === req.user.id)),
     myEntry: me,
     myMatch,
     pagination: { offset, limit, total, matchOffset, matchTotal },
@@ -287,7 +287,7 @@ async function rankings(req, res) {
     }),
   ]);
   res.json({
-    rankings: entries.map((e, i) => ({ ...entrant(e), rank: offset + i + 1 })),
+    rankings: entries.map((e, i) => ({ ...entrant(e, req.user, event), rank: offset + i + 1 })),
     total,
     offset,
     limit: 100,

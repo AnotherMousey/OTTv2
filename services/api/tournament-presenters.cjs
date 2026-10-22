@@ -1,4 +1,6 @@
-function entrant(e) {
+const { executionError } = require('./bot-diagnostics.cjs');
+
+function entrant(e, viewer, event) {
   const u = e.user,
     s = e.activeSubmission;
   return {
@@ -15,12 +17,15 @@ function entrant(e) {
     botName: s?.filename || "",
     language: s?.language || "",
     submissionStatus: s?.status || "missing",
-    validationError: s?.error || null,
+    validationError: s?.error
+      ? (viewer && (viewer.id === u.id || viewer.role === 'judge' && event?.ownerId === viewer.id)
+        ? s.error : 'Bot validation failed.')
+      : null,
     botVersion: s?.version || 0,
     latestCodeAt: s?.createdAt || null,
   };
 }
-function pair(m) {
+function pair(m, diagnostics = false) {
   return {
     id: m.id,
     matchId: m.id,
@@ -33,7 +38,7 @@ function pair(m) {
     whiteDelta: m.whiteDelta,
     blackDelta: m.blackDelta,
     score: m.score,
-    error: m.error,
+    error: executionError(m.error, diagnostics),
     result: m.result,
   };
 }

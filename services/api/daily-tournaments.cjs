@@ -8,8 +8,8 @@ const owns = (event, user) => user?.role === 'judge' && user.id === event.ownerI
 const visibleMatches = (user) => ({ OR: [{ batchId: null }, { batch: { publishedAt: { not: null } } },
   ...(user?.role === 'judge' ? [{ tournament: { ownerId: user.id } }] : [])] });
 const botSelect = { id: true, filename: true, language: true, status: true, error: true, version: true, createdAt: true };
-function participant(entry, standing) {
-  return { ...entrant(entry), activeSubmissionId: entry.activeSubmissionId || entry.activeSubmission?.id || null, rating: standing?.rating ?? 1000, games: standing?.games ?? 0,
+function participant(entry, standing, viewer, event) {
+  return { ...entrant(entry, viewer, event), activeSubmissionId: entry.activeSubmissionId || entry.activeSubmission?.id || null, rating: standing?.rating ?? 1000, games: standing?.games ?? 0,
     lastDelta: standing?.lastDelta ?? 0, wins: standing?.wins ?? 0, draws: standing?.draws ?? 0,
     losses: standing?.losses ?? 0, points: standing?.points ?? 0 };
 }
@@ -42,9 +42,9 @@ async function readState(req, res) {
         failed: await tx.match.count({ where: { batchId: latest.id, status: 'failed' } }), expected: latest.expected } : {}) } : null;
     return { ...policy.display(event, now), manager, processing, publishedAt: published?.publishedAt || null, publishedDate: published?.date || null,
       batches: dates.map(b => ({ id: b.id, date: b.date, publishedAt: b.publishedAt, publishAfter: b.publishAfter, ...(manager ? { state: b.state, expected: b.expected } : {}) })),
-      players: entries.map(e => participant(e, table.get(e.userId))),
+      players: entries.map(e => participant(e, table.get(e.userId), req.user, event)),
       pairingPlayers: profiles.map(u => ({ ...u, rating: table.get(u.id)?.rating ?? 1000 })),
-      pairs: matches.map(pair), history: [], myEntry: my ? participant(my, table.get(my.userId)) : null, myMatch: null, counts,
+      pairs: matches.map(m => pair(m, manager)), history: [], myEntry: my ? participant(my, table.get(my.userId), req.user, event) : null, myMatch: null, counts,
       pagination: { offset, limit: 100, total: await tx.entry.count({ where: { tournamentId: event.id } }), matchOffset, matchTotal: await tx.match.count({ where }) } };
   }, { isolationLevel: 'ReadCommitted' });
   res.json(result);
@@ -59,7 +59,7 @@ async function rankings(req, res) {
     const entries = await tx.entry.findMany({ where: { tournamentId: event.id, status: 'accepted', ...(event.publishedBatchId ? { userId: { in: rows.map(r => r.userId) } } : {}) }, include: { user: true, activeSubmission: { select: botSelect } },
       ...(!event.publishedBatchId ? { orderBy: { userId: 'asc' }, skip: offset, take: 100 } : {}) });
     const map = new Map(entries.map(e => [e.userId, e]));
-    return { rankings: event.publishedBatchId ? rows.map((r, i) => ({ ...participant(map.get(r.userId), r), rank: offset + i + 1 })) : entries.map((e, i) => ({ ...participant(e), rank: offset + i + 1 })),
+    return { rankings: event.publishedBatchId ? rows.map((r, i) => ({ ...participant(map.get(r.userId), r, req.user, event), rank: offset + i + 1 })) : entries.map((e, i) => ({ ...participant(e, undefined, req.user, event), rank: offset + i + 1 })),
       total: await tx.entry.count({ where: { tournamentId: event.id, status: 'accepted' } }), offset, limit: 100, ratingScope: 'tournament', publishedBatchId: event.publishedBatchId };
   }, { isolationLevel: 'ReadCommitted' });
   res.json(result);
