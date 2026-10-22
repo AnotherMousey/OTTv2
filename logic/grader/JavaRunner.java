@@ -55,13 +55,12 @@ public final class JavaRunner {
       ArrayList<Soldier> all = new ArrayList<>();
       ArrayList<Soldier> mine = new ArrayList<>();
       ArrayList<Soldier> theirs = new ArrayList<>();
-      TeamType myType = "white".equals(fields[0]) ? TeamType.A : TeamType.B;
       for (int i = 0; i < next.size(); i++) {
         Piece piece = next.get(i);
         String square = piece.getSquare();
         Coordinate position = new Coordinate(
             square.charAt(0) - 'a', Integer.parseInt(square.substring(1)) - 1);
-        Soldier current = new Soldier(myTypeFor(piece.getColor()), soldierTypeFor(piece.getType()), i, position);
+        Soldier current = new Soldier(teamTypeFor(piece.getColor()), soldierTypeFor(piece.getType()), i, position);
         all.add(current);
         if (piece.getColor().equals(fields[0])) mine.add(current); else theirs.add(current);
       }
@@ -74,7 +73,8 @@ public final class JavaRunner {
       soldier = mine.isEmpty() ? null : mine.get(0);
     }
 
-    private static TeamType myTypeFor(String color) { return "white".equals(color) ? TeamType.A : TeamType.B; }
+    // A = your pieces, B = enemy pieces, matching the C++ SDK.
+    private TeamType teamTypeFor(String pieceColor) { return color.equals(pieceColor) ? TeamType.A : TeamType.B; }
     private static SoldierType soldierTypeFor(String type) {
       return "rock".equals(type) ? SoldierType.rock : "paper".equals(type) ? SoldierType.paper : SoldierType.scissor;
     }
