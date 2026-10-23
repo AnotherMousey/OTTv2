@@ -1,5 +1,5 @@
 const express=require('express');
-const {checkDatabaseSchema,schemaError,schemaMessage,schemaDetails,deploymentIdentity}=require('../shared/readiness.cjs');
+const {checkDatabaseSchema,schemaDetails,deploymentIdentity}=require('../shared/readiness.cjs');
 const {prisma}=require('../shared/db.cjs');
 const {fail,username,text,passwordHash,publicUser}=require('../shared/domain.cjs');
 const {auth,judge,login,logout}=require('./auth.cjs');
@@ -10,13 +10,14 @@ const appearance=require('./appearance.cjs');
 const tournamentRounds=require('./tournament-rounds.cjs');
 const accountManagement=require('./account-management.cjs');
 const {specification}=require('../../logic/games/registry');
+const {errorHandler,unavailable}=require('./errors.cjs');
 function createApp(){const app=express();app.disable('x-powered-by');app.set('trust proxy',1);const origins=(process.env.ALLOWED_ORIGINS||'http://localhost:5173,http://127.0.0.1:5173').split(',').map(v=>v.trim());
 app.use((req,res,next)=>{res.set({'X-Content-Type-Options':'nosniff','Cache-Control':'no-store'});const origin=req.headers.origin;if(origin){if(!origins.includes(origin))return res.status(403).json({error:'Frontend origin is not allowed.'});res.set({'Access-Control-Allow-Origin':origin,'Vary':'Origin','Access-Control-Allow-Headers':'Content-Type, Authorization, If-None-Match','Access-Control-Expose-Headers':'ETag','Access-Control-Allow-Methods':'GET, POST, PATCH, DELETE, OPTIONS','Access-Control-Max-Age':'600'});}if(req.method==='OPTIONS')return res.status(204).end();next();});
 // Large replay uploads are isolated from ordinary API request limits.
 app.use('/api/sync',express.json({limit:'32mb'}));
 app.use(express.json({limit:'2mb'}));
 app.use((req,res,next)=>{if(['POST','PATCH'].includes(req.method)){req.body=req.body||{};if(typeof req.body!=='object'||Array.isArray(req.body))return res.status(400).json({error:'Request body must be a JSON object.'});}next();});
-app.get('/health',(_,res)=>res.json({ok:true,service:'ottv2-api',apiVersion:'history-actions-v2',...deploymentIdentity()}));app.get('/ready',async(req,res)=>{try{await checkDatabaseSchema(prisma);res.json({ok:true,...deploymentIdentity()});}catch(error){console.error(JSON.stringify({event:'api.not_ready',...deploymentIdentity(),...schemaDetails(error)}));res.status(503).json({ok:false,...deploymentIdentity(),error:schemaError(error)?schemaMessage:'Database is not ready.'});}});
+app.get('/health',(_,res)=>res.json({ok:true,service:'ottv2-api',apiVersion:'history-actions-v2',...deploymentIdentity()}));app.get('/ready',async(req,res)=>{try{await checkDatabaseSchema(prisma);res.json({ok:true,...deploymentIdentity()});}catch(error){console.error(JSON.stringify({event:'api.not_ready',...deploymentIdentity(),...schemaDetails(error)}));res.status(503).json({ok:false,...deploymentIdentity(),error:unavailable});}});
 const path=require('node:path');const frontend=path.resolve(__dirname,'../../frontend/dist');
 app.use('/app',express.static(frontend));
 app.get('/app/{*path}',(req,res)=>res.sendFile(path.join(frontend,'index.html')));
@@ -56,6 +57,6 @@ app.post('/api/tournaments/:id/join',auth,tournaments.join);app.post('/api/tourn
 app.post('/api/practice/history/delete',auth,practiceHistory.remove);app.post('/api/practice/history/:id/delete',auth,practiceHistory.remove);
 app.delete('/api/practice/history',auth,practiceHistory.remove);app.delete('/api/practice/history/:id',auth,practiceHistory.remove);
 app.get('/api/practice/history',auth,practiceHistory.list);app.get('/api/matches',optionalAuth,matches.list);app.post('/api/practice',auth,matches.practice);app.get('/api/matches/:id',optionalAuth,matches.get);app.get('/api/matches/:id/live',optionalAuth,matches.live);app.get('/api/matches/:id/replay',optionalAuth,matches.replay);app.post('/api/matches/:id/retry',auth,judge,matches.retry);
-app.use((req,res)=>res.status(404).json({error:'API route not found.'}));app.use((error,req,res,next)=>{if(res.headersSent)return next(error);if(schemaError(error)){console.error(JSON.stringify({event:'api.schema_error',...deploymentIdentity(),...schemaDetails(error),path:req.path}));return res.status(503).json({error:schemaMessage,code:'DATABASE_SCHEMA_OUTDATED'});}const status=error.status||(error.type==='entity.too.large'?413:error.code==='P2002'?409:500);if(status===500)console.error(JSON.stringify({event:'api.error',code:error.code||'unknown',path:req.path}));res.status(status).json({error:status===500?'Request could not be completed. Try again.':error.code==='P2002'?'This record already exists.':error.message});});return app;}
+app.use((req,res)=>res.status(404).json({error:'API route not found.'}));app.use(errorHandler);return app;}
 if(require.main===module){const server=createApp().listen(Number(process.env.PORT)||3000,'0.0.0.0',()=>console.log('OTTv2 API listening'));async function stop(){server.close();setTimeout(()=>process.exit(1),10000).unref();await prisma.$disconnect();}process.on('SIGTERM',stop);process.on('SIGINT',stop);}
 module.exports={createApp};

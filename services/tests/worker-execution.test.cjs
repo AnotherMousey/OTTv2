@@ -224,3 +224,15 @@ test("missing frozen submission fails before contacting runner", async (t) => {
     ["failure", job, "Frozen match submission is missing."],
   ]);
 });
+
+test('worker keeps diagnostics in protected records, not shared console logs', async t => {
+  const raw = 'Traceback /app/logic/grader/python_runner.py\nSECRET_SOURCE TOKEN=SECRET';
+  setup(t, async () => stream([{ type: 'error', code: 'BOT_INVALID', error: raw }]));
+  const logs = [];
+  t.mock.method(console, 'error', value => logs.push(value));
+  const validation = { ...job, type: 'validate', submissionId: white.id, config };
+  await execute(validation);
+  assert.deepEqual(calls, [['failure', validation, raw, true]]);
+  assert.ok(!logs.join('').includes('SECRET'));
+  assert.equal(JSON.parse(logs[0]).diagnosticRecord, white.id);
+});

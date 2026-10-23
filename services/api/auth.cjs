@@ -1,8 +1,8 @@
 const {prisma,transaction}=require('../shared/db.cjs');
-const {fail,digest,verifyPassword,publicUser}=require('../shared/domain.cjs');
+const {ApiError,fail,digest,verifyPassword,publicUser}=require('../shared/domain.cjs');
 const crypto=require('node:crypto');
 async function auth(req,res,next){try{const token=req.headers.authorization?.replace(/^Bearer /i,'');if(!token)fail(401,'Log in to continue.');const session=await prisma.session.findUnique({where:{tokenHash:digest(token)},include:{user:true}});if(!session||session.expiresAt<=new Date()||!session.user.active)fail(401,'Your session expired. Log in again.');req.user=session.user;next();}catch(e){next(e);}}
-function judge(req,res,next){if(req.user.role!=='judge')return next(Object.assign(Error('Judge access required.'),{status:403}));next();}
+function judge(req,res,next){if(req.user.role!=='judge')return next(new ApiError(403,'Judge access required.'));next();}
 async function rate(key,max,seconds){const slot=Math.floor(Date.now()/(seconds*1000));const id=digest(key).slice(0,40)+':'+slot;const bucket=await prisma.rateBucket.upsert({where:{key:id},create:{key:id,expiresAt:new Date((slot+1)*seconds*1000)},update:{count:{increment:1}}});if(bucket.count>max)fail(429,'Too many requests. Wait and try again.');}
 async function login(req,res){
   const input=req.body;

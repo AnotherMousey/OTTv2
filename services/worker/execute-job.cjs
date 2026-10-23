@@ -97,8 +97,9 @@ async function execute(job) {
               event: "job.failed",
               jobId: job.id,
               matchId: job.matchId || null,
-              code: event.code,
-              error: String(event.error).slice(0, 4000),
+              code: ['BOT_INVALID', 'RUNNER_INFRA'].includes(event.code) ? event.code : 'RUNNER_ERROR',
+              // Full bot diagnostics stay in the protected job/submission record.
+              diagnosticRecord: job.submissionId || job.matchId || job.id,
               elapsedMs: Date.now() - started,
             }),
           );
@@ -132,7 +133,7 @@ async function execute(job) {
         jobId: job.id,
         matchId: job.matchId || null,
         code: networkCode || e.code || e.name,
-        error: String(cause).slice(0, 4000),
+        diagnosticRecord: job.submissionId || job.matchId || job.id,
         elapsedMs: Date.now() - started,
       }),
     );

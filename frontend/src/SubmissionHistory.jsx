@@ -43,7 +43,7 @@ export function SubmissionHistory({go}) {
    if(preview){const ids=confirming==='all'?records.map(record=>record.matchId):[confirming];const next=records.filter(record=>!ids.includes(record.matchId));setRecords(next);try{localStorage.setItem('ott-submission-history-v1',JSON.stringify(next));}catch{}setMessage('Demo history updated in this preview.');}
    else{const data=await request('/api/practice/history'+(confirming==='all'?'/delete':'/'+encodeURIComponent(confirming)+'/delete'),{method:'POST'});setRecords(current=>confirming==='all'?[]:current.filter(record=>record.matchId!==confirming));setTotal(current=>Math.max(0,current-data.deleted));setMessage(`${data.deleted} practice ${data.deleted===1?'recording':'recordings'} deleted.`);}
    setConfirming(null);heading.current?.focus();
-  }catch(error){setError(error.status===404&&error.message==='API route not found.'?'History deletion is unavailable on this API. Deploy the latest backend on Render and check VITE_API_BASE_URL.':error.message==='Failed to fetch'?'Could not reach the history API. Check the Render deployment, frontend API URL, and allowed origin.':error.message);}
+  }catch(error){setError(error.message);}
   finally{deleting.current=false;setBusy(false);}
  }
  function confirm(id,event){trigger.current=event.currentTarget;setConfirming(id);setMessage('');}

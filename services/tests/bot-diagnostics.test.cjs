@@ -6,8 +6,8 @@ const db = database();
 const { createApp } = loadWithDatabase('../api/index.cjs', db);
 const { digest } = require('../shared/domain.cjs');
 const { entrant } = require('../api/tournament-presenters.cjs');
-const { executionFrame } = require('../api/bot-diagnostics.cjs');
-const diagnostics = id => `/tmp/ott-private/${id}.cpp:7: error: SECRET_${id}_SOURCE\n  private_strategy_${id}();`;
+const { executionFrame, submissionFeedback, diagnosticDetails } = require('../api/bot-diagnostics.cjs');
+const diagnostics = id => `/tmp/ott-private/player.cpp:7: error: SECRET_${id}_SOURCE\n  private_strategy_${id}();`;
 const users = Object.fromEntries(['alice', 'bob', 'judge', 'otherJudge'].map(id => [id,
   { id, name: id, role: id.includes('udge') ? 'judge' : 'player', active: true }]));
 const entries = ['alice', 'bob'].map(id => ({ userId: id, tournamentId: 't', status: 'accepted',
@@ -68,10 +68,13 @@ for (const format of ['daily-round-robin', 'legacy']) {
         const rows = res.body.players || res.body.rankings;
         for (const row of rows) {
           const allowed = viewer === row.id || viewer === 'judge';
-          assert.equal(row.validationError, allowed ? diagnostics(row.id) : 'Bot validation failed.');
+          assert.equal(row.validationError, allowed ? 'This bot could not be compiled. Check the code and try again.' : 'Bot validation failed.');
+          assert.equal(row.validationDetails, allowed ? 'player.cpp, line 7: compilation error.' : null);
+          assert.ok(!JSON.stringify(res.body).includes('/tmp/ott-private'));
+          assert.ok(!JSON.stringify(res.body).includes('SECRET_'));
           if (!allowed) assert.ok(!JSON.stringify(res.body).includes(diagnostics(row.id)));
         }
-        if (res.body.myEntry) assert.equal(res.body.myEntry.validationError, diagnostics(viewer));
+        if (res.body.myEntry) assert.match(res.body.myEntry.validationError, /could not be compiled/);
       }
     }
     // Redaction must not erase stored diagnostics or mutate shared DB objects.
@@ -79,28 +82,32 @@ for (const format of ['daily-round-robin', 'legacy']) {
   });
 }
 
-test('submitter history keeps full errors, while source inspection remains owner-Judge only', async t => {
+test('submitter history keeps safe diagnostic locations, while source inspection remains owner-Judge only', async t => {
   const request = await setup(t);
   t.mock.method(db.submission, 'findMany', async ({ where }) => {
     assert.ok(['alice', 'bob'].includes(where.userId));
     return [{ ...entries.find(e => e.userId === where.userId).activeSubmission }];
   });
   t.mock.method(db.submission, 'findUnique', async () => ({ id: 's-alice', userId: 'alice',
-    tournamentId: 't', source: 'SECRET_alice_SOURCE', error: diagnostics('alice') }));
+    tournamentId: 't', status: 'invalid', source: 'SECRET_alice_SOURCE', error: diagnostics('alice') }));
   for (const viewer of ['alice', 'bob']) {
     const res = await request('/api/tournaments/t/bots?userId=bob', viewer);
     assert.equal(res.status, 200);
-    assert.equal(res.body.submissions[0].error, diagnostics(viewer));
+    assert.match(res.body.submissions[0].error, /could not be compiled/);
+    assert.equal(res.body.submissions[0].diagnostics, 'player.cpp, line 7: compilation error.');
+    assert.ok(!JSON.stringify(res.body).includes('SECRET_'));
   }
   assert.equal((await request('/api/tournaments/t/bots')).status, 401);
   for (const viewer of ['alice', 'bob', 'otherJudge'])
     assert.equal((await request('/api/tournaments/t/source/s-alice', viewer)).status, 403);
   const source = await request('/api/tournaments/t/source/s-alice', 'judge');
   assert.equal(source.status, 200);
-  assert.equal(source.body.error, diagnostics('alice'));
+  assert.match(source.body.error, /could not be compiled/);
+  assert.equal(source.body.source, 'SECRET_alice_SOURCE');
+  assert.equal(source.body.diagnostics, 'player.cpp, line 7: compilation error.');
   const versions = await request('/api/tournaments/t/source?userId=alice', 'judge');
   assert.equal(versions.status, 200);
-  assert.equal(versions.body.submissions[0].error, diagnostics('alice'));
+  assert.equal(versions.body.submissions[0].diagnostics, 'player.cpp, line 7: compilation error.');
 });
 
 test('match list, direct reads, live snapshots and replays hide both bots’ diagnostic text', async t => {
@@ -115,7 +122,9 @@ test('match list, direct reads, live snapshots and replays hide both bots’ dia
         assert.ok(!text.includes('/tmp/ott-private'), path);
         assert.ok(!text.includes('private_strategy'), path);
       } else if (!path.endsWith('/rounds')) {
-        assert.ok(text.includes('SECRET_alice_SOURCE'), path);
+        assert.ok(text.includes('player.cpp, line 7'), path);
+        assert.ok(!text.includes('SECRET_'), path);
+        assert.ok(!text.includes('/tmp/ott-private'), path);
       }
     }
   }
@@ -134,10 +143,24 @@ test('private practice diagnostics remain available only to the practice owner',
   t.mock.method(db.match, 'findUnique', async () => ({ ...match, tournamentId: null, batchId: null, ownerId: 'alice' }));
   for (const suffix of ['', '/live', '/replay']) {
     const own = await request('/api/matches/m' + suffix, 'alice');
-    assert.equal(own.status, 200);assert.ok(JSON.stringify(own.body).includes('SECRET_alice_SOURCE'));
+    assert.equal(own.status, 200);assert.ok(JSON.stringify(own.body).includes('player.cpp, line 7'));
+    assert.ok(!JSON.stringify(own.body).includes('SECRET_'));
     assert.equal((await request('/api/matches/m' + suffix, 'bob')).status, 403);
     assert.equal((await request('/api/matches/m' + suffix)).status, 403);
   }
+});
+
+test('practice history sanitizes stored failures before serialization', async t => {
+  const request = await setup(t);
+  t.mock.method(db.match, 'findMany', async ({ where }) => {
+    assert.equal(where.ownerId, 'alice');
+    return [{ ...match, tournamentId: null, config: {} }];
+  });
+  const res = await request('/api/practice/history', 'alice');
+  assert.equal(res.status, 200);
+  assert.ok(!JSON.stringify(res.body).includes('/tmp/ott-private'));
+  assert.ok(!JSON.stringify(res.body).includes('SECRET_'));
+  assert.match(res.body.records[0].error, /player.cpp, line 7/);
 });
 
 test('redaction preserves successful states, normal move logs and stored errors', () => {
@@ -149,4 +172,46 @@ test('redaction preserves successful states, normal move logs and stored errors'
   assert.equal(executionFrame(frame).event, 'white-forfeit: Bot execution failed.');
   assert.deepEqual(frame, before);
   assert.equal(executionFrame({ ...frame, event: 'black-timeout: ' + diagnostics('bob') }).event, 'black-timeout: turn skipped.');
+});
+
+test('historical Python tracebacks retain useful categories and bot line numbers, never paths or source', () => {
+  const raw = 'Player process stopped. Traceback (most recent call last):\n' +
+    '  File "/app/logic/grader/python_runner.py", line 90, in main\n' +
+    '    SECRET_RUNNER_SOURCE\n  File "/tmp/bots/player.py", line 12, in make_move\n' +
+    '    private_strategy()\nNameError: SECRET_USER_EXPRESSION\nTOKEN=secret-value';
+  const bot = { status: 'invalid', error: raw };
+  const own = submissionFeedback(bot, true);
+  assert.equal(own.errorCode, 'BOT_RUNTIME_FAILED');
+  assert.equal(own.diagnostics, 'player.py, line 12.\nNameError: check the submitted code.');
+  assert.equal(submissionFeedback(bot).diagnostics, null);
+  assert.equal(bot.error, raw);
+  assert.equal(diagnosticDetails('C:\\temp\\RobotPlayer.java:21: error: SECRET_SOURCE'), 'RobotPlayer.java, line 21: compilation error.');
+});
+
+test('infrastructure failures are not presented as invalid student code', () => {
+  for (const status of ['error', 'queued']) {
+    const feedback = submissionFeedback({ status, error: 'Prisma error /app/worker.js TOKEN=secret' }, true);
+    assert.equal(feedback.errorCode, 'BOT_VALIDATION_UNAVAILABLE');
+    assert.match(feedback.error, /server problem/);
+    assert.equal(feedback.diagnostics, null);
+  }
+  assert.equal(submissionFeedback({ status: 'invalid', error: 'Could not start python: spawn python ENOENT' }, true).errorCode, 'BOT_VALIDATION_UNAVAILABLE');
+});
+
+test('time limits, invalid moves and unknown validation failures have actionable summaries', () => {
+  for (const [error, code] of [['Bot exceeded 1000 ms thinking limit.', 'BOT_TIME_LIMIT'],
+    ['Player returned an invalid move.', 'BOT_INVALID_MOVE'], ['Unrecognized failure /app/private.js', 'BOT_INVALID']]) {
+    const feedback = submissionFeedback({ status: 'invalid', error }, true);
+    assert.equal(feedback.errorCode, code);
+    assert.ok(!feedback.error.includes('/app/'));
+  }
+});
+
+test('long, adversarial diagnostics are bounded and arbitrary text is never returned', () => {
+  assert.equal(diagnosticDetails('PRIVATE '.repeat(20000)), null);
+  assert.equal(diagnosticDetails('/app/server.js:1: error: SECRET_SERVER_SOURCE'), null);
+  const text = Array.from({ length: 1000 }, (_, i) => `/tmp/player.cpp:${i}: error: PASSWORD=SECRET`).join('\n');
+  const detail = diagnosticDetails(text);
+  assert.equal(detail.split('\n').length, 12);
+  assert.ok(!detail.includes('SECRET'));
 });

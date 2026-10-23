@@ -14,7 +14,7 @@ export function SourceViewer({submissionId,onClose}){
  return <dialog ref={dialog} className="tournament-source-dialog" aria-label="Read-only submitted source" onCancel={onClose} onClose={onClose}>
   <div className="judge-list-tools"><h2>READ-ONLY SOURCE</h2><Button secondary onClick={onClose}>Close source</Button></div>
   {error&&<p className="error" role="alert">{error}</p>}{!data&&!error&&<p role="status">Loading source…</p>}
-  {data&&<><p>{data.participant.name} · {data.filename} · v{data.version}</p><p className="account-note">{data.language} · saved {time(data.createdAt)}</p><pre tabIndex="0" aria-label="Submitted code"><code>{data.source||'Source is unavailable in this imported archive.'}</code></pre><details><summary>Submission details</summary><p className="account-note">SHA-256: {data.sourceHash}</p></details></>}
+  {data&&<><p>{data.participant.name} · {data.filename} · v{data.version}</p><p className="account-note">{data.language} · saved {time(data.createdAt)}</p>{data.error&&<p className="error">{data.error}</p>}{data.diagnostics&&<details className="bot-diagnostic-details"><summary>Bot diagnostic details</summary><pre tabIndex="0" aria-label="Submission diagnostics">{data.diagnostics}</pre></details>}<pre tabIndex="0" aria-label="Submitted code"><code>{data.source||'Source is unavailable in this imported archive.'}</code></pre><details><summary>Submission details</summary><p className="account-note">SHA-256: {data.sourceHash}</p></details></>}
  </dialog>;
 }
 export function TournamentSourcePanel({onSelect}){

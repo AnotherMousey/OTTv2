@@ -16,7 +16,7 @@ export function matchFailure(replay) {
   if(replay?.result?.reason!=='bot-error' && !replay?.frames?.some(f=>f.endReason==='bot-error'))return null;
   const event=replay.frames.map(f=>f.event||'').find(e=>/ENOENT|process stopped|process exited|timeout/i.test(e))||'Bot execution failed.';
   const missing=/spawn\s+(\S+)\s+ENOENT/i.exec(event);
-  return {title:missing?'Bot runtime unavailable':'Bot execution stopped',detail:missing?`The backend could not find ${missing[1]}. The bot did not start; its strategy was not evaluated.`:event,technical:event};
+  return {title:missing?'Bot runtime unavailable':'Bot execution stopped',detail:missing?'This bot could not start due to a server problem. Please try again later.':'This bot stopped unexpectedly during execution. Check its code before trying again.'};
 }
 
 let memoryClientId;

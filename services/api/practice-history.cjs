@@ -1,6 +1,7 @@
 const {Prisma}=require('@prisma/client');
 const {prisma,transaction}=require('../shared/db.cjs');
 const {fail}=require('../shared/domain.cjs');
+const {executionError}=require('./bot-diagnostics.cjs');
 
 async function list(req,res){
  const where={ownerId:req.user.id,tournamentId:null};
@@ -11,7 +12,7 @@ async function list(req,res){
  const ids=[...new Set(rows.flatMap(row=>[row.whiteSubmissionId,row.blackSubmissionId]).filter(Boolean))];
  const bots=ids.length?await prisma.submission.findMany({where:{id:{in:ids}},select:{id:true,language:true}}):[];
  const languages=new Map(bots.map(bot=>[bot.id,({python:'Python',java:'Java',cpp:'C++'}[bot.language]||bot.language)]));
- res.json({total,records:rows.map(row=>({id:row.id,matchId:row.id,status:row.status,result:row.result,error:row.error,createdAt:row.createdAt,title:'Practice match',language:`${languages.get(row.whiteSubmissionId)||'Unknown'} / ${languages.get(row.blackSubmissionId)||'Unknown'}`,mapName:row.config.mapName||row.config.mapId||'OTTv2'}))});
+ res.json({total,records:rows.map(row=>({id:row.id,matchId:row.id,status:row.status,result:row.result,error:executionError(row.error,true),createdAt:row.createdAt,title:'Practice match',language:`${languages.get(row.whiteSubmissionId)||'Unknown'} / ${languages.get(row.blackSubmissionId)||'Unknown'}`,mapName:row.config.mapName||row.config.mapId||'OTTv2'}))});
 }
 
 async function remove(req,res){

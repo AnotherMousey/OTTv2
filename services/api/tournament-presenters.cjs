@@ -1,8 +1,9 @@
-const { executionError } = require('./bot-diagnostics.cjs');
+const { executionError, submissionFeedback } = require('./bot-diagnostics.cjs');
 
 function entrant(e, viewer, event) {
   const u = e.user,
     s = e.activeSubmission;
+  const feedback = submissionFeedback(s, !!viewer && (viewer.id === u.id || viewer.role === 'judge' && event?.ownerId === viewer.id));
   return {
     id: u.id,
     name: u.name,
@@ -17,10 +18,9 @@ function entrant(e, viewer, event) {
     botName: s?.filename || "",
     language: s?.language || "",
     submissionStatus: s?.status || "missing",
-    validationError: s?.error
-      ? (viewer && (viewer.id === u.id || viewer.role === 'judge' && event?.ownerId === viewer.id)
-        ? s.error : 'Bot validation failed.')
-      : null,
+    validationError: feedback.error,
+    validationErrorCode: feedback.errorCode,
+    validationDetails: feedback.diagnostics,
     botVersion: s?.version || 0,
     latestCodeAt: s?.createdAt || null,
   };

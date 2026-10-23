@@ -4,6 +4,7 @@ const { eventOwner } = require('./auth.cjs');
 const visibility = require('./tournament-visibility.cjs');
 const policy = require('../platform/daily-policy.cjs');
 const { entrant, pair } = require('./tournament-presenters.cjs');
+const { submissionView } = require('./bot-diagnostics.cjs');
 const owns = (event, user) => user?.role === 'judge' && user.id === event.ownerId;
 const visibleMatches = (user) => ({ OR: [{ batchId: null }, { batch: { publishedAt: { not: null } } },
   ...(user?.role === 'judge' ? [{ tournament: { ownerId: user.id } }] : [])] });
@@ -93,13 +94,13 @@ async function code(req, res) {
   const entry = await prisma.entry.findUnique({ where: { tournamentId_userId: { tournamentId: event.id, userId: submission.userId } } });
   if (!entry || entry.status !== 'accepted') fail(403, 'Source inspection is restricted to accepted participants.');
   const user = await prisma.user.findUnique({ where: { id: submission.userId }, select: { id: true, name: true } });
-  res.json({ ...submission, participant: user, readOnly: true });
+  res.json({ ...submissionView(submission, true), participant: user, readOnly: true });
 }
 async function versions(req, res) {
   const event = await prisma.tournament.findUnique({ where: { id: req.params.id } });
   if (!visibility.canRead(event, req.user) || !owns(event, req.user)) fail(403, 'Only the organizing judge can inspect participant source.');
   const userId = String(req.query.userId || '');
   const rows = await prisma.submission.findMany({ where: { tournamentId: event.id, userId }, select: botSelect, orderBy: { version: 'desc' }, take: 100 });
-  res.json({ submissions: rows });
+  res.json({ submissions: rows.map(s => submissionView(s, true)) });
 }
 module.exports = { owns, visibleMatches, readState, rankings, changeSchedule, code, versions };
