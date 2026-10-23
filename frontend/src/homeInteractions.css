@@ -1666,3 +1666,11 @@
     margin-left: auto;
   }
 }
+
+/* Use the existing card palette and type scale for leaderboard feedback. */
+.home-rankings-state {
+  padding: 12px 0 24px;
+  border-bottom: 1px solid var(--border);
+}
+.home-rankings-state p { margin: 0 0 8px; }
+.home-rankings-state small { display: block; color: var(--muted); }

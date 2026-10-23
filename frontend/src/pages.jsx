@@ -21,7 +21,7 @@ import { useBotMatch } from "./hooks/useBotMatch.js";
 import { createBotMatch, submitBot, getGameSpecification, startPractice } from "./api/matchApi.js";
 import { Button, Landscape, ranks } from "./ui";
 export function Home({ go, bot }) {
-  const {user,rankings,tournament}=useAccounts();
+  const {user,rankings,rankingsStatus,tournament}=useAccounts();
   const ranks=rankings.map(p=>[p.name,p.rating,p.id,p.appearance]);
   return (
     <>
@@ -103,6 +103,14 @@ export function Home({ go, bot }) {
               <b>{elo}</b>
             </div>
           ))}
+          {(rankingsStatus === "error" || !ranks.length) && (
+            <div className="home-rankings-state" aria-busy={rankingsStatus === "loading"}>
+              <p>{rankingsStatus === "loading" ? "Loading the leaderboard…" :
+                rankingsStatus === "error" ? "Rankings couldn’t load." : "The table is waiting."}</p>
+              <small>{rankingsStatus === "loading" ? "Fetching the latest rankings." :
+                rankingsStatus === "error" ? "Open all rankings to try again." : "No rankings are available yet."}</small>
+            </div>
+          )}
           <button className="text-link" onClick={() => go("rankings")}>
             View all rankings ↗
           </button>

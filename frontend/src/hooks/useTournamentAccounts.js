@@ -21,6 +21,7 @@ export function useTournamentAccounts() {
     [events, setEvents] = useState([]),
     [tournament, setTournament] = useState(empty),
     [rankings, setRankings] = useState([]),
+    [rankingsStatus, setRankingsStatus] = useState("loading"),
     [error, setError] = useState(""),
     [selectionError, setSelectionError] = useState(null),
     [busy, setBusy] = useState(false),
@@ -49,40 +50,52 @@ export function useTournamentAccounts() {
     const id = selected.current;
     if (!id) {
       setError("");
+      setRankingsStatus("ready");
       return;
     }
     const version = generation.current,
       identity = authVersion.current,
       profile = profileVersion.current;
     const p = pages.current, pathId = encodeURIComponent(id);
-    const [event, standings] = await Promise.all([
-      request(
-        `/api/tournaments/${pathId}?offset=${p.offset}&matchOffset=${p.matchOffset}`, {signal},
-      ),
-      includeRankings
-        ? request(`/api/tournaments/${pathId}/rankings?offset=${p.rankOffset}`, {signal})
-        : Promise.resolve(null),
-    ]);
-    if (
-      signal?.aborted || (isCurrent && !isCurrent()) ||
-      version !== generation.current ||
-      identity !== authVersion.current ||
-      profile !== profileVersion.current
-    )
-      return;
-    // Separate HTTP responses can straddle an atomic publication. Keep the
-    // previous coherent view until the next poll rather than mixing versions.
-    if (standings && event.format === 'daily-round-robin' &&
-        (event.publishedBatchId || null) !== (standings.publishedBatchId || null)) return false;
-    const value = tournamentWorkspace(event);
-    setTournament(value);
-    setSelectionError(null);
-    if (standings) {
-      setRankings(standings.rankings);
-      setRankPage({ offset: standings.offset, total: standings.total });
+    try {
+      const [event, standings] = await Promise.all([
+        request(
+          `/api/tournaments/${pathId}?offset=${p.offset}&matchOffset=${p.matchOffset}`, {signal},
+        ),
+        includeRankings
+          ? request(`/api/tournaments/${pathId}/rankings?offset=${p.rankOffset}`, {signal})
+          : Promise.resolve(null),
+      ]);
+      if (
+        signal?.aborted || (isCurrent && !isCurrent()) ||
+        version !== generation.current ||
+        identity !== authVersion.current ||
+        profile !== profileVersion.current
+      )
+        return;
+      // Separate HTTP responses can straddle an atomic publication. Keep the
+      // previous coherent view until the next poll rather than mixing versions.
+      if (standings && event.format === 'daily-round-robin' &&
+          (event.publishedBatchId || null) !== (standings.publishedBatchId || null)) {
+        setRankingsStatus("error");
+        return false;
+      }
+      const value = tournamentWorkspace(event);
+      setTournament(value);
+      setSelectionError(null);
+      if (standings) {
+        setRankings(standings.rankings);
+        setRankingsStatus("ready");
+        setRankPage({ offset: standings.offset, total: standings.total });
+      }
+      setError("");
+      return true;
+    } catch (e) {
+      if (includeRankings && !signal?.aborted && (!isCurrent || isCurrent()) &&
+          version === generation.current && identity === authVersion.current && profile === profileVersion.current)
+        setRankingsStatus("error");
+      throw e;
     }
-    setError("");
-    return true;
   }
   useEffect(() => {
     let active = true,
@@ -95,6 +108,7 @@ export function useTournamentAccounts() {
       setLoading(false);
       setTournament(empty);
       setRankings([]);
+      setRankingsStatus("error");
       setError("Session expired. Log in again.");
       setSelectionError(null);
       const destination=expiredSessionDestination(location.hash.slice(1),selected.current);
@@ -125,6 +139,7 @@ export function useTournamentAccounts() {
       } catch (e) {
         if (active && version === authVersion.current) {
           setError(e.message);
+          setRankingsStatus("error");
           if(selected.current)setSelectionError({id:selected.current,message:unavailableTournament(e)});
         }
       } finally {
@@ -181,6 +196,7 @@ export function useTournamentAccounts() {
           setSelectionError(null);
           setTournament(empty);
           setRankings([]);
+          setRankingsStatus("loading");
           setUser(account);
           setAuthChecking(false);
           setLoading(true);
@@ -200,6 +216,7 @@ export function useTournamentAccounts() {
         },
         onRefreshError: (e) => {
           if (version === authVersion.current){
+            setRankingsStatus("error");
             setError("Logged in. Tournament data could not load: " + e.message);
             if(selected.current)setSelectionError({id:selected.current,message:unavailableTournament(e)});
           }
@@ -222,6 +239,7 @@ export function useTournamentAccounts() {
     setLoading(false);
     setTournament(empty);
     setRankings([]);
+    setRankingsStatus("ready");
     try {
       await signOut();
     } catch (e) {
@@ -381,6 +399,7 @@ export function useTournamentAccounts() {
     eventTotal,
     tournament,
     rankings,
+    rankingsStatus,
     rankPage,
     error,
     selectionError,
