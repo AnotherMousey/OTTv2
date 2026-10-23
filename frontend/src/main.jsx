@@ -70,6 +70,7 @@ function App() {
         };
       }
     });
+  const menuButton = useRef(null);
   useDecorativeVisibility(page);
   const go = (p) => {
     if (p === 'match') {
@@ -82,6 +83,7 @@ function App() {
   useEffect(() => {
     const fn = () => {
       setPage(location.hash.slice(1) || "home");
+      setMenu(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
     window.addEventListener("hashchange", fn);
@@ -103,20 +105,33 @@ function App() {
     <>
       <MotionEnvironment/>
       {preparation&&createPortal(<div className="submission-loading-overlay"><MatchLoading stage={preparation.stage} matchId={preparation.matchId} preview={Boolean(window.__OFFLINE_PREVIEW__)}/></div>,document.body)}
-      <header className="header">
+      <header className="header" onFocusCapture={event => {
+        if (menu && event.target !== menuButton.current && !event.target.closest('#site-navigation')) setMenu(false);
+      }} onKeyDown={event => {
+        if (event.key === 'Escape' && menu) {
+          event.preventDefault();setMenu(false);menuButton.current?.focus();
+        }
+      }}>
         <a className="brand" href="#home">
           <Pixel />
           OTTv2<span className="brand-note">BOT ARENA</span>
         </a>
         <button
+          ref={menuButton}
+          type="button"
           className="menu-button"
           aria-expanded={menu}
-          aria-label="Toggle navigation"
-          onClick={() => setMenu(!menu)}
+          aria-controls="site-navigation"
+          aria-label={menu ? "Close navigation" : "Open navigation"}
+          onClick={() => setMenu(open => !open)}
         >
-          ☰
+          <span aria-hidden="true">{menu ? "×" : "☰"}</span>
         </button>
-        <nav className={menu ? "open" : ""}>
+        <nav id="site-navigation" aria-label="Main navigation" className={menu ? "open" : ""}
+          onBlur={event => {
+            if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget) && event.relatedTarget !== menuButton.current)
+              setMenu(false);
+          }}>
           {(user?.role==='judge'?[
             ['home','Overview'],['tournaments','Manage Tournaments'],['watch','Matches'],['api','API']
           ]:user?[
@@ -127,7 +142,7 @@ function App() {
             <a
               key={id}
               href={`#${id}`}
-              onClick={id === "match" ? e=>{e.preventDefault();go(id);} : undefined}
+              onClick={event => {setMenu(false);if(id === "match"){event.preventDefault();go(id);}}}
               aria-current={(page === id || (id === "watch" && (page.startsWith("watch") || page==='match'&&new URLSearchParams(location.search).has('match'))) || (id === "tournaments" && ["tournament","rankings"].includes(routePage(page))) || (id === "api" && page === "rules") || (id === "mybot" && ["practice","submit","submissions"].includes(page))) ? "page" : undefined}
             >
               {label}

@@ -2439,3 +2439,27 @@ select,
 .ranking-intro{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:24px 0;color:var(--muted);font-size:13px}.ranking-intro label{display:grid;gap:6px;font-size:10px}.ranking-intro input{font-size:12px}.account-rankings td:nth-child(2){white-space:nowrap}.account-rankings .your-team{background:var(--highlight)}.elo-up{color:var(--success)}.elo-down{color:var(--error-text)}.rating-explanation{margin-top:24px;font-size:12px;color:var(--muted)}.rating-explanation summary{cursor:pointer;color:var(--ink)}.rating-explanation p{max-width:850px}
 @media(max-width:900px){.account-login-layout{gap:28px}.pairing-grid{grid-template-columns:1fr}.account-chip{font-size:10px}.account-chip .pixel{display:none}.judge-actions,.tournament-entry{align-items:flex-start;flex-direction:column}.account-control{margin-left:auto}}
 @media(max-width:600px){.account-login-layout{grid-template-columns:1fr;margin:20px auto;gap:24px}.login-intro h1{font-size:30px}.login-sprites{margin:20px 0}.login-sprites .pixel{width:42px;height:42px}.account-login-form{padding:22px}.tournament-summary{grid-template-columns:repeat(2,1fr)}.tournament-summary>div{padding:16px;border-bottom:1px solid var(--border)}.tournament-summary>div:nth-child(2){border-right:0}.tournament-summary>div:nth-child(n+3){border-bottom:0}.tournament-summary b{font-size:24px}.ranking-intro{align-items:stretch;flex-direction:column}.pairing-card{padding:18px}.pairing-players{gap:8px}.pairing-players b{font-size:12px}.judge-result-controls{align-items:stretch;flex-direction:column}.account-chip{max-width:146px}.account-chip>span:first-of-type{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.account-gate h1{font-size:25px}}
+
+/* Mobile navigation overlays content without changing the header's height. */
+@media (max-width:850px) {
+  .header .menu-button { flex:none; width:44px; min-width:44px; height:44px; color:var(--ink); }
+  .header .menu-button[aria-expanded="true"] { background:var(--surface); border-color:var(--ink); }
+  .header button.sky-switch, .header button.player-pass, .header > .button { min-height:44px; min-width:44px; }
+  .header nav.open {
+    position:absolute; top:100%; left:0; right:0; width:auto;
+    display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
+    align-items:stretch; gap:8px; padding:12px; margin:0;
+    max-height:60dvh; overflow-y:auto; overscroll-behavior:contain;
+    background:var(--paper); border:1px solid var(--border-strong);
+    box-shadow:0 4px 0 var(--border);
+  }
+  .header nav a {
+    display:flex; align-items:center; min-height:44px; min-width:0;
+    padding:10px 12px; white-space:normal; overflow-wrap:anywhere;
+    border:1px solid var(--border); line-height:1.6;
+  }
+  .header nav a[aria-current] { background:var(--surface); border-color:var(--border-strong); }
+  .header nav a:after { left:12px; bottom:4px; max-width:calc(100% - 24px); }
+  .header .menu-button:focus-visible, .header nav a:focus-visible,
+  .header .sky-switch:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
+}

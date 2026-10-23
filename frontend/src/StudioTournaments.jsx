@@ -116,7 +116,7 @@ export function StudioTournaments({go}) {
         <label>End date, inclusive (ICT)<input type="date" required min={startDate} value={endDate} onChange={e=>setEndDate(e.target.value)}/></label>
       </div><div className="phase-actions"><Button type="submit" disabled={busy}>Create tournament</Button></div>
     </form>}
-    <div className="tournament-toolbar"><div className="event-filters" aria-label="Tournament phases">
+    <div className="tournament-toolbar"><div className="event-filters" role="group" aria-label="Tournament phases">
       {[['all', 'All events'], ['registration', 'Registration'], ['active', 'Ongoing'], ['finished', 'Finished']].map(([id, title]) =>
         <Button secondary className={`button secondary ${filter === id ? 'active' : ''}`} aria-pressed={filter === id} key={id} disabled={filter === id && loading} onClick={() => changeFilter(id)}>{title}</Button>)}
     </div><label className="tournament-search"><span className="sr-only">Find a tournament</span><input type="search" value={query} onChange={e => {opening.current.cancel();setSelecting('');setQuery(e.target.value);}} placeholder="Find a tournament…"/></label></div>
