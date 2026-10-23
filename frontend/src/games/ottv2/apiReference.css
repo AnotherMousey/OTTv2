@@ -106,3 +106,18 @@
     gap: 4px;
   }
 }
+
+/* Reuse the documentation palette, code font and pixel buttons. */
+.api-resources { display:flex; flex-wrap:wrap; gap:8px 24px; margin-bottom:18px; }
+.api-resources a { display:inline-flex; align-items:center; min-height:44px; font-size:12px; text-decoration:underline; text-underline-offset:4px; overflow-wrap:anywhere; }
+.api-starter { border:1px solid var(--border); margin-bottom:24px; min-width:0; }
+.api-starter > summary { padding:14px 18px; cursor:pointer; font-size:13px; }
+.api-starter[open] > summary { background:var(--surface); border-bottom:1px solid var(--border); }
+.api-starter .api-code-example { padding:16px; }
+.api-code-example { min-width:0; }
+.api-code-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin:10px 0; font-size:12px; }
+.api-code-toolbar .button { min-height:44px; min-width:112px; padding:8px 12px; font-size:12px; }
+.api-code-example pre { max-width:100%; max-height:340px; overflow:auto; margin:0; padding:12px; border:1px solid var(--border); background:var(--surface); color:var(--ink); }
+.api-code-example pre code { font-family:PixelMono,monospace; font-size:12px; line-height:1.7; white-space:pre; overflow-wrap:normal; }
+.api-copy-feedback { min-height:3.4em; margin:8px 0 0; font-size:12px; line-height:1.7; color:var(--ink); }
+.api-code-example pre:focus-visible, .api-starter > summary:focus-visible, .api-resources a:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }

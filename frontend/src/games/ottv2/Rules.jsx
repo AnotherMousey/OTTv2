@@ -2,7 +2,16 @@ import React, {useState} from "react";
 import {Pixel} from "./Pixel.jsx";
 import {TYPES} from "./validate.js";
 import {API_LANGUAGES} from "./apiReference.js";
+import {examples} from "./botExamples.js";
+import {CopyCode} from "./CopyCode.jsx";
 import "./apiReference.css";
+
+const SDK_RESOURCES = {
+  cpp: {path: 'blob/main/logic/sdk/cpp/ottv2.hpp', filename: 'player.cpp'},
+  java: {path: 'tree/main/logic/sdk/java/ottv2/sdk', filename: 'RobotPlayer.java'},
+  python: {path: 'blob/main/logic/sdk/python/ottv2.py', filename: 'player.py'},
+};
+const REPOSITORY = 'https://github.com/AnotherMousey/OTTv2/';
 
 const RULES = [
   ["01", "THE BOARD", "Default 9×9; configured maps can use 9–20 rows and columns. The judge supplies map, pieces, targets and first side."],
@@ -21,7 +30,7 @@ function ApiTree({language}) {
       </div>
       <section className="api-entry">
         <span className="eyebrow">ENTRY POINT</span>
-        <code className="api-signature">{language.entry.signature}</code>
+        <CopyCode code={language.entry.signature} label={`${language.label} entry signature`}/>
         <p>{language.entry.doc}</p>
       </section>
       <ul className="api-root" aria-label={`${language.label} API`}>
@@ -82,7 +91,16 @@ export function OttRules() {
         {language ? (
           <>
             <h2>{language.label} SDK</h2>
-            <ApiTree language={language} />
+            <div className="api-resources" aria-label={`${language.label} resources`}>
+              <a href={REPOSITORY + SDK_RESOURCES[language.id].path}>View {language.label} SDK source on GitHub ↗</a>
+              <a href={`data:text/plain;charset=utf-8,${encodeURIComponent(examples[language.id])}`}
+                download={SDK_RESOURCES[language.id].filename}>Download {language.label} starter ({SDK_RESOURCES[language.id].filename})</a>
+            </div>
+            <details className="api-starter">
+              <summary>{language.label} starter example</summary>
+              <CopyCode key={language.id} code={examples[language.id]} label={`${language.label} starter`}/>
+            </details>
+            <ApiTree key={language.id} language={language} />
           </>
         ) : (
           <>
