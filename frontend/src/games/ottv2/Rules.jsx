@@ -18,7 +18,7 @@ const RULES = [
   ["02", "MOVEMENT", "A piece moves one square in any of eight directions. Pieces on the same side block one another."],
   ["03", "CAPTURES", "Hammer (rock) beats scissors. Scissors beat paper. Paper beats hammer. Equal types block; they cannot capture."],
   ["04", "VICTORY", "Reach the enemy source (default White: i9; Black: a1) or eliminate every enemy piece."],
-  ["05", "MOVE LIMIT", "The judge sets the turn limit. More remaining pieces wins at the limit; equal counts draw. Each bot move has a per-move thinking limit."],
+  ["05", "MOVE LIMIT", "The judge sets a shared turn limit: each completed move or skipped turn counts once, across both players. Reaching the enemy source or eliminating every enemy piece ends the game before move-limit checks, even on the last turn. If the game is still active at the limit, resolve it in order: (1) More remaining pieces wins. (2) If equal, the side whose nearest piece is closer to the enemy flag wins. (3) If still tied, the smaller total distance from all remaining pieces to the enemy flag wins. Distance is the absolute column difference plus the absolute row difference (Manhattan distance), not the number of diagonal moves. The enemy flag normally marks the enemy source but can be configured separately. These checks are deterministic. (4) If all checks tie, the engine randomly chooses White or Black with equal probability; it does not declare a draw. Each bot move also has a per-move thinking limit."],
   ["06", "BOT COMPETITION", "Players submit bots in Java, Python or C++. The judge runs matches and confirms results; the web renders the logs."],
 ];
 
