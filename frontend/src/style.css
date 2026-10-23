@@ -2463,3 +2463,9 @@ select,
   .header .menu-button:focus-visible, .header nav a:focus-visible,
   .header .sky-switch:focus-visible { outline:2px solid var(--ink); outline-offset:3px; }
 }
+
+/* Keep the live access/workspace state in the compact mobile banner. */
+@media (max-width:800px) {
+  .demo-banner > span:last-child { display:block; min-width:0; }
+  .demo-banner .demo-detail { display:none; }
+}

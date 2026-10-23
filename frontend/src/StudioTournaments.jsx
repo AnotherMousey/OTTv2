@@ -1,4 +1,5 @@
 import {createTournamentOpening} from './tournamentOpening.js';
+import {formatTournamentDateRange} from './tournamentDateFormat.js';
 import {entryLoginRoute} from './tournamentNavigation.js';
 import {TournamentManagementActions} from './TournamentManagementActions.jsx';
 import React, {useEffect, useState, useRef} from 'react';
@@ -105,7 +106,7 @@ export function StudioTournaments({go}) {
     <div className="page-heading tournament-heading"><div>
       <span className="eyebrow">{judge ? 'JUDGE / TOURNAMENT MANAGEMENT' : 'FIND YOUR NEXT CHALLENGE'}</span>
       <h1>THE TOURNAMENTS<span className="yellow-dot">.</span></h1>
-    </div><div className="tournament-heading-actions"><span className="demo-tag">{total} EVENTS</span>
+    </div><div className="tournament-heading-actions"><span className="demo-tag">{total} {total === 1 ? 'EVENT' : 'EVENTS'}</span>
       {judge && <Button onClick={() => setAdding(!adding)}>{adding ? 'Close form' : 'Create tournament +'}</Button>}
     </div></div>
     {adding && judge && <form className="card judge-section" onSubmit={add}>
@@ -139,7 +140,7 @@ export function StudioTournaments({go}) {
         <div className="event-body"><span className={`event-phase ${t.phase}`}>{t.hidden?'HIDDEN':phaseLabel(t.phase).toUpperCase()}</span>
           <h2>{t.name}</h2><p className="event-description">{t.description}</p>
           <div className="event-stats"><div><span>PLAYERS</span><b>{count} / {t.capacity}</b></div><div><span>ROUND</span><b>{String(t.round).padStart(2, '0')} / {String(t.totalRounds).padStart(2, '0')}</b></div><div><span>MAP</span><b>{width && height ? `${width} × ${height}` : 'Not set'}</b></div></div>
-          {t.format==='daily-round-robin'&&<p className="account-note">{t.startDate} {t.startTime||'00:00'} — {t.endDate}</p>}
+          {t.format==='daily-round-robin'&&<p className="account-note tournament-date-range">{formatTournamentDateRange(t)}</p>}
           <Countdown timezone={t.timezone} deadline={tournamentDeadline(t)} label={t.format==='daily-round-robin'?'NEXT BOT LOCK':deadlineLabels[t.phase] || 'NEXT PHASE'} now={now}/>
           <div className="event-readiness"><span>{t.phase === 'preparation' ? `${ready} / ${count} bots ready` : t.phase === 'registration' ? 'Registration open' : 'Tournament in progress'}</span>{judge && t.counts?.pending > 0 && <span>{t.counts.pending} pending</span>}</div>
           <Button secondary disabled={selecting===t.id} aria-busy={selecting === t.id} onClick={() => enter(t)}>{selecting === t.id ? 'Opening…' : label}<span className={selecting===t.id?"event-opening-indicator":"pixel-arrow"} aria-hidden="true"/></Button>

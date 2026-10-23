@@ -154,7 +154,7 @@ function App() {
       </header>
       <div className="demo-banner">
         <span className="status-dot" />
-        OTT ARENA{" "}<span>{authChecking?'Checking session':user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'} · tournament bots and live matches</span>
+        OTT ARENA{" "}<span><span className="demo-status">{authChecking?'Checking session':user?.role==='judge'?'Judge workspace':user?'Player workspace':'Spectator access'}</span><span className="demo-detail"> · tournament bots and live matches</span></span>
       </div>
       <main className="page" key={page}>
         {authChecking ? (
