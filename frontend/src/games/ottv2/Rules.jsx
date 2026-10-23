@@ -30,7 +30,10 @@ function ApiTree({language}) {
       </div>
       <section className="api-entry">
         <span className="eyebrow">ENTRY POINT</span>
-        <CopyCode code={language.entry.signature} label={`${language.label} entry signature`}/>
+        <CopyCode
+          code={language.entry.signature}
+          label={`${language.label} entry signature`}
+        />
         <p>{language.entry.doc}</p>
       </section>
       <ul className="api-root" aria-label={`${language.label} API`}>
@@ -63,6 +66,7 @@ export function OttRules() {
   const tabs = [...API_LANGUAGES.map((l) => l.label), "Game rules"];
   const [tab, setTab] = useState(tabs[0]);
   const language = API_LANGUAGES.find((l) => l.label === tab);
+
   return (
     <>
       <div className="page-heading">
@@ -76,29 +80,42 @@ export function OttRules() {
           ))}
         </div>
       </div>
-      <div className="round-tabs">
+
+      <div className="round-tabs" role="group" aria-label="Documentation sections">
         {tabs.map((t) => (
           <button
             key={t}
             className={t === tab ? "active" : ""}
+            aria-pressed={t === tab}
             onClick={() => setTab(t)}
           >
             {t}
           </button>
         ))}
       </div>
+
       <div className="rules-content">
         {language ? (
           <>
             <h2>{language.label} SDK</h2>
             <div className="api-resources" aria-label={`${language.label} resources`}>
-              <a href={REPOSITORY + SDK_RESOURCES[language.id].path}>View {language.label} SDK source on GitHub ↗</a>
-              <a href={`data:text/plain;charset=utf-8,${encodeURIComponent(examples[language.id])}`}
-                download={SDK_RESOURCES[language.id].filename}>Download {language.label} starter ({SDK_RESOURCES[language.id].filename})</a>
+              <a href={REPOSITORY + SDK_RESOURCES[language.id].path}>
+                View {language.label} SDK source on GitHub ↗
+              </a>
+              <a
+                href={`data:text/plain;charset=utf-8,${encodeURIComponent(examples[language.id])}`}
+                download={SDK_RESOURCES[language.id].filename}
+              >
+                Download {language.label} starter ({SDK_RESOURCES[language.id].filename})
+              </a>
             </div>
             <details className="api-starter">
               <summary>{language.label} starter example</summary>
-              <CopyCode key={language.id} code={examples[language.id]} label={`${language.label} starter`}/>
+              <CopyCode
+                key={language.id}
+                code={examples[language.id]}
+                label={`${language.label} starter`}
+              />
             </details>
             <ApiTree key={language.id} language={language} />
           </>
